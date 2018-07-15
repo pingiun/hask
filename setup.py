@@ -1,16 +1,9 @@
-import hask
-
-
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
-
+from setuptools import setup
 
 des = "Haskell language features and standard library ported to Python"
 setup(
     name='hask',
-    version=hask.__version__,
+    version='0.0.1',
     description=des,
     long_description=open('README.md').read(),
     author='Bill Murphy',
