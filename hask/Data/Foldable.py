@@ -11,14 +11,14 @@ from ..lang import is_builtin
 from ..lang import List
 from ..lang import instance
 
-import List as DL
+from . import List as DL
 from ..Control.Applicative import Applicative
 from ..Control.Monad import Monad
-from Eq import Eq
-from Num import Num
-from Maybe import Maybe
-from Ord import Ord
-from Ord import Ordering
+from .Eq import Eq
+from .Num import Num
+from .Maybe import Maybe
+from .Ord import Ord
+from .Ord import Ordering
 
 
 class Foldable(Typeclass):

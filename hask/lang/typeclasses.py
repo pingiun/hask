@@ -1,14 +1,14 @@
 import operator
 import sys
 
-from type_system import Typeclass
-from type_system import is_builtin
-from type_system import nt_to_tuple
-from type_system import build_instance
+from .type_system import Typeclass
+from .type_system import is_builtin
+from .type_system import nt_to_tuple
+from .type_system import build_instance
 
-from syntax import instance
-from syntax import sig
-from syntax import H
+from .syntax import instance
+from .syntax import sig
+from .syntax import H
 
 
 #=============================================================================#

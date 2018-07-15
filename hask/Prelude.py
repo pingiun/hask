@@ -10,32 +10,32 @@ from .lang import t
 ## Basic data types
 
 
-from Data.Maybe import Maybe
-from Data.Maybe import Just
-from Data.Maybe import Nothing
-from Data.Maybe import in_maybe
-from Data.Maybe import maybe
+from .Data.Maybe import Maybe
+from .Data.Maybe import Just
+from .Data.Maybe import Nothing
+from .Data.Maybe import in_maybe
+from .Data.Maybe import maybe
 
-from Data.Either import Either
-from Data.Either import Left
-from Data.Either import Right
-from Data.Either import in_either
-from Data.Either import either
+from .Data.Either import Either
+from .Data.Either import Left
+from .Data.Either import Right
+from .Data.Either import in_either
+from .Data.Either import either
 
-from Data.Ord import Ordering
-from Data.Ord import LT
-from Data.Ord import EQ
-from Data.Ord import GT
+from .Data.Ord import Ordering
+from .Data.Ord import LT
+from .Data.Ord import EQ
+from .Data.Ord import GT
 
 
 #=============================================================================#
 ### Tuples
 
 
-from Data.Tuple import fst
-from Data.Tuple import snd
-from Data.Tuple import curry
-from Data.Tuple import uncurry
+from .Data.Tuple import fst
+from .Data.Tuple import snd
+from .Data.Tuple import curry
+from .Data.Tuple import uncurry
 
 
 #=============================================================================#
@@ -46,11 +46,11 @@ from .lang import Read
 from .lang import Show
 from .lang import show
 
-from Data.Eq import Eq
-from Data.Ord import Ord
-from Data.Ord import max
-from Data.Ord import min
-from Data.Ord import compare
+from .Data.Eq import Eq
+from .Data.Ord import Ord
+from .Data.Ord import max
+from .Data.Ord import min
+from .Data.Ord import compare
 
 from .lang import Enum
 from .lang import fromEnum
@@ -62,13 +62,13 @@ from .lang import enumFromThenTo
 from .lang import enumFromTo
 
 from .lang import Bounded
-from Data.Functor import Functor
-from Data.Functor import fmap
+from .Data.Functor import Functor
+from .Data.Functor import fmap
 
-from Control.Applicative import Applicative
-from Control.Monad import Monad
-from Data.Foldable import Foldable
-from Data.Traversable import Traversable
+from .Control.Applicative import Applicative
+from .Control.Monad import Monad
+from .Data.Foldable import Foldable
+from .Data.Traversable import Traversable
 
 
 #=============================================================================#
@@ -76,55 +76,55 @@ from Data.Traversable import Traversable
 ### Numeric type classes
 
 
-from Data.Num import Num
-from Data.Num import abs
-from Data.Num import negate
-from Data.Num import signum
+from .Data.Num import Num
+from .Data.Num import abs
+from .Data.Num import negate
+from .Data.Num import signum
 
-from Data.Num import Fractional
-from Data.Num import recip
+from .Data.Num import Fractional
+from .Data.Num import recip
 
-from Data.Num import Integral
-from Data.Num import toRatio
+from .Data.Num import Integral
+from .Data.Num import toRatio
 
-from Data.Num import Ratio
-from Data.Num import R
-from Data.Num import Rational
+from .Data.Num import Ratio
+from .Data.Num import R
+from .Data.Num import Rational
 
-from Data.Num import Floating
-from Data.Num import exp
-from Data.Num import sqrt
-from Data.Num import log
-from Data.Num import pow
-from Data.Num import logBase
-from Data.Num import sin
-from Data.Num import tan
-from Data.Num import cos
-from Data.Num import asin
-from Data.Num import atan
-from Data.Num import acos
-from Data.Num import sinh
-from Data.Num import tanh
-from Data.Num import cosh
-from Data.Num import asinh
-from Data.Num import atanh
-from Data.Num import acosh
+from .Data.Num import Floating
+from .Data.Num import exp
+from .Data.Num import sqrt
+from .Data.Num import log
+from .Data.Num import pow
+from .Data.Num import logBase
+from .Data.Num import sin
+from .Data.Num import tan
+from .Data.Num import cos
+from .Data.Num import asin
+from .Data.Num import atan
+from .Data.Num import acos
+from .Data.Num import sinh
+from .Data.Num import tanh
+from .Data.Num import cosh
+from .Data.Num import asinh
+from .Data.Num import atanh
+from .Data.Num import acosh
 
-from Data.Num import Real
-from Data.Num import toRational
+from .Data.Num import Real
+from .Data.Num import toRational
 
-from Data.Num import RealFrac
-from Data.Num import properFraction
-from Data.Num import truncate
-from Data.Num import round
-from Data.Num import ceiling
-from Data.Num import floor
+from .Data.Num import RealFrac
+from .Data.Num import properFraction
+from .Data.Num import truncate
+from .Data.Num import round
+from .Data.Num import ceiling
+from .Data.Num import floor
 
-from Data.Num import RealFloat
-from Data.Num import isNaN
-from Data.Num import isInfinite
-from Data.Num import isNegativeZero
-from Data.Num import atan2
+from .Data.Num import RealFloat
+from .Data.Num import isNaN
+from .Data.Num import isInfinite
+from .Data.Num import isNegativeZero
+from .Data.Num import atan2
 
 
 #=============================================================================#
@@ -189,9 +189,9 @@ def lcm(x, y):
 # Monads and functors
 
 
-from Data.Functor import Functor
-from Control.Applicative import Applicative
-from Control.Monad import Monad
+from .Data.Functor import Functor
+from .Control.Applicative import Applicative
+from .Control.Monad import Monad
 
 
 @sig(H[(Monad, "m")]/ t("m", "a") >> t("m", None))
@@ -310,91 +310,91 @@ from .lang import undefined
 #=============================================================================#
 # List operations
 
-from Data.List import map
-from Data.List import filter
-from Data.List import head
-from Data.List import last
-from Data.List import tail
-from Data.List import init
-from Data.List import null
-from Data.List import reverse
-from Data.List import length
+from .Data.List import map
+from .Data.List import filter
+from .Data.List import head
+from .Data.List import last
+from .Data.List import tail
+from .Data.List import init
+from .Data.List import null
+from .Data.List import reverse
+from .Data.List import length
 
-from Data.List import foldl
-from Data.List import foldl1
-from Data.List import foldr
-from Data.List import foldr1
+from .Data.List import foldl
+from .Data.List import foldl1
+from .Data.List import foldr
+from .Data.List import foldr1
 
 
 #=============================================================================#
 ## Special folds
 
-from Data.List import and_
-from Data.List import or_
-from Data.List import any
-from Data.List import all
-from Data.List import sum
-from Data.List import product
-from Data.List import concat
-from Data.List import concatMap
-from Data.List import maximum
-from Data.List import minimum
+from .Data.List import and_
+from .Data.List import or_
+from .Data.List import any
+from .Data.List import all
+from .Data.List import sum
+from .Data.List import product
+from .Data.List import concat
+from .Data.List import concatMap
+from .Data.List import maximum
+from .Data.List import minimum
 
 
 #=============================================================================#
 ## Building lists
 ### Scans
 
-from Data.List import scanl
-from Data.List import scanl1
-from Data.List import scanr
-from Data.List import scanr1
+from .Data.List import scanl
+from .Data.List import scanl1
+from .Data.List import scanr
+from .Data.List import scanr1
 
 
 #=============================================================================#
 ### Infinite lists
 
-from Data.List import iterate
-from Data.List import repeat
-from Data.List import replicate
-from Data.List import cycle
+from .Data.List import iterate
+from .Data.List import repeat
+from .Data.List import replicate
+from .Data.List import cycle
 
 
 #=============================================================================#
 ## Sublists
 
-from Data.List import take
-from Data.List import drop
-from Data.List import splitAt
-from Data.List import takeWhile
-from Data.List import dropWhile
-from Data.List import span
-from Data.List import break_
+from .Data.List import take
+from .Data.List import drop
+from .Data.List import splitAt
+from .Data.List import takeWhile
+from .Data.List import dropWhile
+from .Data.List import span
+from .Data.List import break_
 
 
 #=============================================================================#
 ## Searching lists
 
-from Data.List import elem
-from Data.List import notElem
-from Data.List import lookup
+from .Data.List import elem
+from .Data.List import notElem
+from .Data.List import lookup
 
 
 #=============================================================================#
 ## Zipping and unzipping lists
 
-from Data.List import zip
-from Data.List import zip3
-from Data.List import zipWith
-from Data.List import zipWith3
-from Data.List import unzip
-from Data.List import unzip3
+from .Data.List import zip
+from .Data.List import zip3
+from .Data.List import zipWith
+from .Data.List import zipWith3
+from .Data.List import unzip
+from .Data.List import unzip3
 
 
 #=============================================================================#
 ## Functions on strings
 
-from Data.List import lines
-from Data.List import words
-from Data.List import unlines
-from Data.List import unwords
+from .Data.List import lines
+from .Data.List import words
+from .Data.List import unlines
+from .Data.List import unwords

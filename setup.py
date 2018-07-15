@@ -13,7 +13,9 @@ setup(
               'hask.Control'],
     package_data={'': ['LICENSE', 'README.md']},
     include_package_data=True,
-    install_requires=[],
+    install_requires=[
+        'xoutil>=1.9.4,<2',
+    ],
     license=open('LICENSE').read(),
     zip_safe=False,
     classifiers=(

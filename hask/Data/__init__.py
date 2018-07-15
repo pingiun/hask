@@ -1,2 +1,1 @@
-import Tuple
-
+from . import Tuple

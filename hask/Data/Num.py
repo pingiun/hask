@@ -12,8 +12,8 @@ from ..lang import instance
 from ..lang import build_instance
 from ..lang import Enum
 from ..lang import Show
-from Eq import Eq
-from Ord import Ord
+from .Eq import Eq
+from .Ord import Ord
 
 
 class Num(Show, Eq):
@@ -88,15 +88,18 @@ instance(Num, int).where(
     sub = int.__sub__
 )
 
-instance(Num, long).where(
-    add = long.__add__,
-    mul = long.__mul__,
-    abs = long.__abs__,
-    signum = lambda x: -1L if x < 0L else (1L if x > 0L else 0L),
-    fromInteger = long,
-    negate = long.__neg__,
-    sub = long.__sub__
-)
+try:
+    instance(Num, long).where(
+        add = long.__add__,
+        mul = long.__mul__,
+        abs = long.__abs__,
+        signum = lambda x: long(-1) if x < long(0) else (long(1) if x > long(0) else long(0)),
+        fromInteger = long,
+        negate = long.__neg__,
+        sub = long.__sub__
+    )
+except NameError:
+    pass
 
 instance(Num, float).where(
     add = float.__add__,
@@ -149,7 +152,7 @@ Rational = t(Ratio, int)
 
 instance(Fractional, float).where(
     fromRational = lambda rat: float(rat[0])/float(rat[1]),
-    div = float.__div__,
+    div = lambda a, b: float(a)/float(b),
     recip = lambda x: 1.0/x
 )
 
@@ -421,9 +424,12 @@ instance(Real, int).where(
     toRational = lambda x: toRatio(x, 1)
 )
 
-instance(Real, long).where(
-    toRational = lambda x: toRatio(x, 1)
-)
+try:
+    instance(Real, long).where(
+        toRational = lambda x: toRatio(x, 1)
+    )
+except NameError:
+    pass
 
 instance(Real, float).where(
     toRational = lambda x: toRatio(round(x), 1) # obviously incorrect
@@ -432,23 +438,25 @@ instance(Real, float).where(
 instance(Integral, int).where(
     quotRem = lambda x, y: (x / y, x % y),
     toInteger = int,
-    quot = int.__div__,
+    quot = lambda a, b: int(a)/int(b),
     rem = int.__mod__,
-    div = int.__div__,
+    div = lambda a, b: int(a)/int(b),
     mod = int.__mod__,
     divMod = divmod
 )
 
-instance(Integral, long).where(
-    quotRem = lambda x, y: (x / y, x % y),
-    toInteger = int,
-    quot = long.__div__,
-    rem = long.__mod__,
-    div = long.__div__,
-    mod = long.__mod__,
-    divMod = divmod
-)
-
+try:
+    instance(Integral, long).where(
+        quotRem = lambda x, y: (x / y, x % y),
+        toInteger = int,
+        quot = long.__div__,
+        rem = long.__mod__,
+        div = long.__div__,
+        mod = long.__mod__,
+        divMod = divmod
+    )
+except NameError:
+    pass
 
 class RealFrac(Real, Fractional):
     """

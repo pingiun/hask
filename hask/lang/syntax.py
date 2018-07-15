@@ -4,20 +4,20 @@ import string
 import sys
 from collections import deque, defaultdict
 
-from type_system import typeof
-from type_system import Typeclass
-from type_system import TypedFunc
-from type_system import TypeSignature
-from type_system import TypeSignatureHKT
-from type_system import ADT
-from type_system import build_ADT
-from type_system import build_sig
-from type_system import make_fn_type
-from type_system import PatternMatchBind
-from type_system import PatternMatchListBind
-from type_system import pattern_match
-from type_system import Undefined
-from type_system import PyFunc
+from .type_system import typeof
+from .type_system import Typeclass
+from .type_system import TypedFunc
+from .type_system import TypeSignature
+from .type_system import TypeSignatureHKT
+from .type_system import ADT
+from .type_system import build_ADT
+from .type_system import build_sig
+from .type_system import make_fn_type
+from .type_system import PatternMatchBind
+from .type_system import PatternMatchListBind
+from .type_system import pattern_match
+from .type_system import Undefined
+from .type_system import PyFunc
 
 
 #=============================================================================#
@@ -485,7 +485,7 @@ class __data__(Syntax):
         super(__data__, self).__init__("Syntax error in `data`")
 
     def __getattr__(self, value):
-        if not value[0] in string.uppercase:
+        if not value[0].isupper():
             raise SyntaxError("Type constructor name must be capitalized")
         return __new_tcon_enum__(value)
 
@@ -532,7 +532,7 @@ class __new_tcon_enum__(__new_tcon__):
             raise SyntaxError("Type parameters must be strings")
 
         # make sure all type params are letters only
-        is_letters = lambda xs: all((x in string.lowercase for x in xs))
+        is_letters = lambda xs: all(x.islower() for x in xs)
         if not all((is_letters(arg) for arg in typeargs)):
             raise SyntaxError("Type parameters must be lowercase letters")
 
@@ -570,7 +570,7 @@ class __d__(Syntax):
         super(__d__, self).__init__("Syntax error in `d`")
 
     def __getattr__(self, value):
-        if not value[0] in string.uppercase:
+        if not value[0].isupper():
             raise SyntaxError("Data constructor name must be capitalized")
         return __new_dcon_enum__(value)
 

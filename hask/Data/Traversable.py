@@ -4,8 +4,8 @@ from ..lang import H
 from ..lang import t
 from ..Control.Applicative import Applicative
 from ..Control.Monad import Monad
-from Foldable import Foldable
-from Functor import Functor
+from .Foldable import Foldable
+from .Functor import Functor
 
 
 class Traversable(Foldable, Functor):

@@ -8,7 +8,7 @@ from ..lang import data
 from ..lang import d
 from ..lang import deriving
 
-from Eq import Eq
+from .Eq import Eq
 
 
 # data Ordering = LT | EQ | GT deriving(Show, Eq, Ord, Bounded)

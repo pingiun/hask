@@ -2,24 +2,24 @@ import collections
 import itertools
 import sys
 
-from hindley_milner import TypeVariable
-from hindley_milner import ListType
-from hindley_milner import unify
+from .hindley_milner import TypeVariable
+from .hindley_milner import ListType
+from .hindley_milner import unify
 
-from type_system import typeof
-from type_system import Typeclass
-from type_system import Hask
-from type_system import build_instance
+from .type_system import typeof
+from .type_system import Typeclass
+from .type_system import Hask
+from .type_system import build_instance
 
-from typeclasses import Show
-from typeclasses import show
-from typeclasses import Eq
-from typeclasses import Ord
+from .typeclasses import Show
+from .typeclasses import show
+from .typeclasses import Eq
+from .typeclasses import Ord
 
-from syntax import Syntax
-from syntax import instance
-from syntax import sig
-from syntax import H
+from .syntax import Syntax
+from .syntax import instance
+from .syntax import sig
+from .syntax import H
 
 
 class Enum(Typeclass):

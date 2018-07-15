@@ -4,16 +4,18 @@ import string
 import sys
 from collections import namedtuple
 
-from hindley_milner import TypeVariable
-from hindley_milner import TypeOperator
-from hindley_milner import Var
-from hindley_milner import App
-from hindley_milner import Lam
-from hindley_milner import unify
-from hindley_milner import analyze
-from hindley_milner import Function
-from hindley_milner import Tuple
-from hindley_milner import ListType
+from xoutil.eight.meta import metaclass
+
+from .hindley_milner import TypeVariable
+from .hindley_milner import TypeOperator
+from .hindley_milner import Var
+from .hindley_milner import App
+from .hindley_milner import Lam
+from .hindley_milner import unify
+from .hindley_milner import analyze
+from .hindley_milner import Function
+from .hindley_milner import Tuple
+from .hindley_milner import ListType
 
 
 if sys.version[0] == '2':
@@ -50,6 +52,7 @@ if sys.version[0] == '2':
 else:
     __python_builtins__ = set((
         bool, dict, type(Ellipsis), float, int, type(None), str, tuple,
+        complex, list, set, frozenset, slice,
         type, types.BuiltinFunctionType, types.BuiltinMethodType,
         types.CodeType, types.DynamicClassAttribute, types.FrameType,
         types.FunctionType, types.GeneratorType, types.GetSetDescriptorType,
@@ -114,7 +117,7 @@ class TypeMeta(type):
             raise TypeError("No instance for {0}".format(item))
 
 
-class Typeclass(object):
+class Typeclass(metaclass(TypeMeta)):
     """
     Base class for Hask typeclasses.
 
@@ -123,8 +126,6 @@ class Typeclass(object):
     attributes/functions belong to the typeclass, and then call build_instance.
     See typeclasses.py for examples.
     """
-    __metaclass__ = TypeMeta
-
     @classmethod
     def make_instance(typeclass, type_, *args):
         raise NotImplementedError("Typeclasses must implement make_instance")

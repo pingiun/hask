@@ -9,7 +9,7 @@ from ..lang import is_builtin
 from ..lang import List
 from ..lang import instance
 from ..Data.Functor import fmap
-from Applicative import Applicative
+from .Applicative import Applicative
 
 
 class Monad(Applicative):

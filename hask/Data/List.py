@@ -11,14 +11,14 @@ from ..lang import caseof
 from ..lang import m
 from ..lang import p
 
-from Eq import Eq
-from Ord import Ord
-from Ord import Ordering
-from Num import Num
-from Num import Integral
-from Maybe import Maybe
-from Maybe import Just
-from Maybe import Nothing
+from .Eq import Eq
+from .Ord import Ord
+from .Ord import Ordering
+from .Num import Num
+from .Num import Integral
+from .Maybe import Maybe
+from .Maybe import Just
+from .Maybe import Nothing
 
 #=============================================================================#
 # Basic functions
@@ -1139,10 +1139,10 @@ def unzip7(xs):
 ## Functions on strings
 
 
-from String import lines
-from String import words
-from String import unlines
-from String import unwords
+from .String import lines
+from .String import words
+from .String import unlines
+from .String import unwords
 
 
 #=============================================================================#

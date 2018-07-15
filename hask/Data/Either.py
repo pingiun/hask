@@ -13,9 +13,9 @@ from ..lang import instance
 from ..lang import L
 from ..lang import typify
 
-from Eq import Eq
-from Ord import Ord
-from Functor import Functor
+from .Eq import Eq
+from .Ord import Ord
+from .Functor import Functor
 from ..Control.Applicative import Applicative
 from ..Control.Monad import Monad
 
