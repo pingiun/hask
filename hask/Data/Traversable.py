@@ -28,7 +28,6 @@ class Traversable(Foldable, Functor):
         attrs = {"traverse":traverse, "sequenceA":sequenceA, "mapM":mapM,
                  "sequence":sequence}
         build_instance(Traversable, cls, attrs)
-        return
 
 
 @sig(H[(Applicative, "f"), (Traversable, "t")]/

@@ -37,7 +37,6 @@ class Monad(Applicative):
                 return Monad[s].bind(s, o)
             cls.__rshift__ = bind_wrap
         build_instance(Monad, cls, {"bind":bind})
-        return
 
 
 @sig(H[(Monad, "m")]/ t("m", "a") >> (H/ "a" >> t("m", "b")) >> t("m", "b"))

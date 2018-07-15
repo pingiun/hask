@@ -71,7 +71,6 @@ class Enum(Typeclass):
                   (start > end and pointer >= stop):
                 yield toEnum(pointer)
                 pointer += step
-            return
 
         def enumFromTo(start, end):
             second = succ(start) if start < end else pred(start)
@@ -81,7 +80,6 @@ class Enum(Typeclass):
                  pred, "enumFromThen": enumFromThen, "enumFrom": enumFrom,
                  "enumFromThenTo": enumFromThenTo, "enumFromTo": enumFromTo}
         build_instance(Enum, cls, attrs)
-        return
 
 
 @sig(H/ "a" >> int)
@@ -185,7 +183,6 @@ class List(collections.Sequence, Hask):
         if tail is not None:
             self.__tail = itertools.chain(self.__tail, tail)
             self.__is_evaluated = False
-        return
 
     def __type__(self):
         if self.__is_evaluated:
@@ -213,7 +210,6 @@ class List(collections.Sequence, Hask):
                 self.__head.append(next_iter)
             except StopIteration:
                 self.__is_evaluated = True
-        return
 
     def __evaluate(self):
         """
@@ -221,7 +217,6 @@ class List(collections.Sequence, Hask):
         """
         while not self.__is_evaluated:
             self.__next()
-        return
 
     def __rxor__(self, item):
         """

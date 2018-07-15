@@ -71,7 +71,6 @@ class Foldable(Typeclass):
 
         if not hasattr(cls, "__iter__") and not is_builtin(cls):
             cls.__iter__ = lambda x: iter(toList(x))
-        return
 
 
 @sig(H[(Foldable, "t")]/ (H/ "a" >> "b" >> "b") >> "b" >> t("t", "a") >> "b")

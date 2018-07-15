@@ -21,7 +21,6 @@ class Applicative(Functor):
     @classmethod
     def make_instance(self, cls, pure):
         build_instance(Applicative, cls, {"pure":pure})
-        return
 
 
 instance(Applicative, List).where(

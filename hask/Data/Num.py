@@ -42,7 +42,6 @@ class Num(Show, Eq):
                  "fromInteger":fromInteger, "negate":negate, "sub":sub}
 
         build_instance(Num, cls, attrs)
-        return
 
 
 @sig(H[(Num, "a")]/ "a" >> "a")
@@ -141,7 +140,6 @@ class Fractional(Num):
             recip = lambda x: div(1, x)
         attrs = {"fromRational":fromRational, "div":div, "recip":recip}
         build_instance(Fractional, cls, attrs)
-        return
 
 
 Ratio, R =\
@@ -191,7 +189,6 @@ class Floating(Fractional):
                 "tanh":tanh, "cosh":cosh, "asinh":asinh, "atanh":atanh,
                 "acosh":acosh}
         build_instance(Floating, cls, attrs)
-        return
 
 
 @sig(H[(Floating, "a")]/ "a" >> "a")
@@ -368,7 +365,6 @@ class Real(Num, Ord):
     @classmethod
     def make_instance(typeclass, cls, toRational):
         build_instance(Real, cls, {})
-        return
 
 
 @sig(H[(Real, "a")]/ "a" >> Rational)
@@ -406,7 +402,6 @@ class Integral(Real, Enum):
         attrs = {"quotRem":quotRem, "toInteger":toInteger, "quot":quot,
                  "rem":rem, "div":div, "mod":mod, "divMod":divMod}
         build_instance(Integral, cls, attrs)
-        return
 
 
 @sig(H[(Integral, "a")]/ "a" >> "a" >> t(Ratio, "a"))
@@ -477,7 +472,6 @@ class RealFrac(Real, Fractional):
         attrs = {"properFraction":properFraction, "truncate":truncate,
                 "round":round, "ceiling":ceiling, "floor":floor}
         build_instance(RealFrac, cls, attrs)
-        return
 
 
 @sig(H[(RealFrac, "a"), (Integral, "b")]/ "a" >> ("b", "a"))
@@ -566,7 +560,6 @@ class RealFloat(Floating, RealFrac):
                 "isInfinite":isInfinite, "isNegativeZero":isNegativeZero,
                 "atan2":atan2}
         build_instance(RealFloat, cls, attrs)
-        return
 
 
 @sig(H[(RealFloat, "a")]/ "a" >> bool)

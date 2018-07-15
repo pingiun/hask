@@ -159,7 +159,6 @@ def build_instance(typeclass, cls, attrs):
     # 2) add type and its instance method to typeclass's instance dictionary
     __methods__ = namedtuple("__%s__" % str(id(cls)), attrs.keys())(**attrs)
     typeclass.__instances__[id(cls)] = __methods__
-    return
 
 
 def has_instance(cls, typeclass):
@@ -367,7 +366,6 @@ class TypedFunc(Hask):
         self.func = fn
         self.fn_args = fn_args
         self.fn_type = fn_type
-        return
 
     def __type__(self):
         return self.fn_type
@@ -569,7 +567,6 @@ class PatternMatchBind(object):
     """Represents a local variable bound by pattern matching."""
     def __init__(self, name):
         self.name = name
-        return
 
 
 class PatternMatchListBind(object):
@@ -580,7 +577,6 @@ class PatternMatchListBind(object):
     def __init__(self, head, tail):
         self.head = head
         self.tail = tail
-        return
 
 
 def pattern_match(value, pattern, env=None):

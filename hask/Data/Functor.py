@@ -32,7 +32,6 @@ class Functor(Typeclass):
         if not is_builtin(cls):
             cls.__rmul__ = lambda x, f: fmap(f, x)
         build_instance(Functor, cls, {"fmap":fmap})
-        return
 
 
 @sig(H[(Functor, "f")]/ (H/ "a" >> "b") >> t("f", "a") >> t("f", "b"))

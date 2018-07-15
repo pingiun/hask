@@ -19,7 +19,6 @@ class Monoid(Typeclass):
     def make_instance(typeclass, cls, mempty, mappend, mconcat):
         attrs = {"mempty":mempty, "mappend":mappend, "mconcat":mconcat}
         build_instance(Monoid, cls, attrs)
-        return
 
 
 @sig(H[(Monoid, "m")]/ "m" >> "m" >> "m")

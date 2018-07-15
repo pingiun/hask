@@ -35,7 +35,6 @@ class Show(Typeclass):
         if not is_builtin(cls):
             cls.__repr__ = show
             cls.__str__ = show
-        return
 
     @classmethod
     def derive_instance(typeclass, cls):
@@ -51,7 +50,6 @@ class Show(Typeclass):
 
             return "{0}{1}".format(self.__class__.__name__, tuple_str)
         Show.make_instance(cls, show=show)
-        return
 
 
 @sig(H/ "a" >> str)
@@ -89,7 +87,6 @@ class Eq(Typeclass):
         if not is_builtin(cls):
             cls.__eq__ = eq
             cls.__ne__ = ne
-        return
 
     @classmethod
     def derive_instance(typeclass, cls):
@@ -102,7 +99,6 @@ class Eq(Typeclass):
                 nt_to_tuple(self) != nt_to_tuple(other)
 
         Eq.make_instance(cls, eq=__eq__, ne=__ne__)
-        return
 
 
 class Ord(Eq):
@@ -147,7 +143,6 @@ class Ord(Eq):
             cls.__le__ = le
             cls.__gt__ = gt
             cls.__ge__ = ge
-        return
 
     @classmethod
     def derive_instance(typeclass, cls):
@@ -167,7 +162,6 @@ class Ord(Eq):
         ge = lambda s, o: zip_cmp(s, o, operator.ge)
 
         Ord.make_instance(cls, lt=lt, le=le, gt=gt, ge=ge)
-        return
 
 
 #=============================================================================#
@@ -195,7 +189,6 @@ class Bounded(Typeclass):
     def make_instance(typeclass, cls, minBound, maxBound):
         attrs = {"minBound":minBound, "maxBound":maxBound}
         build_instance(Bounded, cls, attrs)
-        return
 
     @classmethod
     def derive_instance(typeclass, cls):
@@ -208,7 +201,6 @@ class Bounded(Typeclass):
         maxBound = lambda s: cls.__constructors__[0]
         minBound = lambda s: cls.__constructors__[-1]
         Bounded.make_instance(cls, minBound=minBound, maxBound=maxBound)
-        return
 
 
 class Read(Typeclass):
@@ -224,12 +216,10 @@ class Read(Typeclass):
     @classmethod
     def make_instance(typeclass, cls, read):
         build_instance(Read, cls, {"read":read})
-        return
 
     @classmethod
     def derive_instance(typeclass, cls):
         Read.make_instance(cls, read=eval)
-        return
 
 
 #=============================================================================#

@@ -46,7 +46,6 @@ def replace_magic_methods(cls, fn):
     """
     for attr in __magic_methods__:
         setattr(cls, attr, fn)
-    return
 
 
 class Syntax(object):
@@ -92,11 +91,9 @@ class instance(Syntax):
             raise TypeError("%s is not a typeclass" % typecls)
         self.typeclass = typecls
         self.cls = cls
-        return
 
     def where(self, **kwargs):
         self.typeclass.make_instance(self.cls, **kwargs)
-        return
 
 
 #=============================================================================#
@@ -129,7 +126,6 @@ class __constraints__(Syntax):
             else:
                 self.__add_constraint(constraints)
         super(__constraints__, self).__init__("Syntax error in type signature")
-        return
 
     def __add_constraint(self, con):
         if len(con) != 2 or not isinstance(con, tuple):
@@ -142,7 +138,6 @@ class __constraints__(Syntax):
             raise SyntaxError("%s is not a typeclass" % con[0])
 
         self.constraints[con[1]].append(con[0])
-        return
 
     def __getitem__(self, constraints):
         return __constraints__(constraints)
@@ -161,7 +156,6 @@ class __signature__(Syntax):
     def __init__(self, args, constraints):
         self.sig = TypeSignature(args, constraints)
         super(__signature__, self).__init__("Syntax error in type signature")
-        return
 
     def __rshift__(self, arg):
         arg = arg.sig if isinstance(arg, __signature__) else arg
@@ -204,7 +198,6 @@ class sig(Syntax):
             raise SyntaxError("Not enough type arguments in signature")
 
         self.sig = signature.sig
-        return
 
     def __call__(self, fn):
         fn_args = build_sig(self.sig)
@@ -293,13 +286,11 @@ class MatchStack(object):
     def push(cls, value):
         """Push a new frame onto the stack, representing a new case expr"""
         cls.__stack__.append(MatchStackFrame(value))
-        return
 
     @classmethod
     def pop(cls):
         """Pop the current frame off the stack"""
         cls.__stack__.pop()
-        return
 
     @classmethod
     def get_frame(cls):
@@ -377,7 +368,6 @@ class __pattern_bind__(Syntax, PatternMatchBind):
             return __pattern_bind_list__(self, other)
 
         raise self.invalid_syntax
-        return
 
 
 class __match_line__(Syntax):
@@ -388,7 +378,6 @@ class __match_line__(Syntax):
     def __init__(self, is_match, return_value):
         self.is_match = is_match
         self.return_value = return_value
-        return
 
 
 class __match_test__(Syntax):
@@ -398,7 +387,6 @@ class __match_test__(Syntax):
     """
     def __init__(self, is_match):
         self.is_match = is_match
-        return
 
     def __rshift__(self, value):
         MatchStack.get_frame().cache = {}
@@ -429,7 +417,6 @@ class __matched_case__(Syntax):
     """
     def __init__(self, return_value):
         self.value = return_value
-        return
 
     def __or__(self, line):
         return self
@@ -463,7 +450,6 @@ class caseof(__unmatched_case__):
         if isinstance(value, Undefined):
             return
         MatchStack.push(value)
-        return
 
 
 #=============================================================================#
@@ -585,7 +571,6 @@ class __new_dcon__(Syntax):
         self.args = args
         self.classes = classes
         super(__new_dcon__, self).__init__("Syntax error in `d`")
-        return
 
 
 class __new_dcon_params__(__new_dcon__):
@@ -659,7 +644,6 @@ class __new_dcons_deriving__(Syntax):
         self.dcons = data_consts
         self.classes = classes
         super(__new_dcons_deriving__, self).__init__("Syntax error in `d`")
-        return
 
 
 class __new_dcons__(__new_dcons_deriving__):
@@ -675,7 +659,6 @@ class __new_dcons__(__new_dcons_deriving__):
 
     def __init__(self, data_consts):
         super(__new_dcons__, self).__init__(data_consts)
-        return
 
     def __or__(self, new_dcon):
         if isinstance(new_dcon, __new_dcon__):
@@ -705,7 +688,6 @@ class deriving(Syntax):
                 raise TypeError("Cannot derive non-typeclass %s" % tclass)
         self.classes = tclasses
         super(deriving, self).__init__("Syntax error in `deriving`")
-        return
 
 
 #=============================================================================#
@@ -731,7 +713,6 @@ class __section__(Syntax):
     """
     def __init__(self, syntax_err_msg):
         super(__section__, self).__init__(syntax_err_msg)
-        return
 
     @staticmethod
     def __make_section(fn):
@@ -984,7 +965,6 @@ def _q(status=None):
     if status is None:
         exit()
     exit(status)
-    return
 
 
 def _t(obj):
