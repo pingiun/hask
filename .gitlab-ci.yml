@@ -4,6 +4,13 @@ stages:
   - build
   - publish
 
+check code smells:
+  stage: check
+  script:
+    - merchise_lint
+  tags:
+    - merchise-lint
+
 
 check signature:
   stage: check
