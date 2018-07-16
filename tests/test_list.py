@@ -1,3 +1,7 @@
+from __future__ import (division as _py3_division,
+                        print_function as _py3_print,
+                        absolute_import as _py3_abs_import)
+
 import unittest
 
 from hask import Show, Eq, Ord, Functor, Monad, Applicative
@@ -278,7 +282,7 @@ class TestList(unittest.TestCase):
     def test_functor(self):
         from hask.Prelude import id, map, fmap  # noqa: F401
         f = (lambda x: x ** 2 - 1) ** (H/ int >> int)
-        g = (lambda y: y / 4 + 9) ** (H/ int >> int)
+        g = (lambda y: y // 4 + 9) ** (H/ int >> int)
 
         self.assertEqual(L[0, 3, 8, 15], fmap(f, L[1, ..., 4]))
         self.assertEqual(L[0, 3, 8, 15], fmap(f, L[1, ...])[:4])
