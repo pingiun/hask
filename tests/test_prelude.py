@@ -83,4 +83,4 @@ class TestPrelude(unittest.TestCase):
         try:
             error(msg)
         except Exception as e:
-            self.assertEqual(msg, e.message)
+            self.assertEqual((msg, ), e.args)
