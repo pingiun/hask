@@ -1,3 +1,7 @@
+from __future__ import (division as _py3_division,
+                        print_function as _py3_print,
+                        absolute_import as _py3_abs_import)
+
 import unittest
 
 from hask import has_instance
@@ -157,7 +161,7 @@ class TestMaybe(unittest.TestCase):
 
         @sig(H[(Num, "a")]/ "a" >> "a" >> t(Maybe, "a"))
         def safediv(x, y):
-            return Just(x/y) if y != 0 else Nothing
+            return Just(x // y) if y != 0 else Nothing
 
         from hask.Prelude import flip
         s = flip(safediv)
