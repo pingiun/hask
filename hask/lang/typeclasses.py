@@ -261,8 +261,6 @@ instance(Ord, frozenset).where(lt=frozenset.__lt__, le=frozenset.__le__,
                                gt=frozenset.__gt__, ge=frozenset.__ge__)
 
 if sys.version[0] == '2':
-    long = long   # noqa
-    unicode = unicode  # noqa
     instance(Show, long).where(show=long.__str__)
     instance(Show, unicode).where(show=unicode.__str__)
 
@@ -270,6 +268,6 @@ if sys.version[0] == '2':
     instance(Eq, unicode).where(eq=unicode.__eq__, ne=unicode.__ne__)
 
     instance(Ord, long).where(lt=long.__lt__, le=long.__le__,
-                            gt=long.__gt__, ge=long.__ge__)
+                              gt=long.__gt__, ge=long.__ge__)
     instance(Ord, unicode).where(lt=unicode.__lt__, le=unicode.__le__,
                                 gt=unicode.__gt__, ge=unicode.__ge__)

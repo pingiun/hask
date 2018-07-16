@@ -21,6 +21,11 @@ from .syntax import instance
 from .syntax import sig
 from .syntax import H
 
+try:
+    from __builtin__ import cmp
+except ImportError:
+    pass
+
 
 class Enum(Typeclass):
     """
@@ -251,7 +256,6 @@ class List(collections.Sequence, Hask):
         return "L[%s]" % body if self.__is_evaluated else "L[%s ...]" % body
 
     def __cmp__(self, other):
-        cmp = cmp  # noqa
         if self.__is_evaluated and other.__is_evaluated:
             return cmp(self.__head, other.__head)
 

@@ -88,7 +88,6 @@ instance(Num, int).where(
 )
 
 try:
-    long = long  # noqa
     instance(Num, long).where(
         add = long.__add__,
         mul = long.__mul__,
