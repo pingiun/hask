@@ -4,9 +4,14 @@ stages:
   - publish
 
 
-run all tests:
+run all tests in Python 2.7:
   stage: test
-  script: tox -e2.7,3.6
+  script: tox -e2.7
   tags:
     - python
+
+run all tests in Python 3.6:
+  stage: test
+  script: tox -e3.6
+  tags:
     - python3.6
