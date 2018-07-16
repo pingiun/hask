@@ -24,7 +24,13 @@ from .syntax import H
 try:
     from __builtin__ import cmp
 except ImportError:
-    pass
+    def cmp(a, b):
+        if a == b:
+            return 0
+        elif a < b:
+            return -1
+        else:
+            return 1
 
 
 class Enum(Typeclass):
