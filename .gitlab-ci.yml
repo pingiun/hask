@@ -10,6 +10,7 @@ check code smells:
     - merchise_lint
   tags:
     - merchise-lint
+  allow_failure: true
 
 
 check signature:
