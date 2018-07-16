@@ -57,6 +57,7 @@ class TestTypeSystem(unittest.TestCase):
             return str(tup[0]) + tup[2]
 
         self.assertEqual("1a", pprint((1, 9., "a")))
+        self.assertEqual("1a", pprint((1, object(), "a")))
         with self.assertRaises(te):
             pprint((1, 2, 3))
         with self.assertRaises(te):
@@ -71,7 +72,7 @@ class TestTypeSystem(unittest.TestCase):
             return (tup[1], tup[0])
 
         self.assertEqual(swap((1, 2)), (2, 1))
-        self.assertEqual(swap((1., 2)), (2, 1.))
+        self.assertEqual(swap((1.0, 2)), (2, 1.))
         with self.assertRaises(te):
             swap((1, 2, 3))
 
