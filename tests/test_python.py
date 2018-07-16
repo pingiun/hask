@@ -21,9 +21,8 @@ class TestPython(unittest.TestCase):
         self.assertEqual(1, cmp(10) % 9)
         self.assertEqual(divmod(5)(2), (2, 1))
 
-        if sys.version_info < (3, ):
-            with self.assertRaises(te):
-                cmp(1, "a")
+        with self.assertRaises(te):
+            cmp(1, "a")
 
         with self.assertRaises(te):
             oct(1.0)

@@ -1,5 +1,16 @@
 from ..lang import H
 
+try:
+    from __builtin__ import cmp as pycmp
+except ImportError:
+    def pycmp(a, b):
+        if a == b:
+            return 0
+        elif a < b:
+            return -1
+        else:
+            return 1
+
 
 # Typed wrappers for builtin Python functions.
 # This makes it easier to chain lots of things together in function composition
@@ -7,7 +18,7 @@ from ..lang import H
 
 
 callable = callable ** (H/ "a" >> bool)
-cmp = cmp ** (H/ "a" >> "a" >> int)
+cmp = pycmp ** (H/ "a" >> "a" >> int)
 delattr = delattr ** (H/ "a" >> str >> None)
 divmod = divmod ** (H/ "a" >> "b" >> ("c", "c"))
 getattr = getattr ** (H/ "a" >> str >> "b")
@@ -21,4 +32,10 @@ oct = oct ** (H/ int >> str)
 repr = repr ** (H/ "a" >> str)
 setattr = setattr ** (H/ "a" >> str >> "b" >> None)
 sorted = sorted ** (H/ "a" >> list)
-unichr = unichr ** (H/ int >> unicode)
+try:
+    from __builtin__ import unichr as pyunichr
+except ImportError:
+    pyunichr = chr
+    unicode = str
+
+unichr = pyunichr ** (H/ int >> unicode)
