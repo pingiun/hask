@@ -1,7 +1,30 @@
 stages:
+  - check
   - test
   - build
   - publish
+
+
+check signature:
+  stage: check
+  script:
+    - git verify-commit $CI_COMMIT_REF_NAME
+  tags:
+    - git
+    - gpg
+  only:
+    - master
+
+
+check signature of tag:
+  stage: check
+  script:
+    - git verify-tag $CI_COMMIT_REF_NAME
+  tags:
+    - git
+    - gpg
+  only:
+    - tags
 
 
 run all tests in Python 2.7:
@@ -9,6 +32,7 @@ run all tests in Python 2.7:
   script: tox -e2.7
   tags:
     - python
+
 
 run all tests in Python 3.6:
   stage: test
