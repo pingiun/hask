@@ -2,11 +2,8 @@ language: python
 python:
   - 2.7
 install:
-  - python setup.py install
-  - pip install coveralls
+  - pip install tox
 script:
-  coverage run tests.py
-after_success:
-  coveralls
+  tox
 notifications:
   email: false
