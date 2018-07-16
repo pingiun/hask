@@ -1,4 +1,5 @@
-import itertools
+from xoutil.future.itertools import map as imap
+
 from ..lang import TypedFunc
 from ..lang import Typeclass
 from ..lang import is_builtin
@@ -40,7 +41,7 @@ def fmap(f, x):
 
 
 instance(Functor, List).where(
-    fmap = lambda fn, lst: L[itertools.imap(fn, iter(lst))]
+    fmap = lambda fn, lst: L[imap(fn, iter(lst))]
 )
 
 instance(Functor, TypedFunc).where(

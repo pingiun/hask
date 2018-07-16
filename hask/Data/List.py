@@ -3,6 +3,8 @@ import functools
 from functools import reduce
 import operator
 
+from xoutil.future.itertools import map as imap, zip as izip
+
 from ..lang import H
 from ..lang import sig
 from ..lang import t
@@ -110,7 +112,7 @@ def map(f, xs):
 
     map(f, xs) is the list obtained by applying f to each element of xs
     """
-    return L[itertools.imap(f, xs)]
+    return L[imap(f, xs)]
 
 
 @sig(H/ ["a"] >> ["a"])
@@ -161,7 +163,7 @@ def transpose(xs):
 
     The transpose function transposes the rows and columns of its argument.
     """
-    return L[(L[x] for x in itertools.izip(*xs))]
+    return L[(L[x] for x in izip(*xs))]
 
 
 @sig(H/ ["a"] >> [["a"]])
@@ -847,7 +849,7 @@ def zip(xs, ys):
     zip takes two lists and returns a list of corresponding pairs. If one input
     list is short, excess elements of the longer list are discarded.
     """
-    return L[itertools.izip(xs, ys)]
+    return L[izip(xs, ys)]
 
 
 @sig(H/ ["a"] >> ["b"] >> ["c"] >> [("a", "b", "c")])
@@ -857,7 +859,7 @@ def zip3(a, b, c):
 
     zip3 takes three lists and returns a list of triples, analogous to zip.
     """
-    return L[itertools.izip(a, b, c)]
+    return L[izip(a, b, c)]
 
 
 @sig(H/ ["a"] >> ["b"] >> ["c"] >> ["d"] >> [("a", "b", "c", "d")])
@@ -868,7 +870,7 @@ def zip4(a, b, c, d):
     The zip4 function takes four lists and returns a list of quadruples,
     analogous to zip.
     """
-    return L[itertools.izip(a, b, c, d)]
+    return L[izip(a, b, c, d)]
 
 
 @sig(H/ ["a"] >> ["b"] >> ["c"] >> ["d"] >> ["e"] >>
@@ -880,7 +882,7 @@ def zip5(a, b, c, d, e):
     The zip5 function takes five lists and returns a list of five-tuples,
     analogous to zip.
     """
-    return L[itertools.izip(a, b, c, d, e)]
+    return L[izip(a, b, c, d, e)]
 
 
 @sig(H/ ["a"] >> ["b"] >> ["c"] >> ["d"] >> ["e"] >> ["f"] >>
@@ -892,7 +894,7 @@ def zip6(a, b, c, d, e, f):
     The zip6 function takes six lists and returns a list of six-tuples,
     analogous to zip.
     """
-    return L[itertools.izip(a, b, c, d, e, f)]
+    return L[izip(a, b, c, d, e, f)]
 
 
 @sig(H/ ["a"] >> ["b"] >> ["c"] >> ["d"] >> ["e"] >> ["f"] >> ["g"] >>
@@ -904,7 +906,7 @@ def zip7(a, b, c, d, e, f, g):
     The zip7 function takes seven lists and returns a list of seven-tuples,
     analogous to zip.
     """
-    return L[itertools.izip(a, b, c, d, e, f, g)]
+    return L[izip(a, b, c, d, e, f, g)]
 
 
 @sig(H/ (H/ "a" >> "b" >> "c") >> ["a"] >> ["b"] >> ["c"])
