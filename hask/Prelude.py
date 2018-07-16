@@ -1,4 +1,8 @@
 # flake8: noqa
+from __future__ import (division as _py3_division,
+                        print_function as _py3_print,
+                        absolute_import as _py3_abs_import)
+
 import fractions
 
 from .lang import H
@@ -158,7 +162,7 @@ def lcm(x, y):
     lcm(x,y) is the smallest positive integer that both x and y divide.
     """
     g = gcd(x, y)
-    return 0 if g == 0 else (x * y) / g
+    return 0 if g == 0 else (x * y) // g
 
 
 from .Data.Functor import Functor
