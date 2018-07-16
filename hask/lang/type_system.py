@@ -2,9 +2,11 @@ import functools
 import types
 import string
 import sys
-from collections import namedtuple
+from collections import namedtuple, Mapping
 
 from xoutil.eight.meta import metaclass
+from xoutil.values.simple import logic_collection_coerce, nil as NIL
+
 
 from .hindley_milner import TypeVariable
 from .hindley_milner import TypeOperator
@@ -58,6 +60,15 @@ else:
     __python_function_types__ = set((
         types.FunctionType, types.LambdaType, types.MethodType,
         types.BuiltinFunctionType, types.BuiltinMethodType))
+
+
+def is_collection(m):
+    '''True if `m` is a collection.
+
+    strings are not collections.
+
+    '''
+    return logic_collection_coerce(m) is not NIL or isinstance(m, Mapping)
 
 
 def is_builtin(cls):
@@ -599,7 +610,7 @@ def pattern_match(value, pattern, env=None):
         if isinstance(value, ADT):
             return pattern_match(nt_to_tuple(value), nt_to_tuple(pattern), env)
 
-        elif hasattr(value, "__iter__"):
+        elif is_collection(value):
             matches = []
             if len(value) != len(pattern):
                 return False, env
