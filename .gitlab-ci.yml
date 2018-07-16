@@ -1,0 +1,12 @@
+stages:
+  - test
+  - build
+  - publish
+
+
+run all tests:
+  stage: test
+  script: tox -e2.7,3.6
+  tags:
+    - python
+    - python3.6
