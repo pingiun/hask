@@ -222,7 +222,7 @@ def typeof(obj):
         return obj.__type__()
 
     elif isinstance(obj, tuple):
-        return Tuple(map(typeof, obj))
+        return Tuple([typeof(o) for o in obj])
 
     elif obj is None:
         return TypeOperator(None, [])
@@ -300,7 +300,8 @@ def build_sig_arg(arg, cons, var_dict):
 
     # Tuples: ("a", "b"), (int, ("a", float)), etc.
     elif isinstance(arg, tuple):
-        return Tuple(map(lambda x: build_sig_arg(x, cons, var_dict), arg))
+        f = lambda x: build_sig_arg(x, cons, var_dict)
+        return Tuple([f(x) for x in arg])
 
     # Lists: ["a"], [int], etc.
     elif isinstance(arg, list) and len(arg) == 1:

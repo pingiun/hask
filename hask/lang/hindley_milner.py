@@ -133,8 +133,10 @@ class TypeOperator(object):
         num_types = len(self.types)
         if num_types == 0:
             return show_type(self.name)
-        return "({0} {1})".format(show_type(self.name),
-                                  ' '.join(map(show_type, self.types)))
+        return "({0} {1})".format(
+            show_type(self.name),
+            ' '.join(show_type(t) for t in self.types)
+        )
 
 
 class Function(TypeOperator):
@@ -144,8 +146,11 @@ class Function(TypeOperator):
         super(self.__class__, self).__init__("->", [from_type, to_type])
 
     def __str__(self):
-        return "({1} {0} {2})".format(show_type(self.name),
-                                      *map(show_type, self.types))
+        return "({1} {0} {2})".format(
+            show_type(self.name),
+            show_type(self.types[0]),
+            show_type(self.types[1]),
+        )
 
 
 class Tuple(TypeOperator):
