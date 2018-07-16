@@ -261,7 +261,7 @@ def for_(t, f):
     for_ is traverse_ with its arguments flipped. For a version that doesn't
     ignore the results see for.
     """
-    return traverse(f, t)
+    return traverse_(f, t)
 
 
 @sig(H[(Foldable, "t"), (Applicative, "f")]/ t("t", t("m", "a")) >>
