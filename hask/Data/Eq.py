@@ -1,1 +1,1 @@
-from ..lang import Eq
+from ..lang import Eq  # noqa

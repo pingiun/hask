@@ -25,8 +25,8 @@ class Traversable(Foldable, Functor):
     @classmethod
     def make_instance(typeclass, cls, traverse, sequenceA=None, mapM=None,
                       sequence=None):
-        attrs = {"traverse":traverse, "sequenceA":sequenceA, "mapM":mapM,
-                 "sequence":sequence}
+        attrs = {"traverse": traverse, "sequenceA": sequenceA, "mapM": mapM,
+                 "sequence": sequence}
         build_instance(Traversable, cls, attrs)
 
 
@@ -79,10 +79,6 @@ def sequence(t):
     collect the results. For a version that ignores the results see sequence_.
     """
     return Traversable[t].sequence(t)
-
-
-#=============================================================================#
-# Utility functions
 
 
 @sig(H[(Applicative, "f"), (Traversable, "t")]/

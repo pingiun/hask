@@ -24,10 +24,6 @@ else:
     lowercase = string.ascii_lowercase
 
 
-#=============================================================================#
-# Typeclasses
-
-
 if sys.version[0] == '2':
     __python_builtins__ = set((
         types.BooleanType, types.BufferType, types.BuiltinFunctionType,
@@ -102,7 +98,7 @@ class TypeMeta(type):
     def __init__(self, *args):
         super(TypeMeta, self).__init__(*args)
         self.__instances__ = {}
-        self.__dependencies__ = self.mro()[1:-2] # excl self, Typeclass, object
+        self.__dependencies__ = self.mro()[1:-2]  # excl self, Typeclass, object
 
     def __getitem__(self, item):
         try:
@@ -175,10 +171,6 @@ def has_instance(cls, typeclass):
     if not issubclass(typeclass, Typeclass):
         return False
     return id(cls) in typeclass.__instances__
-
-
-#=============================================================================#
-# Static typing and type signatures
 
 
 class Hask(object):
@@ -373,8 +365,8 @@ class TypedFunc(Hask):
     def __call__(self, *args, **kwargs):
         # the environment contains the type of the function and the types
         # of the arguments
-        env = {id(self):self.fn_type}
-        env.update({id(arg):typeof(arg) for arg in args})
+        env = {id(self): self.fn_type}
+        env.update({id(arg): typeof(arg) for arg in args})
         ap = Var(id(self))
 
         for arg in args:
@@ -407,7 +399,7 @@ class TypedFunc(Hask):
         if not isinstance(fn, TypedFunc):
             return fn.__rmul__(self)
 
-        env = {id(self):self.fn_type, id(fn):fn.fn_type}
+        env = {id(self): self.fn_type, id(fn): fn.fn_type}
         compose = Lam("arg", App(Var(id(self)), App(Var(id(fn)), Var("arg"))))
         newtype = analyze(compose, env)
 
@@ -415,10 +407,6 @@ class TypedFunc(Hask):
         newargs = [fn.fn_args[0]] + self.fn_args[1:]
 
         return TypedFunc(composed_fn, fn_args=newargs, fn_type=newtype)
-
-
-#=============================================================================#
-# ADT creation
 
 
 class ADT(Hask):
@@ -440,7 +428,7 @@ def make_type_const(name, typeargs):
     def raise_fn(err):
         raise err()
 
-    default_attrs = {"__params__":tuple(typeargs), "__constructors__":()}
+    default_attrs = {"__params__": tuple(typeargs), "__constructors__": ()}
     cls = type(name, (ADT,), default_attrs)
 
     cls.__type__ = lambda self: \
@@ -504,9 +492,10 @@ def make_data_const(name, fields, type_constructor, slot_num):
         # Otherwise, modify __type__ so that it matches up fields from the data
         # constructor with type params from the type constructor
         def __type__(self):
-            args = [typeof(self[fields.index(p)]) \
-                    if p in fields else TypeVariable()
-                    for p in type_constructor.__params__]
+            args = [
+                typeof(self[fields.index(p)]) if p in fields else TypeVariable()
+                for p in type_constructor.__params__
+            ]
             return TypeOperator(type_constructor, args)
         cls.__type__ = __type__
 
@@ -556,11 +545,7 @@ def build_ADT(typename, typeargs, data_constructors, to_derive):
         sig = TypeSignature(list(dc_fields) + [return_type], [])
         sig_args = build_sig(sig, {})
         dcons[i] = TypedFunc(dcons[i], sig_args, make_fn_type(sig_args))
-    return tuple([newtype,] + dcons)
-
-
-#=============================================================================#
-# Pattern matching
+    return tuple([newtype, ] + dcons)
 
 
 class PatternMatchBind(object):

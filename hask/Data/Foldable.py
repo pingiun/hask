@@ -1,6 +1,3 @@
-import functools
-import operator
-
 from ..lang import sig
 from ..lang import H
 from ..lang import t
@@ -59,11 +56,10 @@ class Foldable(Typeclass):
         sum = (lambda x: DL.sum(toList(x))) if sum is None else sum
         p = (lambda x: DL.product(toList(x))) if product is None else product
 
-
-        attrs = {"foldr":foldr, "foldr1":foldr1, "foldl":foldl,
-                "foldl_":foldl_, "foldl1":foldl1, "toList":toList, "null":null,
-                "length":length, "elem":elem, "maximum":ma, "minimum":mi,
-                "sum":sum, "product":p}
+        attrs = {"foldr": foldr, "foldr1": foldr1, "foldl": foldl,
+                 "foldl_": foldl_, "foldl1": foldl1, "toList": toList,
+                 "null": null, "length": length, "elem": elem, "maximum": ma,
+                 "minimum": mi, "sum": sum, "product": p}
         build_instance(Foldable, cls, attrs)
 
         if not hasattr(cls, "__len__") and not is_builtin(cls):
@@ -207,10 +203,6 @@ def product(t):
     return Foldable[t].product(t)
 
 
-#=============================================================================#
-# Special biased folds
-
-
 @sig(H[(Foldable, "t"), (Monad, "m")]/ (H/ "a" >> "b" >> t("m", "b")) >>
     "b" >> t("t", "a") >> t("m", "b"))
 def foldlM(f, b, ta):
@@ -233,10 +225,6 @@ def foldrM(f, b, ta):
     i.e. from left to right.
     """
     raise NotImplementedError()
-
-
-#=============================================================================#
-# Applicative actions
 
 
 @sig(H[(Foldable, "t"), (Applicative, "f")]/ (H/ "a" >> t("f", "b")) >>
@@ -274,10 +262,6 @@ def sequenceA_(t):
     results. For a version that doesn't ignore the results see sequenceA.
     """
     raise NotImplementedError()
-
-
-#=============================================================================#
-# Monadic actions
 
 
 @sig(H[(Foldable, "t"), (Monad, "m")]/ (H/ "a" >> t("m", "b")) >>
@@ -321,10 +305,6 @@ def sequence_(t):
     As of base 4.8.0.0, sequence_ is just sequenceA_, specialized to Monad.
     """
     return sequenceA_(t)
-
-
-#=============================================================================#
-# Specialized folds
 
 
 @sig(H[(Foldable, "t")]/ t("t", ["a"]) >> ["a"])
@@ -414,10 +394,6 @@ def minimumBy_(f, t):
     return DL.minimumBy(toList(t))
 
 
-#=============================================================================#
-# Searches
-
-
 @sig(H[(Foldable, "t"), (Eq, "a")]/ "a" >> t("t", "a") >> bool)
 def notElem(a, t):
     """
@@ -439,9 +415,6 @@ def find(f, t):
     """
     return DL.find(f, toList(t))
 
-
-#=============================================================================#
-# Instances
 
 instance(Foldable, List).where(
     foldr = DL.foldr,

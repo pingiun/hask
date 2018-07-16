@@ -10,10 +10,10 @@ from ..lang import t
 from Num import Integral
 from Num import RealFrac
 from Num import Ratio
-from Num import R
+from Num import R  # noqa
 from Num import Rational
 from Num import toRatio
-from Num import toRational
+from Num import toRational  # noqa
 
 
 @sig(H[(Integral, "a")]/ t(Ratio, "a") >> "a")

@@ -1,3 +1,5 @@
+# flake8: noqa
+
 from .typeclasses import Show
 from .typeclasses import show
 from .typeclasses import Read

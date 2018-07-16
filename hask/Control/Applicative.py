@@ -1,5 +1,5 @@
 from ..lang import build_instance
-from ..lang import List
+from ..lang import List, L
 from ..lang import instance
 from ..Data.Functor import Functor
 
@@ -20,7 +20,7 @@ class Applicative(Functor):
     """
     @classmethod
     def make_instance(self, cls, pure):
-        build_instance(Applicative, cls, {"pure":pure})
+        build_instance(Applicative, cls, {"pure": pure})
 
 
 instance(Applicative, List).where(

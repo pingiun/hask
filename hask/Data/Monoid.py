@@ -17,7 +17,7 @@ class Monoid(Typeclass):
     """
     @classmethod
     def make_instance(typeclass, cls, mempty, mappend, mconcat):
-        attrs = {"mempty":mempty, "mappend":mappend, "mconcat":mconcat}
+        attrs = {"mempty": mempty, "mappend": mappend, "mconcat": mconcat}
         build_instance(Monoid, cls, attrs)
 
 

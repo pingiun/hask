@@ -2,10 +2,6 @@ from ..lang import H
 from ..lang import sig
 
 
-#=============================================================================#
-# Character classification
-
-
 @sig(H/ str >> bool)
 def isControl(s):
     """
@@ -183,10 +179,6 @@ def isSeparator(s):
     raise NotImplementedError
 
 
-#=============================================================================#
-# Subranges
-
-
 @sig(H/ str >> bool)
 def isAscii(s):
     """
@@ -231,10 +223,6 @@ def isAsciiLower(s):
     return isAscii(s) and isLower(s)
 
 
-#=============================================================================#
-# Case conversion
-
-
 @sig(H/ str >> str)
 def toUpper(s):
     """
@@ -269,10 +257,6 @@ def toTitle(s):
     return toUpper(s)
 
 
-#=============================================================================#
-# Single digit characters
-
-
 @sig(H/ str >> int)
 def digitToInt(s):
     """
@@ -300,9 +284,6 @@ def intToDigit(s):
         raise ValueError("not a digit %s" % s)
     return str(s) if s < 10 else "abcdef"[s-10]
 
-
-#=============================================================================#
-# Numeric representations
 
 chr = chr ** (H/ int >> str)
 ord = ord ** (H/ str >> int)

@@ -1,14 +1,9 @@
+# flake8: noqa
 import fractions
 
 from .lang import H
 from .lang import sig
 from .lang import t
-
-
-#=============================================================================#
-# Standard types, classes, and related functions
-## Basic data types
-
 
 from .Data.Maybe import Maybe
 from .Data.Maybe import Just
@@ -27,19 +22,10 @@ from .Data.Ord import LT
 from .Data.Ord import EQ
 from .Data.Ord import GT
 
-
-#=============================================================================#
-### Tuples
-
-
 from .Data.Tuple import fst
 from .Data.Tuple import snd
 from .Data.Tuple import curry
 from .Data.Tuple import uncurry
-
-
-#=============================================================================#
-## Basic type classes
 
 
 from .lang import Read
@@ -69,12 +55,6 @@ from .Control.Applicative import Applicative
 from .Control.Monad import Monad
 from .Data.Foldable import Foldable
 from .Data.Traversable import Traversable
-
-
-#=============================================================================#
-# Numbers
-### Numeric type classes
-
 
 from .Data.Num import Num
 from .Data.Num import abs
@@ -125,10 +105,6 @@ from .Data.Num import isNaN
 from .Data.Num import isInfinite
 from .Data.Num import isNegativeZero
 from .Data.Num import atan2
-
-
-#=============================================================================#
-# Numeric functions
 
 
 @sig(H[(Num, "a")]/ "a" >> "a" >> "a")
@@ -185,10 +161,6 @@ def lcm(x, y):
     return 0 if g == 0 else (x * y) / g
 
 
-#=============================================================================#
-# Monads and functors
-
-
 from .Data.Functor import Functor
 from .Control.Applicative import Applicative
 from .Control.Monad import Monad
@@ -232,12 +204,6 @@ def mapM_(f, xs):
     mapM_(f) is equivalent to sequence_ * map(f)
     """
     return sequence_(fmap(f, xs))
-
-
-
-
-#=============================================================================#
-# Miscellaneous functions
 
 
 @sig(H/ "a" >> "a")
@@ -307,9 +273,6 @@ def error(msg):
 from .lang import undefined
 
 
-#=============================================================================#
-# List operations
-
 from .Data.List import map
 from .Data.List import filter
 from .Data.List import head
@@ -326,9 +289,6 @@ from .Data.List import foldr
 from .Data.List import foldr1
 
 
-#=============================================================================#
-## Special folds
-
 from .Data.List import and_
 from .Data.List import or_
 from .Data.List import any
@@ -341,27 +301,17 @@ from .Data.List import maximum
 from .Data.List import minimum
 
 
-#=============================================================================#
-## Building lists
-### Scans
-
 from .Data.List import scanl
 from .Data.List import scanl1
 from .Data.List import scanr
 from .Data.List import scanr1
 
 
-#=============================================================================#
-### Infinite lists
-
 from .Data.List import iterate
 from .Data.List import repeat
 from .Data.List import replicate
 from .Data.List import cycle
 
-
-#=============================================================================#
-## Sublists
 
 from .Data.List import take
 from .Data.List import drop
@@ -372,16 +322,10 @@ from .Data.List import span
 from .Data.List import break_
 
 
-#=============================================================================#
-## Searching lists
-
 from .Data.List import elem
 from .Data.List import notElem
 from .Data.List import lookup
 
-
-#=============================================================================#
-## Zipping and unzipping lists
 
 from .Data.List import zip
 from .Data.List import zip3
@@ -389,10 +333,6 @@ from .Data.List import zipWith
 from .Data.List import zipWith3
 from .Data.List import unzip
 from .Data.List import unzip3
-
-
-#=============================================================================#
-## Functions on strings
 
 from .Data.List import lines
 from .Data.List import words

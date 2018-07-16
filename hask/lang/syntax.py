@@ -1,6 +1,5 @@
 import inspect
 import operator
-import string
 import sys
 from collections import deque, defaultdict
 
@@ -18,10 +17,6 @@ from .type_system import PatternMatchListBind
 from .type_system import pattern_match
 from .type_system import Undefined
 from .type_system import PyFunc
-
-
-#=============================================================================#
-# Base class for syntactic constructs
 
 
 __magic_methods__ = ["__%s__" % s for s in set((
@@ -72,10 +67,6 @@ class Syntax(object):
 replace_magic_methods(Syntax, Syntax.__syntaxerr__)
 
 
-#=============================================================================#
-# Typeclass instance declaration
-
-
 class instance(Syntax):
     """
     Special syntax for defining typeclass instances.
@@ -94,10 +85,6 @@ class instance(Syntax):
 
     def where(self, **kwargs):
         self.typeclass.make_instance(self.cls, **kwargs)
-
-
-#=============================================================================#
-# Type signatures
 
 
 class __constraints__(Syntax):
@@ -242,9 +229,6 @@ def typify(fn, hkt=None):
     return sig(__signature__(args, []))
 
 
-#=============================================================================#
-# Undefined values
-
 class __undefined__(Undefined):
     """
     Undefined value with special syntactic powers. Whenever you try to use one
@@ -255,12 +239,10 @@ class __undefined__(Undefined):
     """
     pass
 
+
 replace_magic_methods(__undefined__, lambda *a: __undefined__())
 undefined = __undefined__()
 
-
-#=============================================================================#
-# Pattern matching
 
 # Constructs for pattern matching.
 # Note that the approach implemented here uses lots of global state and is
@@ -452,11 +434,10 @@ class caseof(__unmatched_case__):
         MatchStack.push(value)
 
 
-#=============================================================================#
 # ADT creation syntax ("data" expressions)
 
 
-## "data"/type constructor half of the expression
+# "data"/type constructor half of the expression
 
 class __data__(Syntax):
     """
@@ -543,7 +524,7 @@ class __new_tcon_hkt__(__new_tcon__):
     pass
 
 
-## "d"/data constructor half of the expression
+# "d"/data constructor half of the expression
 
 
 class __d__(Syntax):
@@ -690,10 +671,6 @@ class deriving(Syntax):
         super(deriving, self).__init__("Syntax error in `deriving`")
 
 
-#=============================================================================#
-# Operator sections
-
-
 class __section__(Syntax):
     """
     __ is Hask's special syntax for operator sections.
@@ -750,7 +727,7 @@ class __section__(Syntax):
     __pow__ = __wrap(operator.pow)
     __lshift__ = __wrap(operator.lshift)
     __rshift__ = __wrap(operator.rshift)
-    __or__ =  __wrap(operator.or_)
+    __or__ = __wrap(operator.or_)
     __and__ = __wrap(operator.and_)
     __xor__ = __wrap(operator.xor)
 
@@ -783,7 +760,6 @@ class __section__(Syntax):
 __ = __section__("Error in section")
 
 
-#=============================================================================#
 # Guards! Guards!
 
 # Unlike pattern matching, this approach is completely stateless and
@@ -949,7 +925,6 @@ c = __guard_test__
 otherwise = c(lambda _: True)
 
 
-#=============================================================================#
 # REPL tools (:q, :t, :i)
 
 

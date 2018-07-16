@@ -1,5 +1,4 @@
-#=============================================================================#
-# Module imports
+# flake8: noqa
 
 from . import lang
 from . import Data
@@ -7,7 +6,6 @@ from . import Control
 from . import Python
 
 
-#=============================================================================#
 # Core language
 
 ## Typeclass instance declaration
@@ -54,9 +52,6 @@ from hask.lang import has_instance
 from hask.lang import Typeclass
 from hask.lang import Hask
 
-
-#=============================================================================#
-# Other imports
 
 # Basic Typeclasses
 from hask.Prelude import Read

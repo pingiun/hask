@@ -11,10 +11,6 @@ from .syntax import sig
 from .syntax import H
 
 
-#=============================================================================#
-# Basic typeclasses
-
-
 class Show(Typeclass):
     """
     Conversion of values to readable strings.
@@ -136,7 +132,7 @@ class Ord(Eq):
         gt = lambda self, other: __gt__(self, other)
         ge = lambda self, other: __ge__(self, other)
 
-        attrs = {"lt":lt, "le":le, "gt":gt, "ge":ge}
+        attrs = {"lt": lt, "le": le, "gt": gt, "ge": ge}
         build_instance(Ord, cls, attrs)
         if not is_builtin(cls):
             cls.__lt__ = lt
@@ -164,10 +160,6 @@ class Ord(Eq):
         Ord.make_instance(cls, lt=lt, le=le, gt=gt, ge=ge)
 
 
-#=============================================================================#
-# Classes not yet functional, because they have polymorphic return types
-
-
 class Bounded(Typeclass):
     """
     The Bounded class is used to name the upper and lower limits of a type. Ord
@@ -187,7 +179,7 @@ class Bounded(Typeclass):
     """
     @classmethod
     def make_instance(typeclass, cls, minBound, maxBound):
-        attrs = {"minBound":minBound, "maxBound":maxBound}
+        attrs = {"minBound": minBound, "maxBound": maxBound}
         build_instance(Bounded, cls, attrs)
 
     @classmethod
@@ -215,15 +207,11 @@ class Read(Typeclass):
     """
     @classmethod
     def make_instance(typeclass, cls, read):
-        build_instance(Read, cls, {"read":read})
+        build_instance(Read, cls, {"read": read})
 
     @classmethod
     def derive_instance(typeclass, cls):
         Read.make_instance(cls, read=eval)
-
-
-#=============================================================================#
-# Instances for builtin types
 
 
 instance(Show, str).where(show=str.__repr__)
@@ -273,7 +261,8 @@ instance(Ord, frozenset).where(lt=frozenset.__lt__, le=frozenset.__le__,
                                gt=frozenset.__gt__, ge=frozenset.__ge__)
 
 if sys.version[0] == '2':
-
+    long = long   # noqa
+    unicode = unicode  # noqa
     instance(Show, long).where(show=long.__str__)
     instance(Show, unicode).where(show=unicode.__str__)
 

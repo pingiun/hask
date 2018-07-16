@@ -15,7 +15,6 @@
 # 4) Type unification also unifies typeclass constraints
 
 
-#=============================================================================#
 # Class definitions for the AST nodes which comprise the type language for
 # which types will be inferred
 
@@ -63,10 +62,6 @@ class Let(object):
     def __str__(self):
         exp = "(let {v} = {defn} in {body})"
         return exp.format(v=self.v, defn=self.defn, body=self.body)
-
-
-#=============================================================================#
-# Types and type constructors
 
 
 def show_type(type_name):
@@ -171,10 +166,6 @@ class ListType(TypeOperator):
 
     def __str__(self):
         return "[{0}]".format(show_type(self.types[0]))
-
-
-#=============================================================================#
-# Type inference machinery
 
 
 def analyze(node, env, non_generic=None):

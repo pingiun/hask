@@ -38,8 +38,8 @@ class Num(Show, Eq):
             return a.__add__(b.__neg__())
 
         sub = default_sub if sub is None else sub
-        attrs = {"add":add, "mul":mul, "abs":abs, "signum":signum,
-                 "fromInteger":fromInteger, "negate":negate, "sub":sub}
+        attrs = {"add": add, "mul": mul, "abs": abs, "signum": signum,
+                 "fromInteger": fromInteger, "negate": negate, "sub": sub}
 
         build_instance(Num, cls, attrs)
 
@@ -88,6 +88,7 @@ instance(Num, int).where(
 )
 
 try:
+    long = long  # noqa
     instance(Num, long).where(
         add = long.__add__,
         mul = long.__mul__,
@@ -138,7 +139,7 @@ class Fractional(Num):
     def make_instance(typeclass, cls, fromRational, div, recip=None):
         if recip is None:
             recip = lambda x: div(1, x)
-        attrs = {"fromRational":fromRational, "div":div, "recip":recip}
+        attrs = {"fromRational": fromRational, "div": div, "recip": recip}
         build_instance(Fractional, cls, attrs)
 
 
@@ -183,11 +184,11 @@ class Floating(Fractional):
     @classmethod
     def make_instance(typeclass, cls, pi, exp, sqrt, log, pow, logBase, sin,
             tan, cos, asin, atan, acos, sinh, tanh, cosh, asinh, atanh, acosh):
-        attrs = {"pi":pi, "exp":exp, "sqrt":sqrt, "log":log, "pow":pow,
-                "logBase":logBase, "sin":sin, "tan":tan, "cos":cos,
-                "asin":asin, "atan":atan, "acos":acos, "sinh":sinh,
-                "tanh":tanh, "cosh":cosh, "asinh":asinh, "atanh":atanh,
-                "acosh":acosh}
+        attrs = {"pi": pi, "exp": exp, "sqrt": sqrt, "log": log, "pow": pow,
+                "logBase": logBase, "sin": sin, "tan": tan, "cos": cos,
+                "asin": asin, "atan": atan, "acos": acos, "sinh": sinh,
+                "tanh": tanh, "cosh": cosh, "asinh": asinh, "atanh": atanh,
+                "acosh": acosh}
         build_instance(Floating, cls, attrs)
 
 
@@ -399,8 +400,8 @@ class Integral(Real, Enum):
         div = lambda x: divMod(x)[0] if div is None else div
         mod = lambda x: divMod(x)[1] if mod is None else mod
 
-        attrs = {"quotRem":quotRem, "toInteger":toInteger, "quot":quot,
-                 "rem":rem, "div":div, "mod":mod, "divMod":divMod}
+        attrs = {"quotRem": quotRem, "toInteger": toInteger, "quot": quot,
+                 "rem": rem, "div": div, "mod": mod, "divMod": divMod}
         build_instance(Integral, cls, attrs)
 
 
@@ -427,7 +428,7 @@ except NameError:
     pass
 
 instance(Real, float).where(
-    toRational = lambda x: toRatio(round(x), 1) # obviously incorrect
+    toRational = lambda x: toRatio(round(x), 1)  # obviously incorrect
 )
 
 instance(Integral, int).where(
@@ -453,6 +454,7 @@ try:
 except NameError:
     pass
 
+
 class RealFrac(Real, Fractional):
     """
     Extracting components of fractions.
@@ -469,8 +471,8 @@ class RealFrac(Real, Fractional):
     @classmethod
     def make_instance(typeclass, cls, properFraction, truncate, round, ceiling,
             floor):
-        attrs = {"properFraction":properFraction, "truncate":truncate,
-                "round":round, "ceiling":ceiling, "floor":floor}
+        attrs = {"properFraction": properFraction, "truncate": truncate,
+                "round": round, "ceiling": ceiling, "floor": floor}
         build_instance(RealFrac, cls, attrs)
 
 
@@ -556,9 +558,9 @@ class RealFloat(Floating, RealFrac):
     @classmethod
     def make_instance(typeclass, cls, floatRange, isNan, isInfinite,
             isNegativeZero, atan2):
-        attrs = {"floatRange":floatRange, "isNan":isNan,
-                "isInfinite":isInfinite, "isNegativeZero":isNegativeZero,
-                "atan2":atan2}
+        attrs = {"floatRange": floatRange, "isNan": isNan,
+                "isInfinite": isInfinite, "isNegativeZero": isNegativeZero,
+                "atan2": atan2}
         build_instance(RealFloat, cls, attrs)
 
 

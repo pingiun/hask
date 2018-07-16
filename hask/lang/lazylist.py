@@ -157,11 +157,8 @@ instance(Enum, bool).where(fromEnum=int, toEnum=bool)
 instance(Enum, str).where(fromEnum=ord, toEnum=chr)
 
 if sys.version[0] == '2':
+    long = long   # noqa
     instance(Enum, long).where(fromEnum=int, toEnum=long)
-
-
-#=============================================================================#
-# List
 
 
 class List(collections.Sequence, Hask):
@@ -254,6 +251,7 @@ class List(collections.Sequence, Hask):
         return "L[%s]" % body if self.__is_evaluated else "L[%s ...]" % body
 
     def __cmp__(self, other):
+        cmp = cmp  # noqa
         if self.__is_evaluated and other.__is_evaluated:
             return cmp(self.__head, other.__head)
 
@@ -367,7 +365,7 @@ class List(collections.Sequence, Hask):
         return self.__head[i]
 
 
-## Basic typeclass instances for list
+# Basic typeclass instances for list
 instance(Show, List).where(
     show = List.__str__
 )
@@ -377,14 +375,11 @@ instance(Eq, List).where(
 )
 
 instance(Ord, List).where(
-   lt = List.__lt__,
-   gt = List.__gt__,
-   le = List.__le__,
-   ge = List.__ge__
+    lt = List.__lt__,
+    gt = List.__gt__,
+    le = List.__le__,
+    ge = List.__ge__
 )
-
-#=============================================================================#
-# List comprehension syntax
 
 
 class __list_comprehension__(Syntax):

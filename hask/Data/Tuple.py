@@ -44,7 +44,7 @@ def uncurry(fn, tup):
     return fn(fst(tup), snd(tup))
 
 
-@sig(H/ ("a", "b") >> ("b", "a") )
+@sig(H/ ("a", "b") >> ("b", "a"))
 def swap(tup):
     """
     swap :: (a, b) -> (b, a)

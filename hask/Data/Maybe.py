@@ -51,7 +51,7 @@ def in_maybe(fn):
     def closure_in_maybe(*args, **kwargs):
         try:
             return Just(fn(*args, **kwargs))
-        except:
+        except:  # noqa
             return Nothing
     return typify(fn, hkt=lambda x: t(Maybe, x))(closure_in_maybe)
 

@@ -1,5 +1,6 @@
 import itertools
 import functools
+from functools import reduce
 import operator
 
 from ..lang import H
@@ -19,9 +20,6 @@ from .Num import Integral
 from .Maybe import Maybe
 from .Maybe import Just
 from .Maybe import Nothing
-
-#=============================================================================#
-# Basic functions
 
 
 @sig(H/ ["a"] >> "a")
@@ -93,7 +91,7 @@ def null(xs):
                 | m(m.ys)       >> True)
 
 
-@sig(H/ ["a"] >> int )
+@sig(H/ ["a"] >> int)
 def length(xs):
     """
     length :: [a] -> int
@@ -103,10 +101,6 @@ def length(xs):
     because there is no general way to do better.
     """
     return len(xs)
-
-
-#=============================================================================#
-# List transformations
 
 
 @sig(H/ (H/ "a" >> "b") >> ["a"] >> ["b"])
@@ -119,7 +113,7 @@ def map(f, xs):
     return L[itertools.imap(f, xs)]
 
 
-@sig(H/ ["a"] >> ["a"] )
+@sig(H/ ["a"] >> ["a"])
 def reverse(xs):
     """
     reverse :: [a] -> [a]
@@ -129,7 +123,7 @@ def reverse(xs):
     return L[(x for x in xs[::-1])]
 
 
-@sig(H/ "a" >> ["a"] >> ["a"] )
+@sig(H/ "a" >> ["a"] >> ["a"])
 def intersperse(x, xs):
     """
     intersperse :: a -> [a] -> [a]
@@ -148,7 +142,7 @@ def intersperse(x, xs):
     return L[__intersperse(x, xs)]
 
 
-@sig(H/ ["a"] >> [["a"]] >> ["a"] )
+@sig(H/ ["a"] >> [["a"]] >> ["a"])
 def intercalate(xs, xss):
     """
     intercalate :: [a] -> [[a]] -> [a]
@@ -160,7 +154,7 @@ def intercalate(xs, xss):
     return concat(intersperse(xs, xss))
 
 
-@sig(H/ [["a"]] >> [["a"]] )
+@sig(H/ [["a"]] >> [["a"]])
 def transpose(xs):
     """
     transpose :: [[a]] -> [[a]]
@@ -170,7 +164,7 @@ def transpose(xs):
     return L[(L[x] for x in itertools.izip(*xs))]
 
 
-@sig(H/ ["a"] >> [["a"]] )
+@sig(H/ ["a"] >> [["a"]])
 def subsequences(xs):
     """
     subsequences :: [a] -> [[a]]
@@ -184,7 +178,7 @@ def subsequences(xs):
     return ret
 
 
-@sig(H/ ["a"] >> [["a"]] )
+@sig(H/ ["a"] >> [["a"]])
 def permutations(xs):
     """
     permutations :: [a] -> [[a]]
@@ -195,10 +189,6 @@ def permutations(xs):
     if null(xs):
         return L[[]]
     return L[(L[x] for x in itertools.permutations(xs))]
-
-
-#=============================================================================#
-# Reducing lists (folds)
 
 
 @sig(H/ (H/ "b" >> "a" >> "b") >> "a" >> ["a"] >> "b")
@@ -269,11 +259,7 @@ def foldr1(f, xs):
     return foldr(f, xs[0], xs[1:])
 
 
-#=============================================================================#
-## Special folds
-
-
-@sig(H/ [["a"]] >> ["a"] )
+@sig(H/ [["a"]] >> ["a"])
 def concat(xss):
     """
     concat :: [[a]] -> [a]
@@ -391,10 +377,6 @@ def maximum(xs):
     return max(xs)
 
 
-#=============================================================================#
-# Building lists
-## Scans
-
 @sig(H/ (H/ "b" >> "a" >> "b") >> "b" >> ["a"] >> ["b"])
 def scanl(f, z, xs):
     """
@@ -436,9 +418,6 @@ def scanr1(f, xs):
     raise NotImplementedError()
 
 
-#=============================================================================#
-## Accumulating maps
-
 @sig(H/ (H/ "a" >> "x" >> ("a", "y")) >> "a" >> ["x"] >> ("a", ["y"]))
 def mapAccumL(xs):
     """
@@ -464,9 +443,6 @@ def mapAccumR(xs):
     """
     raise NotImplementedError()
 
-
-#=============================================================================#
-## Infinite lists
 
 @sig(H/ (H/ "a" >> "a") >> "a" >> ["a"])
 def iterate(f, x):
@@ -524,10 +500,6 @@ def cycle(x):
     return L[__cycle(x)]
 
 
-#=============================================================================#
-## Unfolding
-
-
 @sig(H/ (H/ "b" >> t(Maybe, ("a", "b"))) >> "b" >> ["a"])
 def unfoldr(f, x):
     """
@@ -544,10 +516,6 @@ def unfoldr(f, x):
         return L[[]]
     return y[0][0] ^ unfoldr(f, y[0][1])
 
-
-#=============================================================================#
-# Sublists
-## Extracting sublists
 
 @sig(H/ int >> ["a"] >> ["a"])
 def take(n, xs):
@@ -679,7 +647,7 @@ def inits(xs):
     """
     if null(xs):
         return L[[xs]]
-    return L[[L[[]]]] + L[(xs[:n+1] for n,_ in enumerate(xs))]
+    return L[[L[[]]]] + L[(xs[:n+1] for n, _ in enumerate(xs))]
 
 
 @sig(H/ ["a"] >> [["a"]])
@@ -692,11 +660,7 @@ def tails(xs):
     """
     if null(xs):
         return L[[L[[]]]]
-    return L[(xs[n:] for n,_ in enumerate(xs))] + L[[L[[]]]]
-
-
-#=============================================================================#
-## Predicates
+    return L[(xs[n:] for n, _ in enumerate(xs))] + L[[L[[]]]]
 
 
 @sig(H[(Eq, "a")]/ ["a"] >> ["a"] >> bool)
@@ -745,11 +709,6 @@ def isSubsequenceOf(x, y):
     return elem(x, subsequences(y))
 
 
-#=============================================================================#
-# Searching lists
-## Searching by equality
-
-
 @sig(H[(Eq, "a")]/ "a" >> ["a"] >> bool)
 def elem(x, xs):
     """
@@ -783,10 +742,6 @@ def lookup(key, assocs):
         if k == key:
             return Just(value)
     return Nothing
-
-
-#=============================================================================#
-## Searching with a predicate
 
 
 @sig(H/ (H/ "a" >> bool) >> ["a"] >> t(Maybe, "a"))
@@ -830,10 +785,6 @@ def partition(f, xs):
         else:
             no.append(item)
     return L[yes], L[no]
-
-
-#=============================================================================#
-# Indexing lists
 
 
 @sig(H[(Eq, "a")]/ "a" >> ["a"] >> t(Maybe, int))
@@ -886,10 +837,6 @@ def findIndicies(f, xs):
     elements satisfying the predicate, in ascending order.
     """
     return L[(i for i, x in enumerate(xs) if f(x))]
-
-
-#=============================================================================#
-# Zipping and unzipping lists
 
 
 @sig(H/ ["a"] >> ["b"] >> [("a", "b")])
@@ -1134,19 +1081,11 @@ def unzip7(xs):
     return a, b, c, d, e, f, g
 
 
-#=============================================================================#
-# Special lists
-## Functions on strings
+from .String import lines  # noqa
+from .String import words  # noqa
+from .String import unlines  # noqa
+from .String import unwords  # noqa
 
-
-from .String import lines
-from .String import words
-from .String import unlines
-from .String import unwords
-
-
-#=============================================================================#
-## "Set" operations
 
 @sig(H[(Eq, "a")]/ ["a"] >> ["a"])
 def nub(xs):
@@ -1212,10 +1151,6 @@ def intersect(xs, ys):
     raise NotImplementedError()
 
 
-#=============================================================================#
-## Ordered lists
-
-
 @sig(H[(Ord, "a")]/ ["a"] >> ["a"])
 def sort(xs):
     """
@@ -1259,12 +1194,6 @@ def insert(x, xs):
                 yield x
             yield i
     return L[__insert(x, xs)]
-
-
-#=============================================================================#
-# Generalized functions
-## The "By" operations
-### User-supplied equality (replacing an Eq context)
 
 
 @sig(H/ (H/ "a" >> "a" >> bool) >> ["a"] >> ["a"])
@@ -1331,10 +1260,6 @@ def groupBy(f, xs):
     return L[(L[i[1]] for i in itertools.groupby(xs, keyfunc=f))]
 
 
-#=============================================================================#
-### User-supplied comparison (replacing an Ord context)
-
-
 @sig(H/ (H/ "a" >> "a" >> Ordering) >> ["a"] >> ["a"])
 def sortBy(f, xs):
     """
@@ -1378,9 +1303,6 @@ def minimumBy(f, xs):
     """
     return min(xs, key=f)
 
-
-#=============================================================================#
-## The "generic" operators
 
 @sig(H[(Num, "i")]/ ["a"] >> "i")
 def genericLength(xs):
