@@ -1,6 +1,6 @@
 stages:
   - check
-  - baseline-test
+  - baseline test
   - test
   - build
   - publish
@@ -37,7 +37,7 @@ check signature of tag:
 
 
 run all tests in Python 2.7:
-  stage: baseline-test
+  stage: baseline test
   script: tox -e2.7
   tags:
     - python
