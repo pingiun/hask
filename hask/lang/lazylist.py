@@ -349,10 +349,13 @@ class List(collections.Sequence, Hask):
             i = ix.start if ix.stop is None else ix.stop
         else:
             i = ix
-
         # make sure that the list is evaluated enough to do the indexing, but
         # not any more than necessary
         # if index is negative, evaluate the entire list
+        if i is None:
+            # In Python 3, `None >= 0` is a TypeError, but in Python 2 returns
+            # False.  So let's go negative in any case...
+            i = -1
         if i >= 0:
             while (i+1) > len(self.__head):
                 try:
