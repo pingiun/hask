@@ -59,6 +59,7 @@ class Syntax(object):
 
     Subclasses may override these methods to define what syntax is valid for
     those objects.
+
     """
     def __init__(self, err_msg):
         self.__syntax_err_msg = err_msg
@@ -77,11 +78,12 @@ class instance(Syntax):
     """
     Special syntax for defining typeclass instances.
 
-    Example usage:
+    Example usage::
 
-    instance(Functor, Maybe).where(
-        fmap = ...
-    )
+        instance(Functor, Maybe).where(
+            fmap = ...
+        )
+
     """
     def __init__(self, typecls, cls):
         if not (inspect.isclass(typecls) and issubclass(typecls, Typeclass)):
@@ -94,23 +96,24 @@ class instance(Syntax):
 
 
 class __constraints__(Syntax):
-    """
-    H/ creates a new function type signature.
+    """H/ creates a new function type signature.
 
-    Examples:
-    (H/ int >> int >> int)
-    (H/ (H/ "a" >> "b" >> "c") >> "b" >> "a" >> "c")
-    (H/ func >> set >> set)
-    (H/ (H/ "a" >> "b") >> ["a"] >> ["b"])
-    (H[(Eq, "a")]/ "a" >> ["a"] >> bool)
-    (H/ int >> int >> t(Maybe, int))
-    (H/ int >> None)
+    Examples::
 
-    See help(sig) for more information on type signature decorators.
+        (H/ int >> int >> int)
+        (H/ (H/ "a" >> "b" >> "c") >> "b" >> "a" >> "c")
+        (H/ func >> set >> set)
+        (H/ (H/ "a" >> "b") >> ["a"] >> ["b"])
+        (H[(Eq, "a")]/ "a" >> ["a"] >> bool)
+        (H/ int >> int >> t(Maybe, int))
+        (H/ int >> None)
+
+    See `sig`:class: for more information on type signature decorators.
+
     """
-    def __init__(self, constraints=()):
+    def __init__(self, constraints=None):
         self.constraints = defaultdict(lambda: [])
-        if len(constraints) > 0:
+        if constraints:
             # multiple typeclass constraints
             if isinstance(constraints[0], tuple):
                 for con in constraints:
@@ -163,22 +166,22 @@ func = PyFunc
 
 
 class sig(Syntax):
-    """
-    Decorator to convert a Python function into a statically typed function
-    (TypedFunc object).
+    """Decorator to convert a Python function into a statically typed function
+    (`~hask.lang.type_system.TypedFunc`:class: object).
 
     TypedFuncs are automagically curried, and polymorphic type arguments will
     be inferred by the type system.
 
-    Usage:
+    Usage::
 
-    @sig(H/ int >> int >> int )
-    def add(x, y):
-        return x + y
+        @sig(H/ int >> int >> int )
+        def add(x, y):
+            return x + y
 
-    @sig(H[(Show, "a")]/ >> "a" >> str)
-    def to_str(x):
-        return str(x)
+        @sig(H[(Show, "a")]/ >> "a" >> str)
+        def to_str(x):
+            return str(x)
+
     """
     def __init__(self, signature):
         super(self.__class__, self).__init__("Syntax error in type signature")
@@ -199,6 +202,9 @@ class sig(Syntax):
 
 
 def t(type_constructor, *params):
+    '''Helper to instantiate `~hask.lang.type_system.TypeSignatureHKT`:class:.
+
+    '''
     if inspect.isclass(type_constructor) and \
        issubclass(type_constructor, ADT) and \
        len(type_constructor.__params__) != len(params):
@@ -296,8 +302,10 @@ class MatchStack(object):
 
 class __var_bind__(Syntax):
     """
-    m.* binds a local variable while pattern matching.
-    For example usage, see help(caseof).
+    ``m.*`` binds a local variable while pattern matching.
+
+    For example usage, see `caseof`:class:.
+
     """
     def __getattr__(self, name):
         return __pattern_bind__(name)
@@ -310,9 +318,10 @@ class __var_bind__(Syntax):
 
 
 class __var_access__(Syntax):
-    """
-    p.* accesses a local variable bound during pattern matching.
-    For example usage, see help(caseof).
+    """``p.*`` accesses a local variable bound during pattern matching.
+
+    For example usage, see `caseof`:class:.
+
     """
     def __getattr__(self, name):
         return MatchStack.get_name(name)
@@ -360,9 +369,8 @@ class __pattern_bind__(Syntax, PatternMatchBind):
 
 
 class __match_line__(Syntax):
-    """
-    This class represents one line of a caseof expression, i.e.:
-    m( ... ) >> return_value
+    """One line of a caseof expression, i.e.: ``m( ... ) >> return_value``
+
     """
     def __init__(self, is_match, return_value):
         self.is_match = is_match
@@ -370,9 +378,8 @@ class __match_line__(Syntax):
 
 
 class __match_test__(Syntax):
-    """
-    This class represents the pattern part of one caseof line, i.e.:
-    m( ... )
+    """The pattern part of one caseof line, i.e.: ``m( ... )``
+
     """
     def __init__(self, is_match):
         self.is_match = is_match
@@ -383,9 +390,9 @@ class __match_test__(Syntax):
 
 
 class __unmatched_case__(Syntax):
-    """
-    This class represents a caseof expression in mid-evaluation, when zero or
-    more lines have been tested, but before a match has been found.
+    """A caseof expression in mid-evaluation, when zero or more lines have been
+    tested, but before a match has been found.
+
     """
     def __or__(self, line):
         if line.is_match:
@@ -400,9 +407,9 @@ class __unmatched_case__(Syntax):
 
 
 class __matched_case__(Syntax):
-    """
-    This class represents a caseof expression in mid-evaluation, when one or
-    more lines have been tested and after a match has been found.
+    """A caseof expression in mid-evaluation, when one or more lines have been
+    tested and after a match has been found.
+
     """
     def __init__(self, return_value):
         self.value = return_value
@@ -416,24 +423,24 @@ class __matched_case__(Syntax):
 
 
 class caseof(__unmatched_case__):
-    """
-    Pattern matching can be used to deconstruct lists and ADTs, and is a very
+    """Pattern matching can be used to deconstruct lists and ADTs, and is a very
     useful control flow tool.
 
-    Usage:
+    Usage::
 
-    ~(caseof(value_to_match)
-        | m(pattern_1) >> return_value_1
-        | m(pattern_2) >> return_value_2
-        | m(pattern_3) >> return_value_3)
+        ~(caseof(value_to_match)
+            | m(pattern_1) >> return_value_1
+            | m(pattern_2) >> return_value_2
+            | m(pattern_3) >> return_value_3)
 
-    Example usage:
+    Example usage::
 
-    def fib(x):
-        return ~(caseof(x)
-                    | m(0)   >> 1
-                    | m(1)   >> 1
-                    | m(m.n) >> fib(p.n - 1) + fib(p.n - 2))
+        def fib(x):
+            return ~(caseof(x)
+                        | m(0)   >> 1
+                        | m(1)   >> 1
+                        | m(m.n) >> fib(p.n - 1) + fib(p.n - 2))
+
     """
     def __init__(self, value):
         if isinstance(value, Undefined):
@@ -442,18 +449,19 @@ class caseof(__unmatched_case__):
 
 
 # ADT creation syntax ("data" expressions)
-
-
 # "data"/type constructor half of the expression
 
 class __data__(Syntax):
-    """
-    `data` is part of Hask's special syntax for defining ADTs.
+    """`data` is part of Hask's special syntax for defining ADTs.
 
     Example usage:
 
-    Maybe, Nothing, Just =\
-    data.Maybe("a") == d.Nothing | d.Just("a") & deriving(Read, Show, Eq, Ord)
+        >>> from hask import data, d, deriving, Read, Show, Eq, Ord
+
+        >>> Maybe, Nothing, Just =\
+        ...     data.Maybe("a") == d.Nothing | d.Just("a") & \
+        ...     deriving(Read, Show, Eq, Ord)
+
     """
     def __init__(self):
         super(__data__, self).__init__("Syntax error in `data`")
@@ -491,10 +499,11 @@ class __new_tcon_enum__(__new_tcon__):
     the part of the expression that builds the type constructor, before type
     parameters have been added.
 
-    Examples:
+    Examples::
 
-    data.Either
-    data.Ordering
+       data.Either
+       data.Ordering
+
     """
     def __call__(self, *typeargs):
         if len(typeargs) < 1:
@@ -523,22 +532,21 @@ class __new_tcon_hkt__(__new_tcon__):
     the part of the expression that builds the type constructor, after type
     parameters have been added.
 
-    Examples:
+    Examples::
 
-    data.Maybe("a")
-    data.Either("a", "b")
+        data.Maybe("a")
+        data.Either("a", "b")
+
     """
     pass
 
 
 # "d"/data constructor half of the expression
-
-
 class __d__(Syntax):
-    """
-    `d` is part of hask's special syntax for defining algebraic data types.
+    """`d` is part of hask's special syntax for defining algebraic data types.
 
-    See help(data) for more information.
+    See `data`:obj: for more information.
+
     """
     def __init__(self):
         super(__d__, self).__init__("Syntax error in `d`")
@@ -567,10 +575,11 @@ class __new_dcon_params__(__new_dcon__):
     the part of the expression that builds a data constructor, after type
     parameters have been added.
 
-    Examples:
+    Examples::
 
-    d.Just("a")
-    d.Foo(int, "a", "b", str)
+        d.Just("a")
+        d.Foo(int, "a", "b", str)
+
     """
     def __and__(self, derive_exp):
         if not isinstance(derive_exp, deriving):
@@ -594,10 +603,11 @@ class __new_dcon_deriving__(__new_dcon__):
     the part of the expression that builds a data constructor (with or without type
     parameters) and adds derived typeclasses.
 
-    Examples:
+    Examples::
 
-    d.Just("a") & deriving(Show, Eq, Ord)
-    d.Bar & deriving(Eq)
+        d.Just("a") & deriving(Show, Eq, Ord)
+        d.Bar & deriving(Eq)
+
     """
     pass
 
@@ -608,10 +618,11 @@ class __new_dcon_enum__(__new_dcon_params__):
     the part of the expression that builds a data constructor, after type
     parameters have been added.
 
-    Examples:
+    Examples::
 
-    d.Just
-    d.Foo
+        d.Just
+        d.Foo
+
     """
     def __call__(self, *typeargs):
         return __new_dcon_params__(self.name, typeargs)
@@ -623,10 +634,11 @@ class __new_dcons_deriving__(Syntax):
     the part of the expression that builds data constructors (with or without type
     parameters) and adds derived typeclasses.
 
-    Examples:
+    Examples::
 
-    d.Nothing | d.Just("a") & deriving(Show, Eq, Ord)
-    d.Foo(int, "a", "b", str) | d.Bar & deriving(Eq)
+        d.Nothing | d.Just("a") & deriving(Show, Eq, Ord)
+        d.Foo(int, "a", "b", str) | d.Bar & deriving(Eq)
+
     """
     def __init__(self, data_consts, classes=()):
         self.dcons = data_consts
@@ -640,11 +652,11 @@ class __new_dcons__(__new_dcons_deriving__):
     the part of the expression that builds data constructors (with or without type
     parameters), with no derived typeclasses.
 
-    Examples:
+    Examples::
 
-    d.Foo(int, "a", "b", str) | d.Bar
+       d.Foo(int, "a", "b", str) | d.Bar
+
     """
-
     def __init__(self, data_consts):
         super(__new_dcons__, self).__init__(data_consts)
 
@@ -664,11 +676,11 @@ d = __d__()
 
 
 class deriving(Syntax):
-    """
-    `deriving` is part of hask's special syntax for defining algebraic data
+    """`deriving` is part of hask's special syntax for defining algebraic data
     types.
 
-    See help(data) for more information.
+    See `data`:class: for more information.
+
     """
     def __init__(self, *tclasses):
         for tclass in tclasses:
@@ -840,12 +852,12 @@ class __guard_conditional__(Syntax):
 
 
 class __guard_base__(Syntax):
-    """
-    Superclass for the classes __unmatched_guard__ and __matched_guard__ below,
-    which represent the internal state of a guard expression as it is being
-    evaluated.
+    """Superclass for the classes __unmatched_guard__ and __matched_guard__
+    below, which represent the internal state of a guard expression as it is
+    being evaluated.
 
-    See help(guard) for more details.
+    See `guard`:class: for more details.
+
     """
     def __init__(self, value):
         self.value = value
@@ -853,11 +865,11 @@ class __guard_base__(Syntax):
 
 
 class __unmatched_guard__(__guard_base__):
-    """
-    Object that represents the state of a guard expression in mid-evaluation,
+    """Object that represents the state of a guard expression in mid-evaluation,
     before one of the conditions in the expression has been satisfied.
 
-    See help(guard) for more details.
+    See `guard`:class: for more details.
+
     """
     def __or__(self, cond):
         # Consume the next line of the guard expression
@@ -883,11 +895,11 @@ class __unmatched_guard__(__guard_base__):
 
 
 class __matched_guard__(__guard_base__):
-    """
-    Object that represents the state of a guard expression in mid-evaluation,
+    """Object that represents the state of a guard expression in mid-evaluation,
     after one of the conditions in the expression has been satisfied.
 
-    See help(guard) for more details.
+    See `guard`:class: for more details.
+
     """
     def __or__(self, cond):
         # Consume the next line of the guard expression
