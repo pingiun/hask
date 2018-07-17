@@ -51,6 +51,7 @@ run all tests in Python 3.6:
 
 run doctests:
   stage: test
+  allow_failure: true
   script:
     - pip install pipenv
     - pipenv install --dev
