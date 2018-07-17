@@ -9,15 +9,21 @@ from ..lang import sig
 
 
 class Monoid(Typeclass):
-    """
-    The class of monoids (types with an associative binary operation that has
+    """The class of monoids (types with an associative binary operation that has
     an identity)
 
     Attributes:
-        mempty, mappend, mconcat
+
+    - ``mempty``
+    - ``mappend``
+    - ``mconcat``
 
     Minimal complete definition:
-        mempty, mappend, mconcat
+
+    - ``mempty``
+    - ``mappend``
+    - ``mconcat``
+
     """
     @classmethod
     def make_instance(typeclass, cls, mempty, mappend, mconcat):
@@ -27,19 +33,19 @@ class Monoid(Typeclass):
 
 @sig(H[(Monoid, "m")]/ "m" >> "m" >> "m")
 def mappend(x, y):
-    """
-    mappend :: a -> a -> a
+    """``mappend :: a -> a -> a``
 
     An associative operation
+
     """
     return Monoid[x].mappend(x, y)
 
 
 @sig(H[(Monoid, "m")]/ ["m"] >> "m")
 def mconcat(m):
-    """
-    mconcat :: [a] -> a
+    """``mconcat :: [a] -> a``
 
     Fold a list using the monoid.
+
     """
-    return Monoid[x].mconcat(xs)
+    raise NotImplementedError

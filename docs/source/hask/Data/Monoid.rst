@@ -3,4 +3,9 @@
 ================================================
 
 .. automodule:: hask.Data.Monoid
-   :members:
+
+.. autoclass:: Monoid
+
+.. autofunction:: mappend
+
+.. autofunction:: mconcat
