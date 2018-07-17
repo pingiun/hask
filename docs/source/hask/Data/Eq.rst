@@ -2,5 +2,6 @@
  :mod:`hask.Data.Eq` -- The ``Data.Eq``
 ========================================
 
-.. automodule:: hask.Data.Eq
-   :members:
+.. module:: hask.Data.Eq
+
+Reexport the `hask.lang.typeclasses.Eq`:class:.
