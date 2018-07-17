@@ -21,17 +21,32 @@ from .Ord import Ord
 
 
 class Num(Show, Eq):
-    """
-    Basic numeric class.
+    """Basic numeric class.
 
     Dependencies:
-        Show, Eq
+
+    - `~hask.lang.typeclasses.Show`:class:
+    - `~hask.lang.typeclasses.Eq`:class:
 
     Attributes:
-        __add__, __mul__, __abs__, signum, fromInteger, __neg__, __sub__
+
+    - ``__add__``
+    - ``__mul__``
+    - ``__abs__``
+    - ``signum``
+    - ``fromInteger``
+    - ``__neg__``
+    - ``__sub__``
 
     Minimal complete definition:
-        add, mul, abs, signum, fromInteger, negate
+
+    - ``add``
+    - ``mul``
+    - ``abs``
+    - ``signum``
+    - ``fromInteger``
+    - ``negate``
+
     """
     @classmethod
     def make_instance(typeclass, cls, add, mul, abs, signum, fromInteger,
@@ -50,33 +65,33 @@ class Num(Show, Eq):
 
 @sig(H[(Num, "a")]/ "a" >> "a")
 def negate(a):
-    """
-    signum :: Num a => a -> a
+    """``signum :: Num a => a -> a``
 
     Unary negation.
+
     """
     return Num[a].negate(a)
 
 
 @sig(H[(Num, "a")]/ "a" >> "a")
 def signum(a):
-    """
-    signum :: Num a => a -> a
+    """``signum :: Num a => a -> a``
 
     Sign of a number. The functions abs and signum should satisfy the law:
     abs x * signum x == x
     For real numbers, the signum is either -1 (negative), 0 (zero) or 1
     (positive).
+
     """
     return Num[a].signum(a)
 
 
 @sig(H[(Num, "a")]/ "a" >> "a")
 def abs(a):
-    """
-    abs :: Num a => a -> a
+    """``abs :: Num a => a -> a``
 
     Absolute value.
+
     """
     return Num[a].abs(a)
 
@@ -126,17 +141,23 @@ instance(Num, complex).where(
 
 
 class Fractional(Num):
-    """
-    Fractional numbers, supporting real division.
+    """Fractional numbers, supporting real division.
 
     Dependencies:
-        Num
+
+    - `Num`:class:
 
     Attributes:
-        fromRational, recip, __div__
+
+    - ``fromRational``
+    - ``recip``
+    - ``__div__``
 
     Minimal complete definition:
-        fromRational, div
+
+    - ``fromRational``
+    - ``div``
+
     """
     @classmethod
     def make_instance(typeclass, cls, fromRational, div, recip=None):
@@ -161,28 +182,63 @@ instance(Fractional, float).where(
 
 @sig(H[(Fractional, "a")]/ "a" >> "a")
 def recip(a):
-    """
-    recip :: Fractional a => a -> a
+    """``recip :: Fractional a => a -> a``
 
     Reciprocal fraction.
+
     """
     return Fractional[a].recip(a)
 
 
 class Floating(Fractional):
-    """
-    Trigonometric and hyperbolic functions and related functions.
+    """Trigonometric and hyperbolic functions and related functions.
 
     Dependencies:
-        Fractional
+
+    - `Fractional`:class:
 
     Attributes:
-        pi, exp, sqrt, log, pow, logBase, sin, tan, cos, asin, atan, acos,
-        sinh, tanh, cosh, asinh, atanh, acosh
+
+    - ``pi``
+    - ``exp``
+    - ``sqrt``
+    - ``log``
+    - ``pow``
+    - ``logBase``
+    - ``sin``
+    - ``tan``
+    - ``cos``
+    - ``asin``
+    - ``atan``
+    - ``acos``
+    - ``sinh``
+    - ``tanh``
+    - ``cosh``
+    - ``asinh``
+    - ``atanh``
+    - ``acosh``
 
     Minimal complete definition:
-        pi, exp, sqrt, log, pow, logBase, sin, tan, cos, asin, atan, acos,
-        sinh, tanh, cosh, asinh, atanh, acosh
+
+    - ``pi``
+    - ``exp``
+    - ``sqrt``
+    - ``log``
+    - ``pow``
+    - ``logBase``
+    - ``sin``
+    - ``tan``
+    - ``cos``
+    - ``asin``
+    - ``atan``
+    - ``acos``
+    - ``sinh``
+    - ``tanh``
+    - ``cosh``
+    - ``asinh``
+    - ``atanh``
+    - ``acosh``
+
     """
     @classmethod
     def make_instance(typeclass, cls, pi, exp, sqrt, log, pow, logBase, sin,
@@ -197,32 +253,32 @@ class Floating(Fractional):
 
 @sig(H[(Floating, "a")]/ "a" >> "a")
 def exp(x):
-    """
-    exp :: Floating a => a -> a
+    """``exp :: Floating a => a -> a``
+
     """
     return Floating[x].exp(x)
 
 
 @sig(H[(Floating, "a")]/ "a" >> "a")
 def sqrt(x):
-    """
-    sqrt :: Floating a => a -> a
+    """``sqrt :: Floating a => a -> a``
+
     """
     return Floating[x].sqrt(x)
 
 
 @sig(H[(Floating, "a")]/ "a" >> "a")
 def log(x):
-    """
-    log:: Floating a => a -> a
+    """``log:: Floating a => a -> a``
+
     """
     return Floating[x].log(x)
 
 
 @sig(H[(Floating, "a")]/ "a" >> "a" >> "a")
 def pow(x, y):
-    """
-    pow :: Floating a => a -> a -> a
+    """``pow :: Floating a => a -> a -> a``
+
     """
     return Floating[x].pow(x, y)
 
@@ -230,7 +286,7 @@ def pow(x, y):
 @sig(H[(Floating, "a")]/ "a" >> "a" >> "a")
 def logBase(x, b):
     """
-    logBase :: Floating a => a -> a -> a
+    ``logBase :: Floating a => a -> a -> a``
     """
     return Floating[x].logBase(x, b)
 
@@ -238,7 +294,7 @@ def logBase(x, b):
 @sig(H[(Floating, "a")]/ "a" >> "a")
 def sin(x):
     """
-    sin :: Floating a => a -> a
+    ``sin :: Floating a => a -> a``
     """
     return Floating[x].sin(x)
 
@@ -246,7 +302,7 @@ def sin(x):
 @sig(H[(Floating, "a")]/ "a" >> "a")
 def cos(x):
     """
-    cos :: Floating a => a -> a
+    ``cos :: Floating a => a -> a``
     """
     return Floating[x].cos(x)
 
@@ -254,7 +310,7 @@ def cos(x):
 @sig(H[(Floating, "a")]/ "a" >> "a")
 def tan(x):
     """
-    tan :: Floating a => a -> a
+    ``tan :: Floating a => a -> a``
     """
     return Floating[x].tan(x)
 
@@ -262,7 +318,7 @@ def tan(x):
 @sig(H[(Floating, "a")]/ "a" >> "a")
 def asin(x):
     """
-    asin :: Floating a => a -> a
+    ``asin :: Floating a => a -> a``
     """
     return Floating[x].asin(x)
 
@@ -270,7 +326,7 @@ def asin(x):
 @sig(H[(Floating, "a")]/ "a" >> "a")
 def atan(x):
     """
-    atan :: Floating a => a -> a
+    ``atan :: Floating a => a -> a``
     """
     return Floating[x].atan(x)
 
@@ -278,7 +334,7 @@ def atan(x):
 @sig(H[(Floating, "a")]/ "a" >> "a")
 def acos(x):
     """
-    acos :: Floating a => a -> a
+    ``acos :: Floating a => a -> a``
     """
     return Floating[x].acos(x)
 
@@ -286,7 +342,7 @@ def acos(x):
 @sig(H[(Floating, "a")]/ "a" >> "a")
 def sinh(x):
     """
-    sinh :: Floating a => a -> a
+    ``sinh :: Floating a => a -> a``
     """
     return Floating[x].sinh(x)
 
@@ -294,7 +350,7 @@ def sinh(x):
 @sig(H[(Floating, "a")]/ "a" >> "a")
 def tanh(x):
     """
-    tanh :: Floating a => a -> a
+    ``tanh :: Floating a => a -> a``
     """
     return Floating[x].tanh(x)
 
@@ -302,15 +358,15 @@ def tanh(x):
 @sig(H[(Floating, "a")]/ "a" >> "a")
 def cosh(x):
     """
-    cosh :: Floating a => a -> a
+    ``cosh :: Floating a => a -> a``
     """
     return Floating[x].cosh(x)
 
 
 @sig(H[(Floating, "a")]/ "a" >> "a")
 def asinh(x):
-    """
-    asinh :: Floating a => a -> a
+    """``asinh :: Floating a => a -> a``
+
     """
     return Floating[x].asinh(x)
 
@@ -318,7 +374,7 @@ def asinh(x):
 @sig(H[(Floating, "a")]/ "a" >> "a")
 def atanh(x):
     """
-    atanh :: Floating a => a -> a
+    ``atanh :: Floating a => a -> a``
     """
     return Floating[x].atanh(x)
 
@@ -326,7 +382,7 @@ def atanh(x):
 @sig(H[(Floating, "a")]/ "a" >> "a")
 def acosh(x):
     """
-    acosh :: Floating a => a -> a
+    ``acosh :: Floating a => a -> a``
     """
     return Floating[x].acosh(x)
 
@@ -354,17 +410,21 @@ instance(Floating, float).where(
 
 
 class Real(Num, Ord):
-    """
-    Real numbers.
+    """Real numbers.
 
     Dependencies:
-        Num, Ord
+
+    - `Num`:class:
+    - `~hask.lang.typeclasses.Ord`:class:
 
     Attributes:
-        toRational
+
+    - ``toRational``
 
     Minimal complete definition:
-        toRational
+
+    - ``toRational``
+
     """
     @classmethod
     def make_instance(typeclass, cls, toRational):
@@ -373,26 +433,40 @@ class Real(Num, Ord):
 
 @sig(H[(Real, "a")]/ "a" >> Rational)
 def toRational(x):
-    """
-    toRational :: Real a => a -> Rational
+    """``toRational :: Real a => a -> Rational``
 
     Conversion to Rational.
+
     """
     return Real[x].toRational(x)
 
 
 class Integral(Real, Enum):
-    """
-    Integral numbers, supporting integer division.
+    """Integral numbers, supporting integer division.
 
     Dependencies:
-        Real, Enum
+
+    - `Real`:class:
+    - `~hask.lang.lazylist.Enum`:class:
 
     Attributes:
-        quotRem, toInteger, quot, rem, div, mod
+
+    - ``quotRem``
+    - ``toInteger``
+    - ``quot``
+    - ``rem``
+    - ``div``
+    - ``mod``
 
     Minimal complete definition:
-        quotRem, toInteger, quot, rem, div, mod
+
+    - ``quotRem``
+    - ``toInteger``
+    - ``quot``
+    - ``rem``
+    - ``div``
+    - ``mod``
+
     """
     @classmethod
     def make_instance(typeclass, cls, quotRem, divMod, toInteger, quot=None,
@@ -410,10 +484,10 @@ class Integral(Real, Enum):
 
 @sig(H[(Integral, "a")]/ "a" >> "a" >> t(Ratio, "a"))
 def toRatio(num, denom):
-    """
-    toRatio :: Integral a => a -> a -> Ratio a
+    """``toRatio :: Integral a => a -> a -> Ratio a``
 
     Conversion to Ratio.
+
     """
     frac = fractions.Fraction(num, denom)
     return R(frac.numerator, frac.denominator)
@@ -459,17 +533,29 @@ except NameError:
 
 
 class RealFrac(Real, Fractional):
-    """
-    Extracting components of fractions.
+    """Extracting components of fractions.
 
     Dependencies:
-        Real, Fractional
+
+    - `Real`:class:
+    - `Fractional`:class:
 
     Attributes:
-        properFraction, truncate, round, ceiling, floor
+
+    - ``properFraction``
+    - ``truncate``
+    - ``round``
+    - ``ceiling``
+    - ``floor``
 
     Minimal complete definition:
-        properFraction, truncate, round, ceiling, floor
+
+    - ``properFraction``
+    - ``truncate``
+    - ``round``
+    - ``ceiling``
+    - ``floor``
+
     """
     @classmethod
     def make_instance(typeclass, cls, properFraction, truncate, round, ceiling,
@@ -481,8 +567,7 @@ class RealFrac(Real, Fractional):
 
 @sig(H[(RealFrac, "a"), (Integral, "b")]/ "a" >> ("b", "a"))
 def properFraction(x):
-    """
-    properFraction :: RealFrac a, Integral b => a -> (b, a)
+    """``properFraction :: RealFrac a, Integral b => a -> (b, a)``
 
     The function properFraction takes a real fractional number x and returns a
     pair (n,f) such that x = n+f, and:
@@ -490,47 +575,48 @@ def properFraction(x):
         n is an integral number with the same sign as x; and
         f is a fraction with the same type and sign as x, and with absolute
         value less than 1.
+
     """
     return RealFrac[x].properFraction(x)
 
 
 @sig(H[(RealFrac, "a"), (Integral, "b")]/ "a" >> "b")
 def truncate(x):
-    """
-    truncate :: RealFrac a, Integral b => a -> b
+    """``truncate :: RealFrac a, Integral b => a -> b``
 
     truncate(x) returns the integer nearest x between zero and x
+
     """
     return RealFrac[x].truncate(x)
 
 
 @sig(H[(RealFrac, "a"), (Integral, "b")]/ "a" >> "b")
 def round(x):
-    """
-    round :: RealFrac a, Integral b => a -> b
+    """``round :: RealFrac a, Integral b => a -> b``
 
     round(x) returns the nearest integer to x; the even integer if x is
     equidistant between two integers
+
     """
     return RealFrac[x].round(x)
 
 
 @sig(H[(RealFrac, "a"), (Integral, "b")]/ "a" >> "b")
 def ceiling(x):
-    """
-    ceiling :: RealFrac a, Integral b => a -> b
+    """``ceiling :: RealFrac a, Integral b => a -> b``
 
     ceiling(x) returns the least integer not less than x
+
     """
     return RealFrac[x].ceiling(x)
 
 
 @sig(H[(RealFrac, "a"), (Integral, "b")]/ "a" >> "b")
 def floor(x):
-    """
-    floor :: RealFrac a, Integral b => a -> b
+    """``floor :: RealFrac a, Integral b => a -> b``
 
     floor(x) returns the greatest integer not greater than x
+
     """
     return RealFrac[x].floor(x)
 
@@ -545,18 +631,30 @@ instance(RealFrac, float).where(
 
 
 class RealFloat(Floating, RealFrac):
-    """
-    Efficient, machine-independent access to the components of a floating-point
-    number.
+    """Efficient, machine-independent access to the components of a
+    floating-point number.
 
     Dependencies:
-        Floating, RealFrac
+
+    - `Floating`:class:
+    - `RealFrac`:class:
 
     Attributes:
-        floatRange, isNan, isInfinite, isNegativeZero, atan2
+
+    - ``floatRange``
+    - ``isNan``
+    - ``isInfinite``
+    - ``isNegativeZero``
+    - ``atan2``
 
     Minimal complete definition:
-        floatRange, isNan, isInfinite, isNegativeZero, atan2
+
+    - ``floatRange``
+    - ``isNan``
+    - ``isInfinite``
+    - ``isNegativeZero``
+    - ``atan2``
+
     """
     @classmethod
     def make_instance(typeclass, cls, floatRange, isNan, isInfinite,
@@ -569,40 +667,40 @@ class RealFloat(Floating, RealFrac):
 
 @sig(H[(RealFloat, "a")]/ "a" >> bool)
 def isNaN(x):
-    """
-    isNaN :: RealFloat a => a -> bool
+    """``isNaN :: RealFloat a => a -> bool``
 
     True if the argument is an IEEE "not-a-number" (NaN) value
+
     """
     return RealFloat[x].isNan(x)
 
 
 @sig(H[(RealFloat, "a")]/ "a" >> bool)
 def isInfinite(x):
-    """
-    isInfinite :: RealFloat a => a -> bool
+    """``isInfinite :: RealFloat a => a -> bool``
 
     True if the argument is an IEEE infinity or negative infinity
+
     """
     return RealFloat[x].isInfinite(x)
 
 
 @sig(H[(RealFloat, "a")]/ "a" >> bool)
 def isNegativeZero(x):
-    """
-    isNegativeZero :: RealFloat a => a -> bool
+    """``isNegativeZero :: RealFloat a => a -> bool``
 
     True if the argument is an IEEE negative zero
+
     """
     return RealFloat[x].isNegativeZero(x)
 
 
 @sig(H[(RealFloat, "a")]/ "a" >> "a" >> "a")
 def atan2(y, x):
-    """
-    atan2 :: RealFloat a => a -> a -> a
+    """``atan2 :: RealFloat a => a -> a -> a``
 
     a version of arctangent taking two real floating-point arguments
+
     """
     return RealFloat[x].atan2(y, x)
 
