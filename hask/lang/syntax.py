@@ -679,21 +679,26 @@ class deriving(Syntax):
 
 
 class __section__(Syntax):
-    """
-    __ is Hask's special syntax for operator sections.
+    """The class of the ``__`` object.
+
+    This is Hask's special syntax for operator sections: a placeholder for
+    arguments (operands).
 
     Example usage:
-    >>> (__+1)(5)
-    6
 
-    >>> (6/__) * (__-1) % 4
-    2
+        >>> (__+1)(5)
+        6
 
-    >>> (__*__)(2, 10)
-    1024
+        >>> (6/__) * (__-1) % 4
+        2
 
-    Operators supported:
-    + - * / // ** >> << | & ^ == != > >= < <=
+        >>> (__*__)(2, 10)
+        1024
+
+    Operators supported::
+
+        + - * / // ** >> << | & ^ == != > >= < <=
+
     """
     def __init__(self, syntax_err_msg):
         super(__section__, self).__init__(syntax_err_msg)
@@ -779,21 +784,22 @@ class NoGuardMatchException(Exception):
 
 
 class __guard_test__(Syntax):
-    """
-    c creates a new condition that can be used in a guard
-    expression.
+    """A case in a guard.
 
-    otherwise is a guard condition that always evaluates to True.
+    ``c`` creates a new condition that can be used in a guard expression.
 
-    Usage:
+    ``otherwise`` is a guard condition that always evaluates to True.
 
-    ~(guard(<expr to test>)
-        | c(<test_fn_1>) >> <return_value_1>
-        | c(<test_fn_2>) >> <return_value_2>
-        | otherwise      >> <return_value_3>
-    )
+    Usage::
 
-    See help(guard) for more details.
+        ~(guard(<expr to test>)
+            | c(<test_fn_1>) >> <return_value_1>
+            | c(<test_fn_2>) >> <return_value_2>
+            | otherwise      >> <return_value_3>
+        )
+
+    See `guard`:class: for more details.
+
     """
     def __init__(self, fn):
         if not callable(fn):
@@ -810,13 +816,18 @@ class __guard_test__(Syntax):
 
 
 class __guard_conditional__(Syntax):
-    """
-    Object that represents one line of a guard expression, consisting of:
-        1) a condition (a test function wrapped in c and a value to be returned
-           if that condition is satisfied).
-        2) a return value, which will be returned if the condition evaluates
-           to True
-    See help(guard) for more details.
+    """One line of a guard expression.
+
+    Consists of:
+
+    1) a condition (a test function wrapped in c and a value to be returned
+       if that condition is satisfied).
+
+    2) a return value, which will be returned if the condition evaluates
+       to True
+
+    See `guard`:class: for more details.
+
     """
     def __init__(self, fn, return_value):
         self.check = fn
@@ -888,40 +899,36 @@ class __matched_guard__(__guard_base__):
 
 
 class guard(__unmatched_guard__):
-    """
-    Special syntax for guard expression.
+    """Special syntax for guard expression.
 
-    Usage:
+    Usage::
 
-    ~(guard(<expr to test>)
-        | c(<test_fn_1>) >> <return_value_1>
-        | c(<test_fn_2>) >> <return_value_2>
-        | otherwise      >> <return_value_3>
-    )
+        ~(guard(<expr to test>)
+            | c(<test_fn_1>) >> <return_value_1>
+            | c(<test_fn_2>) >> <return_value_2>
+            | otherwise      >> <return_value_3>
+        )
 
-    Examples:
+    Examples::
 
-    ~(guard(8)
-         | c(lambda x: x < 5) >> "less than 5"
-         | c(lambda x: x < 9) >> "less than 9"
-         | otherwise          >> "unsure"
-    )
+        ~(guard(8)
+             | c(lambda x: x < 5) >> "less than 5"
+             | c(lambda x: x < 9) >> "less than 9"
+             | otherwise          >> "unsure"
+        )
 
-    # Using guards with sections. See help(__) for information on sections.
-    ~(guard(20)
-        | c(__ > 10)  >> 20
-        | c(__ == 10) >> 10
-        | c(__ > 5)   >> 5
-        | otherwise   >> 0)
+        # Using guards with sections. See help(__) for information on sections.
+        ~(guard(20)
+            | c(__ > 10)  >> 20
+            | c(__ == 10) >> 10
+            | c(__ > 5)   >> 5
+            | otherwise   >> 0)
 
-    Args:
-        value: the value being tested in the guard expression
+    :param value: the value being tested in the guard expression
 
-    Returns:
-        the return value corresponding to the first matching condition
+    :returns: the return value corresponding to the first matching condition
 
-    Raises:
-        NoGuardMatchException (if no match is found)
+    :raises: NoGuardMatchException (if no match is found)
 
     """
     def __invert__(self):

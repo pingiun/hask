@@ -177,10 +177,10 @@ if sys.version[0] == '2':
 
 
 class List(collections.Sequence, Hask):
-    """
-    Statically typed lazy sequence datatype.
+    """Statically typed lazy sequence datatype.
 
-    See help(L) for more information.
+    See `L`:obj: for more information.
+
     """
     def __init__(self, head=None, tail=None):
         self.__head = []
@@ -419,6 +419,7 @@ class __list_comprehension__(Syntax):
 
     >>> L[1, 5, ..., 20]
     # list from 1 to 20 (inclusive), counting by fours
+
     """
     def __getitem__(self, lst):
         if isinstance(lst, tuple) and len(lst) < 5 and \

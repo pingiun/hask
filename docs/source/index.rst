@@ -3,15 +3,25 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Hask's documentation!
-================================
+===================================
+ Welcome to Hask3's documentation!
+===================================
+
+This is a fork for the original project `hask`_.  We're naming it ``hask3``
+because we're intending this project to be used exclusively in Python 3.4+.
+
+Most of the code of this project is still from the original authors.
+
+.. _hask: https://github.com/billpmurphy/hask
 
 .. toctree::
    :glob:
    :maxdepth: 2
    :caption: Contents:
 
-   hask/**
+   overview
+   hask/index.rst
+   history.rst
 
 
 Indices and tables

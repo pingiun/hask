@@ -21,6 +21,7 @@ class Applicative(Functor):
 
     Minimal complete definition:
         pure
+
     """
     @classmethod
     def make_instance(self, cls, pure):

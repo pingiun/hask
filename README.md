@@ -29,7 +29,6 @@ language tools from Haskell, including:
 
 Features not yet implemented, but coming soon:
 
-* Python 3 compatibility
 * Better support for polymorphic return values/type defaulting
 * Better support for lazy evaluation (beyond just the `List` type and pattern matching)
 * More of the Haskell standard library (`Control.*` libraries, QuickCheck, and more)
