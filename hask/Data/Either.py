@@ -48,10 +48,10 @@ instance(Monad, Either).where(
 
 
 def in_either(fn):
-    """
-    Decorator for monadic error handling.
-    If the decorated function raises an exception, return the exception inside
-    Left. Otherwise, take the result and wrap it in Right.
+    """Decorator for monadic error handling.  If the decorated function raises an
+    exception, return the exception inside Left. Otherwise, take the result
+    and wrap it in Right.
+
     """
     def closure_in_either(*args, **kwargs):
         try:
@@ -63,11 +63,11 @@ def in_either(fn):
 
 @sig(H/ (H/ "a" >> "c") >> (H/ "b" >> "c") >> t(Either, "a", "b") >> "c")
 def either(fa, fb, e):
-    """
-    either :: (a -> c) -> (b -> c) -> Either a b -> c
+    """``either :: (a -> c) -> (b -> c) -> Either a b -> c``
 
     Case analysis for the Either type. If the value is Left(a), apply the first
     function to a; if it is Right(b), apply the second function to b.
+
     """
     return ~(caseof(e)
                 | m(Left(m.a))  >> fa(p.a)
@@ -76,32 +76,32 @@ def either(fa, fb, e):
 
 @sig(H/ [t(Either, "a", "b")] >> ["a"])
 def lefts(xs):
-    """
-    lefts :: [Either a b] -> [a]
+    """``lefts :: [Either a b] -> [a]``
 
     Extracts from a List of Either all the Left elements. All the Left elements
     are extracted in order.
+
     """
     return L[(x[0] for x in xs if isLeft(x))]
 
 
 @sig(H/ [t(Either, "a", "b")] >> ["b"])
 def rights(xs):
-    """
-    rights :: [Either a b] -> [b]
+    """``rights :: [Either a b] -> [b]``
 
     Extracts from a list of Either all the Right elements. All the Right
     elements are extracted in order.
+
     """
     return L[(x[0] for x in xs if isRight(x))]
 
 
 @sig(H/ t(Either, "a", "b") >> bool)
 def isLeft(x):
-    """
-    isLeft :: Either a b -> bool
+    """``isLeft :: Either a b -> bool``
 
     Return True if the given value is a Left-value, False otherwise.
+
     """
     return ~(caseof(x)
                 | m(Right(m.x)) >> False
@@ -110,21 +110,21 @@ def isLeft(x):
 
 @sig(H/ t(Either, "a", "b") >> bool)
 def isRight(x):
-    """
-    isRight :: Either a b -> bool
+    """``isRight :: Either a b -> bool``
 
     Return True if the given value is a Right-value, False otherwise.
+
     """
     return not isLeft(x)
 
 
 @sig(H/ [t(Either, "a", "b")] >> (["a"], ["b"]))
 def partitionEithers(xs):
-    """
-    partitionEithers :: [Either a b] -> ([a], [b])
+    """``partitionEithers :: [Either a b] -> ([a], [b])``
 
     Partitions a List of Either into two lists. All the Left elements are
     extracted, in order, to the first component of the output. Similarly the
     Right elements are extracted to the second component of the output.
+
     """
     return (lefts(xs), rights(xs))
