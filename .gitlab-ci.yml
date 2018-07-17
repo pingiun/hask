@@ -64,12 +64,9 @@ run doctests:
 build documentation:
   stage: build
   script:
-    - mkdir -p envs
-    - virtualenv envs/$CI_COMMIT_SHA
-    - source envs/$CI_COMMIT_SHA/bin/activate
-    - pip install sphinx sphinx-rtd-theme
-    - pip install -e .
-    - make -C docs/ html
+    - pip install pipenv
+    - pipenv install --dev
+    - pipenv run sphinx-build -M html docs/source docs/build
     - cd docs/build/html
     - tar -cjf ../../../$CI_PROJECT_NAME-$CI_COMMIT_SHA.tar.bz2 ./
   artifacts:
