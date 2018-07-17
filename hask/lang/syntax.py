@@ -216,24 +216,24 @@ def t(type_constructor, *params):
 
 
 def typify(fn, hkt=None):
-    """
-    Convert an untyped Python function to a TypeFunc.
+    """Convert an untyped Python function to a TypeFunc.
 
-    Args:
-        fn: The function to wrap
-        hkt: A higher-kinded type wrapped in a closure (e.g., lambda x:
-             t(Maybe, x))
+    :param fn: The function to wrap
 
-    Returns:
-        A TypedFunc object with a polymorphic type (e.g. a -> b -> c, etc) with
-        the same number of arguments as fn. If hkt is supplied, the return type
-        will be the supplied HKT parameterized by a type variable.
+    :param hkt: A higher-kinded type wrapped in a closure (e.g.,
+               ``lambda x: t(Maybe, x)``)
 
-    Example usage:
+    :returns: A `~hask.lang.type_system.TypedFunc`:class: object with a
+        polymorphic type (e.g. ``a -> b -> c``, etc) with the same number of
+        arguments as `fn`.  If `hkt` is supplied, the return type will be the
+        supplied HKT parameterized by a type variable.
 
-    @typify(hkt=lambda x: t(Maybe, x))
-    def add(x, y):
-        return x + y
+    Example usage::
+
+        @typify(hkt=lambda x: t(Maybe, x))
+        def add(x, y):
+            return x + y
+
     """
     code = get_first_of(fn, '__code__', 'fn_code')
     args = [chr(i) for i in range(97, 98 + code.co_argcount)]
