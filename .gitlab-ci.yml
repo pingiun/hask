@@ -49,6 +49,16 @@ run all tests in Python 3.6:
   tags:
     - python3.6
 
+run doctests:
+  stage: test
+  script:
+    - pip install pipenv
+    - pipenv install --dev
+    - pipenv run sphinx-build -M doctest docs/source docs/build
+  tags:
+    - python3.6
+
+
 
 build documentation:
   stage: build
