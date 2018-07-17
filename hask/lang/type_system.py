@@ -189,14 +189,15 @@ def has_instance(cls, typeclass):
 
 
 class Hask(object):
-    """
-    Base class for objects within hask.
+    """Base class for objects within hask.
 
-    ADTs, TypedFunc, List, Undefined, and other hask-related types are all
-    subclasses of Hask.
+    `ADTs <ADT>`:class:, `TypedFunc`:class:,
+    `~hask.lang.lazylist.List`:class:, `Undefined`:class:, and other
+    hask-related types are all subclasses of Hask.
 
-    All subclasses must define __type__, which returns a representation of the
-    object in the internal type system language.
+    All subclasses must define ``__type__``, which returns a representation of
+    the object in the internal type system language.
+
     """
     def __type__(self):
         raise TypeError()
@@ -221,15 +222,14 @@ class PyFunc(object):
 
 
 def typeof(obj):
-    """
-    Returns the type of an object within the internal type system.
+    """Returns the type of an object within the internal type system.
 
-    Args:
-        obj: the object to inspect
+    :param obj: the object to inspect
 
-    Returns:
-        An object representing the type in the internal type system language
-        (i.e., a TypeOperator or TypeVariable)
+    :returns: An object representing the type in the internal type system
+        language (i.e., a `~hask.lang.hindley_milner.TypeOperator`:class: or
+        `~hask.lang.hindley_milner.TypeVariable`:class:).
+
     """
     TypeVariable.next_var_name = 'a'
 
@@ -249,10 +249,10 @@ def typeof(obj):
 
 
 class TypeSignature(object):
-    """
-    Internal representation of a type signature, consisting of a list of
+    """Internal representation of a type signature, consisting of a list of
     function type arguments and a list of (typeclass, type_variable) typeclass
     constraint pairs.
+
     """
     def __init__(self, args, constraints):
         self.args = args
@@ -260,9 +260,9 @@ class TypeSignature(object):
 
 
 class TypeSignatureHKT(object):
-    """
-    Internal representation of a higher-kinded type within a type signature,
+    """Internal representation of a higher-kinded type within a type signature,
     consisting of the type constructor and its type parameter names.
+
     """
     def __init__(self, tcon, params):
         self.tcon = tcon
@@ -366,8 +366,8 @@ def build_sig(type_signature, var_dict=None):
 
 
 class TypedFunc(Hask):
-    """
-    Partially applied, statically typed function wrapper.
+    """Partially applied, statically typed function wrapper.
+
     """
     def __init__(self, fn, fn_args, fn_type):
         self.__doc__ = fn.__doc__
@@ -581,20 +581,21 @@ class PatternMatchListBind(object):
 
 
 def pattern_match(value, pattern, env=None):
-    """
-    Pattern match a value and a pattern.
+    """Pattern match a value and a pattern.
 
-    Args:
-        value: the value to pattern-match on
-        pattern: a pattern, consisting of literals and/or locally bound
+    :param value: the value to pattern-match on
+
+    :param pattern: a pattern, consisting of literals and/or locally bound
                  variables
-        env: a dictionary of local variables bound while matching
 
-    Returns: (True, env) if the match is successful, and (False, env) otherwise
+    :param env: a dictionary of local variables bound while matching
 
-    Raises:
-        SyntaxError, if a variable name is used multiple times in the same
+    :returns: (True, env) if the match is successful, and (False, env)
+              otherwise
+
+    :raises SyntaxError: if a variable name is used multiple times in the same
         pattern
+
     """
     env = {} if env is None else env
     if isinstance(pattern, PatternMatchBind):

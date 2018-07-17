@@ -3,4 +3,5 @@
 =======================================================================
 
 .. automodule:: hask.lang.type_system
-   :members:
+   :members: Hask, Undefined, PyFunc, typeof, TypeSignature, TypeSignatureHKT,
+             TypeSignatureError, TypedFunc, ADT
