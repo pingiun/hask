@@ -1,3 +1,7 @@
+from __future__ import (division as _py3_division,
+                        print_function as _py3_print,
+                        absolute_import as _py3_abs_import)
+
 from ..lang import sig
 from ..lang import H
 from ..lang import t
@@ -7,13 +11,13 @@ from ..lang import t
 # not a long-term solution (not extensible beyond builtin types) but it will do
 # for now.
 
-from Num import Integral
-from Num import RealFrac
-from Num import Ratio
-from Num import R  # noqa
-from Num import Rational
-from Num import toRatio
-from Num import toRational  # noqa
+from .Num import Integral
+from .Num import RealFrac
+from .Num import Ratio
+from .Num import R  # noqa
+from .Num import Rational
+from .Num import toRatio
+from .Num import toRational  # noqa
 
 
 @sig(H[(Integral, "a")]/ t(Ratio, "a") >> "a")

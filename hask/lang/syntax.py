@@ -1,7 +1,13 @@
+from __future__ import (division as _py3_division,
+                        print_function as _py3_print,
+                        absolute_import as _py3_abs_import)
+
 import inspect
 import operator
 import sys
 from collections import deque, defaultdict
+
+from xoutil.objects import get_first_of
 
 from .type_system import typeof
 from .type_system import Typeclass
@@ -223,7 +229,8 @@ def typify(fn, hkt=None):
     def add(x, y):
         return x + y
     """
-    args = [chr(i) for i in range(97, 98 + fn.func_code.co_argcount)]
+    code = get_first_of(fn, '__code__', 'fn_code')
+    args = [chr(i) for i in range(97, 98 + code.co_argcount)]
     if hkt is not None:
         args[-1] = hkt(args[-1])
     return sig(__signature__(args, []))

@@ -1,4 +1,7 @@
 # flake8: noqa
+from __future__ import (division as _py3_division,
+                        print_function as _py3_print,
+                        absolute_import as _py3_abs_import)
 
 import math
 import sys
@@ -354,7 +357,10 @@ class TestBuiltins(unittest.TestCase):
 
     def test_numerics(self):
         self.assertTrue(has_instance(int, Num))
-        self.assertTrue(has_instance(long, Num))
+        try:
+            self.assertTrue(has_instance(long, Num))
+        except NameError:
+            pass
         self.assertTrue(has_instance(float, Num))
         self.assertTrue(has_instance(complex, Num))
 
@@ -410,7 +416,7 @@ class Test_README_Examples(unittest.TestCase):
         self.assertEqual(5, f(2, 3))
         with self.assertRaises(te): f(9, 1.0)
 
-        g = (lambda a, b, c: a / (b + c)) ** (H/ int >> int >> int >> int)
+        g = (lambda a, b, c: a // (b + c)) ** (H/ int >> int >> int >> int)
         self.assertEqual(g(10, 2, 3), 2)
         part_g = g(12)
         self.assertEqual(part_g(2, 2), 3)
@@ -445,7 +451,7 @@ class Test_README_Examples(unittest.TestCase):
         # type signature with a type constructor (Maybe) that has type arguments
         @sig(H/ int >> int >> t(Maybe, int))
         def safe_div(x, y):
-            return Nothing if y == 0 else Just(x/y)
+            return Nothing if y == 0 else Just(x//y)
 
         # type signature for a function that returns nothing
         @sig(H/ int >> None)
@@ -524,7 +530,7 @@ class Test_README_Examples(unittest.TestCase):
 
         @sig(H/ int >> int >> t(M, int))
         def safe_div(x, y):
-            return N if y == 0 else J(x/y)
+            return N if y == 0 else J(x//y)
 
         from hask.Prelude import flip
         divBy = flip(safe_div)
@@ -601,7 +607,7 @@ class Test_README_Examples(unittest.TestCase):
     def test_examples(self):
         @sig(H/ int >> int >> t(Maybe, int))
         def safe_div(x, y):
-            return Nothing if y == 0 else Just(x/y)
+            return Nothing if y == 0 else Just(x//y)
 
         from hask.Data.Maybe import mapMaybe
         self.assertEqual(mapMaybe(safe_div(12)) % L[0, 1, 3, 0, 6],
