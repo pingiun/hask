@@ -4,14 +4,15 @@
 
 .. automodule:: hask.Data.Either
 
-.. object:: Either
+.. object:: hask.Data.Either.Either
 
    The ADT Either::
 
       data.Either == d.Left('a') | d.Right('b') & deriving(Read, Show, Eq, Ord)
 
-.. object:: Left
-.. object:: Right
+.. function:: hask.Data.Either.Left(a)
+
+.. function:: hask.Data.Either.Right(b)
 
 .. autofunction:: either
 
