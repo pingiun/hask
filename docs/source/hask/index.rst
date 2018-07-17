@@ -10,7 +10,6 @@
    :caption: Contents:
 
    lang/**
-   Prelude.rst
    Control/**
    Data/**
    Python/**
