@@ -14,13 +14,16 @@ class Applicative(Functor):
     (pure), and sequence computations and combine their results (ap).
 
     Dependencies:
-        Functor
+
+    - `~hask.Data.Functor.Functor`:class:
 
     Attributes:
-        pure
+
+    - ``pure``
 
     Minimal complete definition:
-        pure
+
+    - ``pure``
 
     """
     @classmethod
