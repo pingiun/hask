@@ -19,16 +19,20 @@ from ..lang import instance
 class Functor(Typeclass):
     """
     The Functor class is used for types that can be mapped over. Instances of
-    Functor should satisfy the following laws:
+    Functor should satisfy the following laws::
 
-    fmap(id)  ==  id
-    fmap(f * g)  ==  fmap(f * (fmap g))
+        fmap(id)  ==  id
+        fmap(f * g)  ==  fmap(f * (fmap g))
 
     Attributes:
-        fmap, __rmul__
+
+    - ``fmap``
+    - ``__rmul__``
 
     Minimal complete definition:
-        fmap
+
+    - ``fmap``
+
     """
     @classmethod
     def make_instance(typeclass, cls, fmap):
