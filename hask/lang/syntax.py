@@ -686,13 +686,16 @@ class __section__(Syntax):
 
     Example usage:
 
+        >>> from __future__ import division
+        >>> from hask.lang import __
+
         >>> (__+1)(5)
         6
 
-        >>> (6/__) * (__-1) % 4
+        >>> (6//__) * (__-1) % 4
         2
 
-        >>> (__*__)(2, 10)
+        >>> (__**__)(2, 10)
         1024
 
     Operators supported::
@@ -957,40 +960,45 @@ def _q(status=None):
 
 
 def _t(obj):
-    """
-    Returns a string representing the type of an object, including
-    higher-kinded types and ADTs. Equivalent to `:t` in Haskell. Meant to be
-    used in the REPL, but might also be useful for debugging.
+    """Returns a string representing the type of an object, including
+    higher-kinded types and ADTs.
 
-    Args:
-        obj: the object to inspect
+    Equivalent to ``:t`` in Haskell.  Meant to be used in the REPL, but might
+    also be useful for debugging.
 
-    Returns:
-        A string representation of the type
+    :param obj: the object to inspect
+
+    :returns: A string representation of the type
 
     Usage:
 
-    >>> _t(1)
-    int
+        >>> from hask import _t
 
-    >>> _t(Just("hello world"))
-    Maybe str
+        >>> _t(1)
+        'int'
+
+        >>> _t(Just("hello world"))
+        '(Maybe str)'
+
     """
     return str(typeof(obj))
 
 
 def _i(obj):
-    """
-    Show information about an object. Equivalent to `:i` in Haskell or
-    help(obj) in Python. Should only be used in the REPL.
+    """Show information about an object.
 
-    Args:
-        obj: the object to inspect
+    Equivalent to ``:i`` in Haskell or ``help(obj)`` in Python.  Should only
+    be used in the REPL.
 
-    Usage:
+    :param obj: the object to inspect
 
-    >>> _i(Just("hello world"))
+    Usage::
 
-    >>> _i(Either)
+        >>> _i(Just("hello world"))
+        ...
+
+        >>> _i(Either)
+        ...
+
     """
     help(obj)

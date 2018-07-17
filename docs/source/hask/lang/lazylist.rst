@@ -19,19 +19,25 @@
 
    There are four basic list comprehension patterns:
 
+       >>> from hask.lang import L
+
        >>> # list from 1 to infinity, counting by ones
        >>> L[1, ...]
+       L[1, ...]
 
 
        >>> # list from 1 to infinity, counting by twos
        >>> L[1, 3, ...]
+       L[1, 3, ...]
 
        >>> # list from 1 to 20 (inclusive), counting by ones
        >>> L[1, ..., 20]
+       L[1, ..., 20]
 
 
        >>> # list from 1 to 20 (inclusive), counting by fours
        >>> L[1, 5, ..., 20]
+       L[1, 5, ..., 20]
 
 
 .. autoclass:: List

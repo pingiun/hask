@@ -194,6 +194,8 @@ Currently, the only typeclasses that can be derived are
 Putting it all together, here are the definitions of
 `~hask.Data.Either.Either`:class: and `~hask.Data.Ordering.Ordering`:class:\ :
 
+    >>> from hask import Read, Show, Eq, Ord, Bounded
+
     >>> Either, Left, Right =\
     ...    data.Either("a", "b") == d.Left("a") | d.Right("b") & deriving(Read, Show, Eq)
 
@@ -223,19 +225,19 @@ can use it just like a variable:
 You can view the type of an object with `~hask.lang.syntax._t`:func:
 (equivalent to `:t` in ghci).
 
-    >>> from hask import _t
+    >>> from hask import _t, L
 
     >>> _t(1)
-    int
+    'int'
 
     >>> _t(Just("soylent green"))
-    (Maybe str)
+    '(Maybe str)'
 
     >>> _t(Right(("a", 1)))
-    (Either a (str, int))
+    '(Either a (str, int))'
 
     >>> _t(Just)
-    (a -> Maybe a)
+    '(a -> (Maybe a))'
 
     >>> _t(L[1, 2, 3, 4])
-    [int]
+    '[int]'
