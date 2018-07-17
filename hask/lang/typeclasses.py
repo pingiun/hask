@@ -16,14 +16,16 @@ from .syntax import H
 
 
 class Show(Typeclass):
-    """
-    Conversion of values to readable strings.
+    """Conversion of values to readable strings.
 
     Attributes:
-        __str__, show
+
+    - ``__str__``
+    - ``show``
 
     Minimal complete definition:
-        show
+
+    - ``show``
 
     """
     @classmethod
@@ -54,24 +56,26 @@ class Show(Typeclass):
 
 @sig(H/ "a" >> str)
 def show(obj):
-    """
-    show :: a -> str
+    """``show :: a -> str``
 
     Convert a value to a readable string.
+
     """
     return Show[obj].show(obj)
 
 
 class Eq(Typeclass):
-    """
-    The Eq class defines equality (==) and inequality (!=).
+    """The Eq class defines equality (==) and inequality (!=).
 
     Attributes:
-        __eq__
-        __ne__
+
+    - ``__eq__``
+    - ``__ne__``
 
     Minimal complete definition:
-        eq
+
+    - ``eq``
+
     """
     @classmethod
     def make_instance(typeclass, cls, eq, ne=None):
@@ -102,8 +106,7 @@ class Eq(Typeclass):
 
 
 class Ord(Eq):
-    """
-    The Ord class is used for totally ordered datatypes.
+    """The Ord class is used for totally ordered datatypes.
 
     Instances of Ord can be derived for any user-defined datatype whose
     constituent types are in Ord. The declared order of the constructors in the
@@ -112,13 +115,20 @@ class Ord(Eq):
     ordering of two objects.
 
     Dependencies:
-        Eq
+
+    - `Eq`:class:
 
     Attributes:
-        __lt__, __le__, __gt__, __ge__
+
+    - ``__lt__``
+    - ``__le__``
+    - ``__gt__``
+    - ``__ge__``
 
     Minimal complete definition:
-        lt
+
+    - ``lt``
+
     """
     @classmethod
     def make_instance(typeclass, cls, lt, le=None, gt=None, ge=None):
@@ -165,10 +175,9 @@ class Ord(Eq):
 
 
 class Bounded(Typeclass):
-    """
-    The Bounded class is used to name the upper and lower limits of a type. Ord
-    is not a superclass of Bounded since types that are not totally ordered may
-    also have upper and lower bounds.
+    """The Bounded class is used to name the upper and lower limits of a
+    type. Ord is not a superclass of Bounded since types that are not totally
+    ordered may also have upper and lower bounds.
 
     The Bounded class may be derived for any enumeration type; minBound is the
     first constructor listed in the data declaration and maxBound is the last.
@@ -176,10 +185,15 @@ class Bounded(Typeclass):
     constituent types are in Bounded.
 
     Attributes:
-        minBound, maxBound
+
+    - ``minBound``
+    - ``maxBound``
 
     Minimal complete definition:
-        minBound, maxBound
+
+    - ``minBound``
+    - ``maxBound``
+
     """
     @classmethod
     def make_instance(typeclass, cls, minBound, maxBound):
@@ -200,14 +214,16 @@ class Bounded(Typeclass):
 
 
 class Read(Typeclass):
-    """
-    Parsing of Strings, producing values.
+    """Parsing of Strings, producing values.
 
     Attributes:
-        read
+
+    - ``read``
 
     Minimal complete definition:
-        read
+
+    - ``read``
+
     """
     @classmethod
     def make_instance(typeclass, cls, read):
