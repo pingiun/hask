@@ -5,7 +5,7 @@ setup(
     name='hask3',
     version='0.1.1',
     description=des,
-    long_description=open('README.md').read(),
+    long_description=open('README.rst').read(),
     author='Bill Murphy',
     author_email='billpmurphy92@gmail.com',
     url='https://github.com/billpmurphy/hask',
