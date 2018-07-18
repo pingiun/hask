@@ -435,6 +435,7 @@ class caseof(__unmatched_case__):
 
     Example usage::
 
+        @sig(H/ int >> int)
         def fib(x):
             return ~(caseof(x)
                         | m(0)   >> 1
