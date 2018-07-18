@@ -18,6 +18,21 @@
 
 .. autoclass:: RealFloat
 
+.. object:: Ratio
+
+   The ADT Ratio::
+
+     Ratio, R =\
+        data.Ratio("a") == d.R("a", "a") & deriving(Eq)
+
+.. object:: Rational
+
+   A `Ratio`:obj: over `int`:class:.  Defined as ``t(Ratio, int)``.
+
+.. function:: R(a, a)
+
+   The constructor of a Ratio.
+
 .. autofunction:: negate
 
 .. autofunction:: signum

@@ -190,9 +190,9 @@ constructor has no fields, you can omit the parens. For example:
 To automagically derive typeclass instances for the type, add ``&
 deriving(...typeclasses...)`` after the data constructor declarations.
 Currently, the only typeclasses that can be derived are
-`~hask.Data.Eq.Eq`:class:, `~hask.Data.Show.Show`:class:,
-`~hask.Data.Read.Read`:class:, `~hask.Data.Ord.Ord`:class:, and
-`~hask.Data.Bounded.Bounded`:class.
+`~hask.lang.typeclasses.Eq`:class:, `~hask.lang.typeclasses.Show`:class:,
+`~hask.lang.typeclasses.Read`:class:, `~hask.lang.typeclasses.Ord`:class:, and
+`~hask.lang.typeclasses.Bounded`:class:.
 
 Putting it all together, here are the definitions of
 `~hask.Data.Either.Either`:class: and `~hask.Data.Ordering.Ordering`:class:\ :
@@ -244,3 +244,274 @@ You can view the type of an object with `~hask.lang.syntax._t`:func:
 
     >>> _t(L[1, 2, 3, 4])
     '[int]'
+
+
+The type system and typed functions
+-----------------------------------
+
+So what's up with those types? Hask operates its own shadow `Hindley-Milner
+type system`_ on top of Python's type system; `~hask.lang.syntax._t`:func:
+shows the Hask type of a particular object.
+
+In Hask, typed functions take the form of
+`~hask.lang.type_system.TypedFunc`:func: objects, which are typed wrappers
+around Python functions. There are two ways to create TypedFunc objects:
+
+- Use the `sig` decorator to decorate the function with the type signature::
+
+    @sig(H/ "a" >> "b" >> "a")
+    def const(x, y):
+        return x
+
+- Use the ``**`` operator (similar to ``::`` in Haskell) to provide the type.
+
+  Useful for turning functions or lambdas into TypedFunc objects in the REPL,
+  or wrapping already-defined Python functions::
+
+    def const(x, y):
+        return x
+
+    const = const ** (H/ "a" >> "b" >> "a")
+
+TypedFunc objects have several special properties.  First, they are type
+checked -- when arguments are supplied, the type inference engine will check
+whether their types match the type signature, and raise a TypeError if there
+is a discrepancy.
+
+    >>> f = (lambda x, y: x + y) ** (H/ int >> int >> int)
+
+    >>> f(2, 3)
+    5
+
+    >>> f(9, 1.0)  # doctest: +ELLIPSIS
+    Traceback (...)
+       ...
+    TypeError: ...
+
+
+
+Second, TypedFunc objects can be partially applied:
+
+   >>> g = (lambda a, b, c: a / (b + c)) ** (H/ int >> int >> int >> int)
+
+   >>> g(10, 2, 3)
+   2
+
+   >>> part_g = g(12)
+   >>> part_g(2, 2)
+   3
+
+   >>> g(20, 1)(4)
+   4
+
+
+TypedFunc objects also have two special infix operators, the ``*`` and ``%``
+operators. ``*`` is the compose operator (equivalent to ``.`` in Haskell), so
+``f * g`` is equivalent to ``lambda x: f(g(x))``. ``%`` is just the apply
+operator, which applies a TypedFunc to one argument (equivalent to ``$`` in
+Haskell).  The convinience of this notation (when combined with partial
+application) cannot be overstated -- you can get rid of a ton of nested
+parenthesis this way:
+
+
+   >>> from hask.Prelude import flip
+   >>> h = (lambda x, y: x / y) ** (H/ float >> float >> float)
+   >>> h(3.0) * h(6.0) * flip(h, 2.0) % 36.0
+   9.0
+
+
+The compose operation is also typed-checked, which makes it appealing to write
+programs in `pointfree style`_, i.e. chaining together lots of functions with
+composition and relying on the type system to catch programming errors.
+
+As you would expect, data constructors are also just TypedFunc objects:
+
+   >>> Just * Just * Just * Just % 77
+   Just(Just(Just(Just(77))))
+
+
+The type signature syntax is very simple, and consists of a few basic
+primitives that can be combined to build any type signature:
+
+- Type literal for Python builtin type or user-defined class:
+
+  ``int``, ``float``, ``set``, ``list``
+
+- Type variable:
+
+  ``"a"``, ``"b"``, ``"zz"``
+
+- ``List`` of some type:
+
+  ``[int]``, ``["a"]``, ``[["a"]]``
+
+- Tuple type:
+
+  ``(int, int)``, ``("a", "b", "c")``, ``(int, ("a", "b"))``
+
+- ADT with type parameters:
+
+  ``t(Maybe, "a")``, ``t(Either, "a", str)``
+
+- Unit type (``None``):
+
+  ``None``
+
+- Untyped Python function:
+
+  ``func``
+
+- Typeclass constraint:
+
+  ``H[(Eq, "a"), (Show, "b")]/``, ``H[(Functor, "f"), (Show, "f")]/``
+
+Some examples::
+
+  # add two ints together
+  @sig(H/ int >> int >> int)
+  def add(x, y):
+      return x + y
+
+
+  # reverse order of arguments to a function
+  @sig(H/ (H/ "a" >> "b" >> "c") >> "b" >> "a" >> "c")
+  def flip(f, b, a):
+      return f(a, b)
+
+
+  # map a Python (untyped) function over a Python (untyped) set
+  @sig(H/ func >> set >> set)
+  def set_map(fn, lst):
+      return set((fn(x) for x in lst))
+
+
+  # map a typed function over a List
+  @sig(H/ (H/ "a" >> "b") >> ["a"] >> ["b"])
+  def map(f, xs):
+      return L[(f(x) for x in xs)]
+
+
+  # type signature with an Eq constraint
+  @sig(H[(Eq, "a")]/ "a" >> ["a"] >> bool)
+  def not_in(y, xs):
+      return not any((x == y for x in xs))
+
+
+  # type signature with a type constructor (Maybe) that has type arguments
+  @sig(H/ int >> int >> t(Maybe, int))
+  def safe_div(x, y):
+      return Nothing if y == 0 else Just(x/y)
+
+
+  # type signature for a function that returns nothing
+  @sig(H/ int >> None)
+  def launch_missiles(num_missiles):
+      print("Launching {0} missiles! Bombs away!" % num_missiles)
+
+
+It is also possible to create type synonyms using
+`~hask.lang.syntax.t`:func:. For example, check out the definition of
+:obj:`~hask.Data.Num.Rational`:
+
+::
+
+    Ratio, R =\
+            data.Ratio("a") == d.R("a", "a") & deriving(Eq)
+
+
+    Rational = t(Ratio, int)
+
+
+    @sig(H/ Rational >> Rational >> Rational)
+    def addRational(rat1, rat2):
+        ...
+
+.. _Hindley-Milner type system: https://en.wikipedia.org/wiki/Hindley%E2%80%93Milner_type_system
+.. _pointfree style: https://wiki.haskell.org/Pointfree
+
+
+Pattern matching
+----------------
+
+Pattern matching is a more powerful control flow tool than the ``if``
+statement, and can be used to deconstruct iterables and ADTs and bind values
+to local variables.
+
+Pattern matching expressions follow this syntax::
+
+    ~(caseof(value_to_match)
+        | m(pattern_1) >> return_value_1
+        | m(pattern_2) >> return_value_2
+        | m(pattern_3) >> return_value_3)
+
+Here is a function that uses pattern matching to compute the fibonacci
+sequence.  Note that within a pattern match expression, ``m.*`` is used to
+bind variables, and ``p.*`` is used to access them:
+
+  >>> def fib(x):
+  ...     return ~(caseof(x)
+  ...                 | m(0)   >> 1
+  ...                 | m(1)   >> 1
+  ...                 | m(m.n) >> fib(p.n - 1) + fib(p.n - 2))
+
+  >>> fib(1)
+  1
+
+  >>> fib(6)
+  13
+
+
+As the above example shows, you can combine pattern matching and recursive
+functions without a hitch.
+
+You can also deconstruct an iterable using ``^`` (the cons operator). The
+variable before the ``^`` is bound to the first element of the iterable, and
+the variable after the ``^`` is bound to the rest of the iterable. Here is a
+function that adds the first two elements of any iterable, returning
+``Nothing`` if there are less than two elements:
+
+  >>> from hask import sig, t, caseof, m, p
+  >>> from hask import Num, Maybe, Just, Nothing
+
+  >>> @sig(H[(Num, "a")]/ ["a"] >> t(Maybe, "a"))
+  ... def add_first_two(xs):
+  ...     return ~(caseof(xs)
+  ...                 | m(m.x ^ (m.y ^ m.z)) >> Just(p.x + p.y)
+  ...                 | m(m.x)               >> Nothing)
+
+  >>> add_first_two(L[1, 2, 3, 4, 5])
+  Just(3)
+
+  >>> add_first_two(L[9.0])
+  Nothing
+
+Pattern matching is also very useful for deconstructing ADTs and assigning
+their fields to temporary variables.
+
+    >>> from hask import caseof, m, p
+    >>> from hask import Num, Maybe, Just, Nothing
+
+    >>> def default_to_zero(x):
+    ...     return ~(caseof(x)
+    ...                 | m(Just(m.x)) >> p.x
+    ...                 | m(Nothing)   >> 0)
+
+    >>> default_to_zero(Just(27))
+    27
+
+
+    >>> default_to_zero(Nothing)
+    0
+
+
+If you find pattern matching on ADTs too cumbersome, you can also use numeric
+indexing on ADT fields.  An `IndexError` will be thrown if you mess something
+up.
+
+   >>> Just(20.0)[0]
+   20.0
+
+   >>> Left("words words words words")[0]
+   'words words words words'
+
+   >>> Nothing[0]  # IndexError
