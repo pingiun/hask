@@ -452,7 +452,7 @@ class caseof(__unmatched_case__):
 # "data"/type constructor half of the expression
 
 class __data__(Syntax):
-    """`data` is part of Hask's special syntax for defining ADTs.
+    r"""`data` is part of Hask's special syntax for defining ADTs.
 
     Example usage:
 

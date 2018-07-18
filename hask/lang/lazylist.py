@@ -48,11 +48,22 @@ class Enum(Typeclass):
     numbered left-to-right by fromEnum from 0 through n-1.
 
     Attributes:
-        toEnum, fromEnum, succ, pred, enumFrom, enumFromThen, enumFrom,
-        enumFromThenTo, EnumFromTo
+
+    - ``toEnum``
+    - ``fromEnum``
+    - ``succ``
+    - ``pred``
+    - ``enumFrom``
+    - ``enumFromThen``
+    - ``enumFrom``
+    - ``enumFromThenTo``
+    - ``EnumFromTo``
 
     Minimal complete definition:
-        toEnum, fromEnum
+
+    - ``toEnum``
+    - ``fromEnum``
+
     """
     @classmethod
     def make_instance(typeclass, cls, toEnum, fromEnum):
@@ -99,20 +110,20 @@ class Enum(Typeclass):
 
 @sig(H/ "a" >> int)
 def fromEnum(a):
-    """
-    fromEnum :: a -> int
+    """``fromEnum :: a -> int``
 
     Convert to an int.
+
     """
     return Enum[a].toEnum(a)
 
 
 @sig(H/ "a" >> "a")
 def succ(a):
-    """
-    succ :: a -> a
+    """``succ :: a -> a``
 
     the successor of a value. For numeric types, succ adds 1.
+
     """
     return Enum[a].succ(a)
 
@@ -129,40 +140,40 @@ def pred(a):
 
 @sig(H/ "a" >> "a" >> ["a"])
 def enumFromThen(start, second):
-    """
-    enumFromThen :: a -> a -> [a]
+    """``enumFromThen :: a -> a -> [a]``
 
     Used in translation of [n, n_, ...]
+
     """
     return L[Enum[start].enumFromThen(start, second)]
 
 
 @sig(H/ "a" >> ["a"])
 def enumFrom(start):
-    """
-    enumFrom :: a -> [a]
+    """``enumFrom :: a -> [a]``
 
     Used in translation of L[n, ...]
+
     """
     return L[Enum[start].enumFrom(start)]
 
 
 @sig(H/ "a" >> "a" >> "a" >> ["a"])
 def enumFromThenTo(start, second, end):
-    """
-    enumFromThenTo :: a -> a -> a -> [a]
+    """``enumFromThenTo :: a -> a -> a -> [a]``
 
     Used in translation of L[n, n_, ..., m]
+
     """
     return L[Enum[start].enumFromThenTo(start, second, end)]
 
 
 @sig(H/ "a" >> "a" >> ["a"])
 def enumFromTo(start, end):
-    """
-    enumFromTo :: a -> a -> [a]
+    """``enumFromTo :: a -> a -> [a]``
 
     Used in translation of L[n, ..., m]
+
     """
     return L[Enum[start].enumFromTo(start, end)]
 
