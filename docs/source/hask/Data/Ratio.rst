@@ -3,4 +3,9 @@
 ==============================================
 
 .. automodule:: hask.Data.Ratio
-   :members:
+
+.. autofunction:: numerator
+
+.. autofunction:: denominator
+
+.. autofunction:: approxRational
