@@ -3,4 +3,11 @@
 ================================================
 
 .. automodule:: hask.Data.String
-   :members:
+
+.. autofunction:: lines
+
+.. autofunction:: words
+
+.. autofunction:: unlines
+
+.. autofunction:: unwords
