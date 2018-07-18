@@ -3,4 +3,13 @@
 ==============================================
 
 .. automodule:: hask.Data.Tuple
-   :members:
+
+.. autofunction:: fst
+
+.. autofunction:: snd
+
+.. autofunction:: curry
+
+.. autofunction:: uncurry
+
+.. autofunction:: swap
