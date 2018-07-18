@@ -5,10 +5,10 @@
 Beta series: 0.x
 ================
 
-Unreleased.  Release 0.2.0
+2018-07-18.  Release 0.1.1
 --------------------------
 
-Nothing yet.
+- Repackaging.  No functional changes.
 
 
 2018-07-17.  Release 0.1.0
