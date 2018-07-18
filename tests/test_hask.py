@@ -473,6 +473,7 @@ class Test_README_Examples(unittest.TestCase):
         self.assertEqual(h(3.0) * h(6.0) * flip(h, 2.0) % 36.0, 9.0)
 
     def test_match_no_sig(self):
+        @sig(H/ int >> int)
         def fib(x):
             return ~(caseof(x)
                         | m(0)   >> 1
