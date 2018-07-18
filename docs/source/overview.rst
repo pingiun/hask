@@ -48,6 +48,7 @@ statically-typed list, similar to Haskell's standard list type.
 To create a new List, just put the elements inside ``L[`` and ``]`` brackets,
 or wrap an existing iterable inside ``L[ ]``:
 
+    >>> from hask import L
     >>> L[1, 2, 3]
     L[1, 2, 3]
 
@@ -56,7 +57,7 @@ or wrap an existing iterable inside ``L[ ]``:
     L['a', 'b', 'c']
 
     >>> L[(x**2 for x in range(1, 11))]
-    L[1 ... ]
+    L[1 ...]
 
 
 To add elements to the front of a List, use ``^``, the cons operator.  To
@@ -66,9 +67,9 @@ combine two lists, use ``+``, the concatenation operator:
     L[1, 2, 3]
 
     >>> "goodnight" ^ ("sweet" ^ ("prince" ^ L[[]]))
-    L["goodnight", "sweet", "prince"]
+    L['goodnight', 'sweet', 'prince']
 
-    >>> "a" ^ L[1.0, 10.3]  # doctest: +ELLIPSIS
+    >>> "a" ^ L[1.0, 10.3]  # doctests: +ELLIPSIS
     Traceback (...)
     ...
     TypeError: ...
@@ -88,7 +89,7 @@ there are four basic type of list comprehensions::
 
 
        >>> # list from 1 to infinity, counting by ones
-       >>> L[1, ...]
+       >>> L[1 ...]
 
 
        >>> # list from 1 to infinity, counting by twos
@@ -111,6 +112,7 @@ Hask provides all of the Haskell functions for List manipulation
 `~hask.Data.List.takeWhile`:func:, etc.), or you can also use Python-style
 indexing:
 
+    >>> from hask import L
     >>> L[1, ...]
     L[1 ...]
 
@@ -136,8 +138,9 @@ indexing:
 Otherwise, you can use `~hask.lang.lazylist.List`:class: just like you would
 use a regular Python list:
 
+    >>> from hask import L
     >>> for i in L[0, ..., 3]:
-    >>>     print(i)
+    ...     print(i)
     0
     1
     2
