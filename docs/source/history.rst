@@ -5,7 +5,7 @@
 Beta series: 0.x
 ================
 
-Unreleased.  Release 0.1.0
+2018-07-17.  Release 0.1.0
 --------------------------
 
 - Initial release as programmed by the original authors with only the changes
