@@ -519,3 +519,277 @@ up.
    'words words words words'
 
    >>> Nothing[0]  # IndexError
+
+
+Typeclasses and typeclass instances
+-----------------------------------
+
+`Typeclasses <https://en.wikipedia.org/wiki/Type_class_>`__ allow you to add
+additional functionality to your ADTs. Hask implements all of the major
+typeclasses from Haskell (see the Appendix for a full list) and provides
+syntax for creating new typeclass instances.
+
+As an example, let's add a `Monad <https://wiki.haskell.org/Monad_>`__
+instance for the Maybe type.  First, however, Maybe needs `Functor
+<https://wiki.haskell.org/Functor_>`__ and `Applicative
+<https://wiki.haskell.org/Applicative_functor_>`__ instances.
+
+::
+
+    def maybe_fmap(fn, x):
+        """Apply a function to the value inside of a (Maybe a) value"""
+        return ~(caseof(x)
+                    | m(Nothing)   >> Nothing
+                    | m(Just(m.x)) >> Just(fn(p.x)))
+
+
+    instance(Functor, Maybe).where(
+        fmap = maybe_fmap
+    )
+
+Maybe is now an instance of Functor. This allows us to call ``fmap`` and map
+any function of type ``a -> b`` into a value of type ``Maybe a``.
+
+    >>> times2 = (lambda x: x * 2) ** (H/ int >> int)
+    >>> toFloat = float ** (H/ int >> float)
+
+    >>> fmap(toFloat, Just(10))
+    Just(10.0)
+
+    >>> fmap(toFloat, fmap(times2, Just(25)))
+    Just(50.0)
+
+Lots of nested calls to fmap get unwieldy very fast. Fortunately, any instance
+of Functor can be used with the infix fmap operator, ``*``. This is equivalent
+to ``<$>`` in Haskell. Rewriting our example from above:
+
+    >>> (toFloat * times2) * Just(25)
+    Just(50.0)
+
+    >>> (toFloat * times2) * Nothing
+    Nothing
+
+Note that this example uses ``*`` as both the function compose operator and as
+``fmap``, to lift functions into a Maybe value. If this seems confusing,
+remember that ``fmap`` for functions is just function composition!
+
+Now that Maybe is an instance of Functor, we can make it an instance of
+Applicative and then an instance of Monad by defining the appropriate function
+implementations. To implement Applicative, we just need to provide
+``pure``. To implement Monad, we need to provide ``bind``.
+
+
+    >>> from hask import Applicative, Monad
+    >>> instance(Applicative, Maybe).where(
+    ...    pure = Just
+    ... )
+
+    >>> instance(Monad, Maybe).where(
+    ...     bind = lambda x, f: ~(caseof(x)
+    ...                             | m(Just(m.a)) >> f(p.a)
+    ...                             | m(Nothing)   >> Nothing)
+    ... )
+
+The ``bind`` function also has an infix form, which is ``>>`` in Hask.
+
+    >>> @sig(H/ int >> int >> t(Maybe, int))
+    ... def safe_div(x, y):
+    ...     return Nothing if y == 0 else Just(x/y)
+
+    >>> from hask.Prelude import flip
+    >>> divBy = flip(safe_div)
+
+    >>> Just(9) >> divBy(3)
+    Just(3)
+
+    >>> Just(12) >> divBy(2) >> divBy(2) >> divBy(3)
+    Just(1)
+
+
+    >>> Just(12) >> divBy(0) >> divBy(6)
+    Nothing
+
+As in Haskell, List is also a monad, and ``bind`` for the List type is just
+``concatMap``.
+
+    >>> from hask.Data.List import replicate
+    >>> L[1, 2] >> replicate(2) >> replicate(2)
+    L[1, 1, 1, 1, 2, 2, 2, 2]
+
+You can also define typeclass instances for classes that are not ADTs:
+
+    >>> class Person(object):
+    ...     def __init__(self, name, age):
+    ...         self.name = name
+    ...         self.age = age
+
+    >>> instance(Eq, Person).where(
+    ...     eq = lambda p1, p2: p1.name == p2.name and p1.age == p2.age
+    ... )
+
+    >>> Person("Philip Wadler", 59) == Person("Simon Peyton Jones", 57)
+    False
+
+If you want instances of the Show, Eq, Read, Ord, and Bounded typeclasses for
+your ADTs, it is adviseable to use `~hask.lang.syntax.deriving`:class: to
+automagically generate instances rather than defining them manually.
+
+Defining your own typeclasses is pretty easy--take a look at
+`~hask.lang.type_system.Typeclass`:class: and look at the typeclasses defined
+in `hask.Data.Functor`:mod: and `hask.Data.Num`:mod: to see how it's done.
+
+
+Operator sections
+-----------------
+
+Hask also supports operator sections (e.g. ``(1+)`` in Haskell). Sections are
+just `~hask.lang.type_system.TypedFunc`:class: objects, so they are
+automagically curried and typechecked.
+
+    >>> from hask import __
+    >>> f = (__ - 20) * (2 ** __) * (__ + 3)
+    >>> f(10)
+    8172
+
+    >>> ((90/__) * (10+__)) * Just(20)
+    Just(3)
+
+    >>> from hask.Data.List import takeWhile
+    >>> takeWhile(__<5, L[1, ...])
+    L[1, 2, 3, 4]
+
+    >>> (__+__)('Hello ', 'world')
+    'Hello world'
+
+    >>> (__**__)(2)(10)
+    1024
+
+    >>> from hask.Data.List import zipWith, take
+    >>> take(5) % zipWith(__ * __, L[1, ...], L[1, ...])
+    L[1, 4, 9, 16, 25]
+
+As you can see, this much easier than using lambda and adding a type signature
+with the ``(lambda x: ...) ** (H/ ...)`` syntax.
+
+In addition, the types of the TypedFuncs created by sections are always
+polymorphic, to allow for any operator overloading.
+
+Note that if you are using IPython, Hask's ``__`` will conflict with IPython's
+special double underscore variable.  To avoid conflicts, you can use ``from
+hask import __ as _s`` in IPython.
+
+
+Guards
+------
+
+If you don't need the full power of pattern matching and just want a neater
+switch statement, you can use guards. The syntax for guards is almost
+identical to the syntax for pattern matching.
+
+::
+    ~(guard(expr_to_test)
+        | c(test_1) >> return_value_1
+        | c(test_2) >> return_value_2
+        | otherwise >> return_value_3
+    )
+
+
+As in Haskell, `~hask.lang.syntax.otherwise`:object: will always evaluate to
+True and can be used as a catch-all in guard expressions. If no match is found
+(and an otherwise clause is not present), a `NoGuardMatchException` will be
+raised.
+
+Guards will also play nicely with sections:
+
+    >>> from hask import guard, c, otherwise
+    >>> porridge_tempurature = 80
+    >>> ~(guard(porridge_tempurature)
+    ...     | c(__ < 20)  >> "Porridge is too cold!"
+    ...     | c(__ < 90)  >> "Porridge is just right!"
+    ...     | c(__ < 150) >> "Porridge is too hot!"
+    ...     | otherwise   >> "Porridge has gone thermonuclear"
+    ... )
+    'Porridge is just right!'
+
+If you need a more complex conditional, you can always use lambdas, regular
+Python functions, or any other callable in your guard condition.
+
+    >>> def examine_password_security(password):
+    ...     analysis = ~(guard(password)
+    ...         | c(lambda x: len(x) > 20) >> "Wow, that's one secure password"
+    ...         | c(lambda x: len(x) < 5)  >> "You made Bruce Schneier cry"
+    ...         | c(__ == "12345")         >> "Same combination as my luggage!"
+    ...         | otherwise                >> "Hope it's not 'password'"
+    ...     )
+    ...     return analysis
+
+    >>> nuclear_launch_code = "12345"
+    >>> examine_password_security(nuclear_launch_code)
+    'Same combination as my luggage!'
+
+
+Monadic error handling (of Python functions)
+--------------------------------------------
+
+If you want to use `~hask.Data.Maybe.Maybe`:class: and
+`~hask.Data.Either.Either`:class: to handle errors raised by Python functions
+defined outside Hask, you can use the decorators ``in_maybe`` and
+``in_either`` to create functions that call the original function and return
+the result wrapped inside a Maybe or Either value.
+
+If a function wrapped in ``in_maybe`` raises an exception, the wrapped
+function will return Nothing. Otherwise, the result will be returned wrapped
+in a Just.
+
+    >>> def eat_cheese(cheese):
+    ...     if cheese <= 0:
+    ...         raise ValueError("Out of cheese error")
+    ...     return cheese - 1
+
+    >>> maybe_eat = in_maybe(eat_cheese)
+    >>> maybe_eat(1)
+    Just(0)
+
+    >>> maybe_eat(0)
+    Nothing
+
+Note that this is equivalent to lifting the original function into the Maybe
+monad. That is, its type has changed from `func` to ``a -> Maybe b``.  This
+makes it easier to use the convineient monad error handling style commonly
+seen in Haskell with existing Python functions.
+
+Continuing with this silly example, let's try to eat three pieces of cheese,
+returning `Nothing` if the attempt was unsuccessful:
+
+    >>> cheese = 10
+    >>> cheese_left = Just(cheese) >> maybe_eat >> maybe_eat >> maybe_eat
+    >>> cheese_left
+    Just(7)
+
+    >>> cheese = 1
+    >>> cheese_left = Just(cheese) >> maybe_eat >> maybe_eat >> maybe_eat
+    >>> cheese_left
+    Nothing
+
+Notice that we have taken a regular Python function that throws Exceptions,
+and are now handling it in a type-safe, monadic way.
+
+The ``in_either`` function works just like ``in_maybe``. If an Exception is
+thrown, the wrapped function will return the exception wrapped in
+Left. Otherwise, the result will be returned wrapped in Right.
+
+    >>> either_eat = in_either(eat_cheese)
+    >>> either_eat(Right(10))
+    Right(9)
+
+    >>> either_eat(Right(0))
+    Left(ValueError('Out of cheese error',))
+
+Chained cheese-eating in the Either monad is left as an exercise for the
+reader.
+
+You can also use ``in_maybe`` or ``in_either`` as decorators::
+
+    @in_maybe
+    def some_function(x, y):
+        ...
