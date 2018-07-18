@@ -1,3 +1,13 @@
+'''Typed wrappers for builtin Python functions.
+
+This makes it easier to chain lots of things together in function composition
+without having to manually add type signatures to Python builtins.
+
+Each function is a `~hask.lang.type_system.TypedFunc`:class: replacement of
+the corresponding Python builtin with the right signature.
+
+'''
+
 from __future__ import (division as _py3_division,
                         print_function as _py3_print,
                         absolute_import as _py3_abs_import)
@@ -14,12 +24,6 @@ except ImportError:
             return -1
         else:
             return 1
-
-
-# Typed wrappers for builtin Python functions.
-# This makes it easier to chain lots of things together in function composition
-# without having to manually add type signatures to Python builtins.
-
 
 callable = callable ** (H/ "a" >> bool)
 cmp = pycmp ** (H/ "a" >> "a" >> int)
