@@ -3,4 +3,21 @@
 ==========================================================
 
 .. automodule:: hask.Data.Traversable
-   :members:
+
+.. autoclass:: Traversable
+
+.. autofunction:: traverse
+
+.. autofunction:: sequenceA
+
+.. autofunction:: mapM
+
+.. autofunction:: sequence
+
+.. autofunction:: for1
+
+.. autofunction:: forM
+
+.. autofunction:: mapAccumL
+
+.. autofunction:: mapAccumR

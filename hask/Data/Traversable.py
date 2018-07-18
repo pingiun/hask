@@ -18,13 +18,22 @@ class Traversable(Foldable, Functor):
     right.
 
     Dependencies:
-        Foldable, Functor
+
+    - `~hask.Data.Foldable.Foldable`:class:
+    - `~hask.Data.Functor.Functor`:class:
 
     Attributes:
-        traverse, sequenceA, mapM, sequence
+
+    - ``traverse``
+    - ``sequenceA``
+    - ``mapM``
+    - ``sequence``
+
 
     Minimal complete definition:
-        traverse
+
+    - ``traverse``
+
     """
     @classmethod
     def make_instance(typeclass, cls, traverse, sequenceA=None, mapM=None,
@@ -37,13 +46,13 @@ class Traversable(Foldable, Functor):
 @sig(H[(Applicative, "f"), (Traversable, "t")]/
         (H/ "a" >> t("f", "b")) >> t("t", "a") >> t("f", t("t", "b")))
 def traverse(f, t):
-    """
-    traverse :: (Traversable t, Applicative f) => (a -> f b) -> t a -> f (t b)
+    """``traverse :: (Traversable t, Applicative f) => (a -> f b) -> t a -> f (t b)``
 
     Map each element of a structure to an action, evaluate these these actions
     from left to right, and collect the results. actions from left to right,
     and collect the results. For a version that ignores the results see
-    traverse_.
+    ``traverse_``.
+
     """
     return Traversable[t].traverse(f, t)
 
@@ -51,11 +60,11 @@ def traverse(f, t):
 @sig(H[(Applicative, "f"), (Traversable, "t")]/
         t("t", t("f", "a")) >> t("f", t("t", "a")))
 def sequenceA(t):
-    """
-    sequenceA :: (Traversable t, Applicative f) => t (f a) -> f (t a)
+    """``sequenceA :: (Traversable t, Applicative f) => t (f a) -> f (t a)``
 
     Evaluate each action in the structure from left to right, and and collect
-    the results. For a version that ignores the results see sequenceA_.
+    the results. For a version that ignores the results see ``sequenceA_``.
+
     """
     return Traversable[t].sequenceA(t)
 
@@ -63,12 +72,12 @@ def sequenceA(t):
 @sig(H[(Monad, "m"), (Traversable, "t")]/
         (H/ "a" >> t("m", "b")) >> t("t", "a") >> t("m", t("t", "b")))
 def mapM(f, m):
-    """
-    mapM :: (Traversable t, Monad m) => (a -> m b) -> t a -> m (t b)
+    """``mapM :: (Traversable t, Monad m) => (a -> m b) -> t a -> m (t b)``
 
-    Map each element of a structure to a monadic action, evaluate these actions
-    from left to right, and collect the results. For a version that ignores the
-    results see mapM_.
+    Map each element of a structure to a monadic action, evaluate these
+    actions from left to right, and collect the results. For a version that
+    ignores the results see ``mapM_``.
+
     """
     return Traversable[t].mapM(f, t)
 
@@ -76,11 +85,12 @@ def mapM(f, m):
 @sig(H[(Monad, "m"), (Traversable, "t")]/
         t("t", t("m", "a")) >> t("m", t("t", "a")))
 def sequence(t):
-    """
-    sequence :: (Traversable t, Monad m) => t (m a) -> m (t a)
+    """``sequence :: (Traversable t, Monad m) => t (m a) -> m (t a)``
 
     Evaluate each monadic action in the structure from left to right, and
-    collect the results. For a version that ignores the results see sequence_.
+    collect the results. For a version that ignores the results see
+    ``sequence_``.
+
     """
     return Traversable[t].sequence(t)
 
@@ -88,11 +98,11 @@ def sequence(t):
 @sig(H[(Applicative, "f"), (Traversable, "t")]/
         t("t", "a") >> (H/ "a" >> t("f", "b")) >> t("f", t("t", "b")))
 def for1(t, f):
-    """
-    for1 :: (Traversable t, Applicative f) => t a -> (a -> f b) -> f (t b)
+    """``for1 :: (Traversable t, Applicative f) => t a -> (a -> f b) -> f (t b)``
 
     for1 is traverse with its arguments flipped. For a version that ignores the
-    results see for1_.
+    results see ``for1_``.
+
     """
     return traverse(f, t)
 
@@ -100,11 +110,11 @@ def for1(t, f):
 @sig(H[(Monad, "m"), (Traversable, "t")]/
         t("t", "a") >> (H/ "a" >> t("m", "b")) >> t("m", t("t", "b")))
 def forM(t, f):
-    """
-    forM :: (Traversable t, Monad m) => t a -> (a -> m b) -> m (t b)
+    """``forM :: (Traversable t, Monad m) => t a -> (a -> m b) -> m (t b)``
 
     forM is mapM with its arguments flipped. For a version that ignores the
-    results see forM_.
+    results see ``forM_``.
+
     """
     return mapM(f, t)
 
@@ -112,8 +122,7 @@ def forM(t, f):
 @sig(H[(Traversable, "t")]/ (H/ "a" >> "b" >> ("a", "c")) >> "a" >> t("t", "b")
         >> ("a", t("t", "c")))
 def mapAccumL(f, a, tb):
-    """
-    mapAccumL :: Traversable t => (a -> b -> (a, c)) -> a -> t b -> (a, t c)
+    """``mapAccumL :: Traversable t => (a -> b -> (a, c)) -> a -> t b -> (a, t c)``
 
     The mapAccumL function behaves like a combination of fmap and foldl; it
     applies a function to each element of a structure, passing an accumulating
@@ -126,8 +135,7 @@ def mapAccumL(f, a, tb):
 @sig(H[(Traversable, "t")]/ (H/ "a" >> "b" >> ("a", "c")) >> "a" >> t("t", "b")
         >> ("a", t("t", "c")))
 def mapAccumR(f, a, tb):
-    """
-    mapAccumR :: Traversable t => (a -> b -> (a, c)) -> a -> t b -> (a, t c)
+    """``mapAccumR :: Traversable t => (a -> b -> (a, c)) -> a -> t b -> (a, t c)``
 
     The mapAccumR function behaves like a combination of fmap and foldr; it
     applies a function to each element of a structure, passing an accumulating
