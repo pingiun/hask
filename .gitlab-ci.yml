@@ -12,6 +12,8 @@ check code smells:
   tags:
     - merchise-lint
   allow_failure: true
+  except:
+    - tags
 
 
 check signature:
@@ -41,6 +43,8 @@ run all tests in Python 2.7:
   script: tox -e2.7
   tags:
     - python
+  except:
+    - tags
 
 
 run all tests in Python 3.6:
@@ -48,6 +52,8 @@ run all tests in Python 3.6:
   script: tox -e3.6
   tags:
     - python3.6
+  except:
+    - tags
 
 run doctests:
   stage: test
@@ -58,6 +64,8 @@ run doctests:
     - pipenv run sphinx-build -M doctest docs/source docs/build
   tags:
     - python3.6
+  except:
+    - tags
 
 
 build documentation:
