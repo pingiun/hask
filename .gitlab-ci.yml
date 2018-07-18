@@ -60,7 +60,6 @@ run doctests:
     - python3.6
 
 
-
 build documentation:
   stage: build
   script:
@@ -100,3 +99,70 @@ publish in our rtd:
   only:
     - tags
     - master
+
+
+build source distribution:
+  stage: build
+  script:
+    - rm -f dist/*
+    - python setup.py sdist
+  tags:
+    - python
+  artifacts:
+    expire_in: 4 hours
+    paths:
+      - dist/
+  only:
+    - tags
+
+build binary distribution:
+  stage: build
+  script:
+    - rm -f dist/*
+    - python setup.py bdist_wheel
+  tags:
+    - wheel
+  artifacts:
+    expire_in: 4 hours
+    paths:
+      - dist/
+  only:
+    - tags
+
+publish_locally:
+  variables:
+    GIT_STRATEGY: none
+  stage: publish
+  script:
+    - ssh manu@gestion.lahavane.com "mkdir -p Repos/$CI_PROJECT_NAME"
+    - scp dist/* manu@gestion.lahavane.com:Repos/$CI_PROJECT_NAME/
+  tags:
+    - repo.lahavane.com
+  only:
+    - tags
+  dependencies:
+    - check signature of tag
+    - build source distribution
+    - build binary distribution
+  environment:
+    name: repo.lahavane.com
+    url: http://repo.lahavane.com/pypi/$CI_PROJECT_NAME
+
+
+publish in pypi:
+  variables:
+    GIT_STRATEGY: none
+  stage: publish
+  script:
+    - twine upload --skip-existing dist/*
+  tags:
+    - twine
+  only:
+    - tags
+  dependencies:
+    - check signature of tag
+    - build source distribution
+    - build binary distribution
+  environment:
+    name: pypi
+    url: https://pypi.org/project/$CI_PROJECT_NAME/$CI_COMMIT_REF_NAME
