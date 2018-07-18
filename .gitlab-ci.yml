@@ -1,5 +1,5 @@
 variables:
-  DISTRIBUTION_NAME: ${CI_PROJECT_NAME}3
+  DISTRIBUTION_NAME: "$CI_PROJECT_NAME"3
 
 stages:
   - check
