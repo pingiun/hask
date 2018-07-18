@@ -3,4 +3,21 @@
 ==========================================
 
 .. automodule:: hask.Data.Ord
-   :members:
+
+.. object:: Ordering
+
+   The ADT Ordering::
+
+     data Ordering = LT | EQ | GT deriving(Show, Eq, Ord, Bounded)
+
+.. object:: LT
+.. object:: EQ
+.. object:: GT
+
+.. autofunction:: max
+
+.. autofunction:: min
+
+.. autofunction:: compare
+
+.. autofunction:: comparing

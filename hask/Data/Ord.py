@@ -25,44 +25,44 @@ Ordering, LT, EQ, GT =\
 
 @sig(H[(Ord, "a")]/ "a" >> "a" >> "a")
 def max(x, y):
-    """
-    max :: a -> a -> a
+    """``max :: a -> a -> a``
 
     Maximum function.
+
     """
     return x if x >= y else y
 
 
 @sig(H[(Ord, "a")]/ "a" >> "a" >> "a")
 def min(x, y):
-    """
-    min :: a -> a -> a
+    """``min :: a -> a -> a``
 
     Minumum function.
+
     """
     return x if x <= y else y
 
 
 @sig(H[(Ord, "a")]/ "a" >> "a" >> Ordering)
 def compare(x, y):
-    """
-    compare :: a -> a -> Ordering
+    """``compare :: a -> a -> Ordering``
 
     Comparison function.
+
     """
     return EQ if x == y else (LT if x < y else GT)
 
 
 @sig(H[(Ord, "a")]/ (H/ "a" >> "b") >> "b" >> "b" >> Ordering)
 def comparing(p, x, y):
-    """
-    comparing :: Ord a => (b -> a) -> b -> b -> Ordering
+    """``comparing :: Ord a => (b -> a) -> b -> b -> Ordering``
 
     comparing(p, x, y) = compare(p(x), p(y))
 
-    Useful combinator for use in conjunction with the xxxBy family of functions
-    from Data.List, for example:
+    Useful combinator for use in conjunction with the `xxxBy` family of
+    functions from Data.List, for example::
 
-    ... sortBy (comparing(fst)) ...
+       ... sortBy (comparing(fst)) ...
+
     """
     return compare(p(x), p(y))
