@@ -1,3 +1,6 @@
+variables:
+  DISTRIBUTION_NAME: ${CI_PROJECT_NAME}3
+
 stages:
   - check
   - baseline test
@@ -92,18 +95,18 @@ publish in our rtd:
   stage: publish
   script:
     - scp $CI_PROJECT_NAME-$CI_COMMIT_SHA.tar.bz2 rtd@docs.lahavane.com:.
-    - ssh rtd@docs.lahavane.com mkdir -p $CI_PROJECT_NAME/.$CI_COMMIT_SHA
-    - ssh rtd@docs.lahavane.com tar -xf $CI_PROJECT_NAME-$CI_COMMIT_SHA.tar.bz2 -C $CI_PROJECT_NAME/.$CI_COMMIT_SHA
-    - ssh rtd@docs.lahavane.com "rm -r /var/www/html/$CI_PROJECT_NAME/$CI_COMMIT_REF_NAME; ln -sr /var/www/html/$CI_PROJECT_NAME/.$CI_COMMIT_SHA /var/www/html/$CI_PROJECT_NAME/$CI_COMMIT_REF_NAME"
+    - ssh rtd@docs.lahavane.com mkdir -p $DISTRIBUTION_NAME/.$CI_COMMIT_SHA
+    - ssh rtd@docs.lahavane.com tar -xf $CI_PROJECT_NAME-$CI_COMMIT_SHA.tar.bz2 -C $DISTRIBUTION_NAME/.$CI_COMMIT_SHA
+    - ssh rtd@docs.lahavane.com "rm -r /var/www/html/$DISTRIBUTION_NAME/$CI_COMMIT_REF_NAME; ln -sr /var/www/html/$DISTRIBUTION_NAME/.$CI_COMMIT_SHA /var/www/html/$DISTRIBUTION_NAME/$CI_COMMIT_REF_NAME"
     - ssh rtd@docs.lahavane.com rm $CI_PROJECT_NAME-$CI_COMMIT_SHA.tar.bz2
-    - ssh rtd@docs.lahavane.com "cd /var/www/html/$CI_PROJECT_NAME; ls -al | grep -oE '\.([0-9]|[a-z])*$' | sort | uniq -c | grep '1 ' | grep -oE '\.([0-9]|[a-z])*$' | xargs rm -rf"
+    - ssh rtd@docs.lahavane.com "cd /var/www/html/$DISTRIBUTION_NAME; ls -al | grep -oE '\.([0-9]|[a-z])*$' | sort | uniq -c | grep '1 ' | grep -oE '\.([0-9]|[a-z])*$' | xargs rm -rf"
   tags:
     - rtd@docs.lahavane.com
   dependencies:
     - build documentation
   environment:
     name: docs.lahavane.com
-    url: http://docs.lahavane.com/$CI_PROJECT_NAME/$CI_COMMIT_REF_NAME
+    url: http://docs.lahavane.com/$DISTRIBUTION_NAME/$CI_COMMIT_REF_NAME
   only:
     - tags
     - master
@@ -142,8 +145,8 @@ publish_locally:
     GIT_STRATEGY: none
   stage: publish
   script:
-    - ssh manu@gestion.lahavane.com "mkdir -p Repos/$CI_PROJECT_NAME"
-    - scp dist/* manu@gestion.lahavane.com:Repos/$CI_PROJECT_NAME/
+    - ssh manu@gestion.lahavane.com "mkdir -p Repos/$DISTRIBUTION_NAME"
+    - scp dist/* manu@gestion.lahavane.com:Repos/$DISTRIBUTION_NAME/
   tags:
     - repo.lahavane.com
   only:
@@ -154,7 +157,7 @@ publish_locally:
     - build binary distribution
   environment:
     name: repo.lahavane.com
-    url: http://repo.lahavane.com/pypi/$CI_PROJECT_NAME
+    url: http://repo.lahavane.com/pypi/$DISTRIBUTION_NAME
 
 
 publish in pypi:
@@ -173,4 +176,4 @@ publish in pypi:
     - build binary distribution
   environment:
     name: pypi
-    url: https://pypi.org/project/$CI_PROJECT_NAME/$CI_COMMIT_REF_NAME
+    url: https://pypi.org/project/$DISTRIBUTION_NAME/$CI_COMMIT_REF_NAME
