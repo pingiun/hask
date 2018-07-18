@@ -278,6 +278,7 @@ checked -- when arguments are supplied, the type inference engine will check
 whether their types match the type signature, and raise a TypeError if there
 is a discrepancy.
 
+    >>> from hask import H
     >>> f = (lambda x, y: x + y) ** (H/ int >> int >> int)
 
     >>> f(2, 3)
@@ -292,7 +293,8 @@ is a discrepancy.
 
 Second, TypedFunc objects can be partially applied:
 
-   >>> g = (lambda a, b, c: a / (b + c)) ** (H/ int >> int >> int >> int)
+   >>> from hask import H
+   >>> g = (lambda a, b, c: a // (b + c)) ** (H/ int >> int >> int >> int)
 
    >>> g(10, 2, 3)
    2
@@ -448,6 +450,7 @@ Here is a function that uses pattern matching to compute the fibonacci
 sequence.  Note that within a pattern match expression, ``m.*`` is used to
 bind variables, and ``p.*`` is used to access them:
 
+  >>> from hask import caseof, m, p
   >>> def fib(x):
   ...     return ~(caseof(x)
   ...                 | m(0)   >> 1
@@ -470,7 +473,7 @@ the variable after the ``^`` is bound to the rest of the iterable. Here is a
 function that adds the first two elements of any iterable, returning
 ``Nothing`` if there are less than two elements:
 
-  >>> from hask import sig, t, caseof, m, p
+  >>> from hask import sig, t, caseof, m, p, H
   >>> from hask import Num, Maybe, Just, Nothing
 
   >>> @sig(H[(Num, "a")]/ ["a"] >> t(Maybe, "a"))
