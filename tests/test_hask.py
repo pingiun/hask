@@ -472,6 +472,18 @@ class Test_README_Examples(unittest.TestCase):
         h = (lambda x, y: x / y) ** (H/ float >> float >> float)
         self.assertEqual(h(3.0) * h(6.0) * flip(h, 2.0) % 36.0, 9.0)
 
+    def test_match_no_sig(self):
+        def fib(x):
+            return ~(caseof(x)
+                        | m(0)   >> 1
+                        | m(1)   >> 1
+                        | m(m.n) >> fib(p.n - 2) + fib(p.n - 1)
+                    )
+
+        self.assertEqual(1, fib(0))
+        self.assertEqual(1, fib(1))
+        self.assertEqual(13, fib(6))
+
     def test_match(self):
         @sig(H/ int >> int)
         def fib(x):

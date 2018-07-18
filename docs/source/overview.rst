@@ -450,12 +450,13 @@ Here is a function that uses pattern matching to compute the fibonacci
 sequence.  Note that within a pattern match expression, ``m.*`` is used to
 bind variables, and ``p.*`` is used to access them:
 
-  >>> from hask import caseof, m, p
-  >>> def fib(x):
+  >>> from hask import caseof, m, p, sig, H
+  >>> @sig(H/ int >> int)
+  ... def fib(x):
   ...     return ~(caseof(x)
   ...                 | m(0)   >> 1
   ...                 | m(1)   >> 1
-  ...                 | m(m.n) >> fib(p.n - 1) + fib(p.n - 2))
+  ...                 | m(m.n) >> fib(p.n - 2) + fib(p.n - 1))
 
   >>> fib(1)
   1

@@ -6,10 +6,9 @@ import functools
 import types
 import string
 import sys
-from collections import namedtuple, Mapping
+from collections import namedtuple
 
 from xoutil.eight.meta import metaclass
-from xoutil.values.simple import logic_collection_coerce, nil as NIL
 
 
 from .hindley_milner import TypeVariable
@@ -72,7 +71,7 @@ def is_collection(m):
     strings are not collections.
 
     '''
-    return logic_collection_coerce(m) is not NIL or isinstance(m, Mapping)
+    return hasattr(m, '__iter__') and not isinstance(m, str)
 
 
 def is_builtin(cls):
