@@ -20,9 +20,7 @@ Changes from Robert's version:
 
 '''
 
-from __future__ import (division as _py3_division,
-                        print_function as _py3_print,
-                        absolute_import as _py3_abs_import)
+from __future__ import division, print_function, absolute_import
 
 # Class definitions for the AST nodes which comprise the type language for
 # which types will be inferred

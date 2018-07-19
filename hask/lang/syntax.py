@@ -1,13 +1,8 @@
-from __future__ import (division as _py3_division,
-                        print_function as _py3_print,
-                        absolute_import as _py3_abs_import)
+from __future__ import division, print_function, absolute_import
 
-import inspect
 import operator
 import sys
-from collections import deque, defaultdict
 
-from xoutil.objects import get_first_of
 from .type_system import typeof
 from .type_system import Typeclass
 from .type_system import TypedFunc
@@ -24,6 +19,8 @@ from .type_system import Undefined
 from .type_system import PyFunc
 
 
+# Utilities
+# TODO: Move to another module
 def settle_magic_methods(fn):
     '''Decorator to settle all magic methods to `fn`.'''
     from xoutil.decorator import settle
@@ -41,6 +38,12 @@ def settle_magic_methods(fn):
     return settle(**{'__{}__'.format(name): fn for name in names})
 
 
+def safe_issubclass(cls, class_or_tuple):
+    from inspect import isclass
+    return isclass(cls) and issubclass(cls, class_or_tuple)
+
+
+# Main
 @settle_magic_methods(lambda self, *args: self.__syntaxerr__())
 class Syntax(object):
     """
@@ -74,7 +77,7 @@ class instance(Syntax):
 
     """
     def __init__(self, typecls, cls):
-        if not (inspect.isclass(typecls) and issubclass(typecls, Typeclass)):
+        if not safe_issubclass(typecls, Typeclass):
             raise TypeError("%s is not a typeclass" % typecls)
         self.typeclass = typecls
         self.cls = cls
@@ -100,6 +103,7 @@ class __constraints__(Syntax):
 
     """
     def __init__(self, constraints=None):
+        from collections import defaultdict
         self.constraints = defaultdict(lambda: [])
         if constraints:
             # multiple typeclass constraints
@@ -112,13 +116,14 @@ class __constraints__(Syntax):
         super(__constraints__, self).__init__("Syntax error in type signature")
 
     def __add_constraint(self, con):
+        # TODO: Create utility
         if len(con) != 2 or not isinstance(con, tuple):
             raise SyntaxError("Invalid typeclass constraint: %s" % str(con))
 
         if not isinstance(con[1], str):
             raise SyntaxError("%s is not a type variable" % con[1])
 
-        if not (inspect.isclass(con[0]) and issubclass(con[0], Typeclass)):
+        if not safe_issubclass(con[0], Typeclass):
             raise SyntaxError("%s is not a typeclass" % con[0])
 
         self.constraints[con[1]].append(con[0])
@@ -193,11 +198,10 @@ def t(type_constructor, *params):
     '''Helper to instantiate `~hask.lang.type_system.TypeSignatureHKT`:class:.
 
     '''
-    if inspect.isclass(type_constructor) and \
-       issubclass(type_constructor, ADT) and \
-       len(type_constructor.__params__) != len(params):
-            raise TypeError("Incorrect number of type parameters to %s" %
-                            type_constructor.__name__)
+    if (safe_issubclass(type_constructor, ADT) and
+        len(type_constructor.__params__) != len(params)):
+        raise TypeError("Incorrect number of type parameters to %s" %
+                        type_constructor.__name__)
 
     params = [p.sig if isinstance(p, __signature__) else p for p in params]
     return TypeSignatureHKT(type_constructor, params)
@@ -223,6 +227,7 @@ def typify(fn, hkt=None):
             return x + y
 
     """
+    from xoutil.objects import get_first_of
     code = get_first_of(fn, '__code__', 'fn_code')
     args = [chr(i) for i in range(97, 98 + code.co_argcount)]
     if hkt is not None:
@@ -231,7 +236,7 @@ def typify(fn, hkt=None):
 
 
 # TODO: `undefined` was `__undefined__()`
-@settle(**method_for_magics(lambda self, *args: undefined))
+@settle_magic_methods(lambda self, *args: undefined)
 class __undefined__(Undefined):
     """
     Undefined value with special syntactic powers. Whenever you try to use one
@@ -264,7 +269,9 @@ class MatchStackFrame(object):
 
 class MatchStack(object):
     """Stack for storing locally bound variables from matches"""
+    from collections import deque
     __stack__ = deque()
+    del deque
 
     @classmethod
     def push(cls, value):

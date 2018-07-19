@@ -1,8 +1,5 @@
-from __future__ import (division as _py3_division,
-                        print_function as _py3_print,
-                        absolute_import as _py3_abs_import)
+from __future__ import division, print_function, absolute_import
 
-import operator
 import sys
 
 from .type_system import Typeclass
@@ -156,6 +153,8 @@ class Ord(Eq):
 
     @classmethod
     def derive_instance(typeclass, cls):
+        import operator
+
         def zip_cmp(self, other, fn):
             """
             Compare the data constructor and all of the fields of two ADTs.

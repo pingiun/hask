@@ -1,13 +1,4 @@
-from __future__ import (division as _py3_division,
-                        print_function as _py3_print,
-                        absolute_import as _py3_abs_import)
-
-import itertools
-import functools
-from functools import reduce
-import operator
-
-from xoutil.future.itertools import map as imap, zip as izip
+from __future__ import division, print_function, absolute_import
 
 from ..lang import H
 from ..lang import sig
@@ -116,6 +107,7 @@ def map(f, xs):
     map(f, xs) is the list obtained by applying f to each element of xs
 
     """
+    from xoutil.future.itertools import map as imap
     return L[imap(f, xs)]
 
 
@@ -167,6 +159,7 @@ def transpose(xs):
     The transpose function transposes the rows and columns of its argument.
 
     """
+    from xoutil.future.itertools import zip as izip
     return L[(L[x] for x in izip(*xs))]
 
 
@@ -178,6 +171,7 @@ def subsequences(xs):
     argument.
 
     """
+    import itertools
     ret = L[[L[[]]]]
     for r, _ in enumerate(xs):
         ret += L[(L[x] for x in itertools.combinations(xs, r+1))]
@@ -192,6 +186,7 @@ def permutations(xs):
     argument.
 
     """
+    import itertools
     if null(xs):
         return L[[]]
     return L[(L[x] for x in itertools.permutations(xs))]
@@ -206,6 +201,7 @@ def foldl(f, z, xs):
     binary operator, from left to right. The list must be finite.
 
     """
+    from functools import reduce
     return reduce(f, xs, z)
 
 
@@ -346,7 +342,9 @@ def sum(xs):
     The sum function computes the sum of a finite list of numbers.
 
     """
-    return functools.reduce(operator.add, xs, 0)
+    from functools import reduce
+    import operator
+    return reduce(operator.add, xs, 0)
 
 
 @sig(H[(Num, "a")]/ ["a"] >> "a")
@@ -356,7 +354,9 @@ def product(xs):
     The product function computes the product of a finite list of numbers.
 
     """
-    return functools.reduce(operator.mul, xs, 1)
+    from functools import reduce
+    import operator
+    return reduce(operator.mul, xs, 1)
 
 
 @sig(H[(Ord, "a")]/ ["a"] >> "a")
@@ -564,6 +564,7 @@ def takeWhile(p, xs):
     prefix (possibly empty) of xs of elements that satisfy p
 
     """
+    import itertools
     return L[itertools.takewhile(p, xs)]
 
 
@@ -574,6 +575,7 @@ def dropWhile(p, xs):
     dropWhile(p, xs) returns the suffix remaining after takeWhile(p, xs)
 
     """
+    import itertools
     return L[itertools.dropwhile(p, xs)]
 
 
@@ -773,6 +775,7 @@ def filter(f, xs):
     elements that satisfy the predicate
 
     """
+    import itertools
     return L[itertools.ifilter(f, xs)]
 
 
@@ -853,6 +856,7 @@ def zip(xs, ys):
     list is short, excess elements of the longer list are discarded.
 
     """
+    from xoutil.future.itertools import zip as izip
     return L[izip(xs, ys)]
 
 
@@ -863,6 +867,7 @@ def zip3(a, b, c):
     zip3 takes three lists and returns a list of triples, analogous to zip.
 
     """
+    from xoutil.future.itertools import zip as izip
     return L[izip(a, b, c)]
 
 
@@ -874,6 +879,7 @@ def zip4(a, b, c, d):
     analogous to zip.
 
     """
+    from xoutil.future.itertools import zip as izip
     return L[izip(a, b, c, d)]
 
 
@@ -886,6 +892,7 @@ def zip5(a, b, c, d, e):
     analogous to zip.
 
     """
+    from xoutil.future.itertools import zip as izip
     return L[izip(a, b, c, d, e)]
 
 
@@ -898,6 +905,7 @@ def zip6(a, b, c, d, e, f):
     analogous to zip.
 
     """
+    from xoutil.future.itertools import zip as izip
     return L[izip(a, b, c, d, e, f)]
 
 
@@ -910,6 +918,7 @@ def zip7(a, b, c, d, e, f, g):
     analogous to zip.
 
     """
+    from xoutil.future.itertools import zip as izip
     return L[izip(a, b, c, d, e, f, g)]
 
 
@@ -1260,6 +1269,7 @@ def groupBy(f, xs):
     The groupBy function is the non-overloaded version of group.
 
     """
+    import itertools
     return L[(L[i[1]] for i in itertools.groupby(xs, keyfunc=f))]
 
 

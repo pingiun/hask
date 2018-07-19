@@ -1,15 +1,7 @@
-from __future__ import (division as _py3_division,
-                        print_function as _py3_print,
-                        absolute_import as _py3_abs_import)
+from __future__ import division, print_function, absolute_import
 
-import functools
-import types
-import string
 import sys
-from collections import namedtuple
-
 from xoutil.eight.meta import metaclass
-
 
 from .hindley_milner import TypeVariable
 from .hindley_milner import TypeOperator
@@ -23,12 +15,15 @@ from .hindley_milner import Tuple
 from .hindley_milner import ListType
 
 
+import string    # noqa
 if sys.version[0] == '2':
     lowercase = string.lowercase
 else:
     lowercase = string.ascii_lowercase
+del string
 
 
+import types    # noqa
 if sys.version[0] == '2':
     __python_builtins__ = set((
         types.BooleanType, types.BufferType, types.BuiltinFunctionType,
@@ -63,6 +58,7 @@ else:
     __python_function_types__ = set((
         types.FunctionType, types.LambdaType, types.MethodType,
         types.BuiltinFunctionType, types.BuiltinMethodType))
+del types
 
 
 def is_collection(m):
@@ -161,6 +157,7 @@ def build_instance(typeclass, cls, attrs):
     Raises:
         TypeError, if cls is not a member of all superclasses of typeclass
     """
+    from collections import namedtuple
     # 1) check dependencies
     for dep in typeclass.__dependencies__:
         if id(cls) not in dep.__instances__:
@@ -380,6 +377,7 @@ class TypedFunc(Hask):
     def __call__(self, *args, **kwargs):
         # the environment contains the type of the function and the types
         # of the arguments
+        import functools
         env = {id(self): self.fn_type}
         env.update({id(arg): typeof(arg) for arg in args})
         ap = Var(id(self))
@@ -493,6 +491,7 @@ def make_data_const(name, fields, type_constructor, slot_num):
     Returns:
         The new data constructor
     """
+    from collections import namedtuple
     # create the data constructor
     base = namedtuple(name, ["i%s" % i for i, _ in enumerate(fields)])
     cls = type(name, (type_constructor, base), {})

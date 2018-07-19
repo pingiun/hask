@@ -1,9 +1,6 @@
-from __future__ import (division as _py3_division,
-                        print_function as _py3_print,
-                        absolute_import as _py3_abs_import)
+from __future__ import division, print_function, absolute_import
 
 import collections
-import itertools
 import sys
 
 from .hindley_milner import TypeVariable
@@ -194,6 +191,7 @@ class List(collections.Sequence, Hask):
 
     """
     def __init__(self, head=None, tail=None):
+        import itertools
         self.__head = []
         self.__tail = itertools.chain([])
         self.__is_evaluated = True
@@ -257,6 +255,7 @@ class List(collections.Sequence, Hask):
         + is the list concatenation operator, equivalent to ++ in Haskell and +
         for Python lists
         """
+        import itertools
         unify(self.__type__(), typeof(other))
         if self.__is_evaluated and other.__is_evaluated:
             return List(head=self.__head + other.__head)

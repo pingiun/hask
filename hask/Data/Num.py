@@ -1,9 +1,6 @@
-from __future__ import (division as _py3_division,
-                        print_function as _py3_print,
-                        absolute_import as _py3_abs_import)
+from __future__ import division, print_function, absolute_import
 
 import math
-import fractions
 import sys
 
 from ..lang import data
@@ -489,6 +486,7 @@ def toRatio(num, denom):
     Conversion to Ratio.
 
     """
+    import fractions
     frac = fractions.Fraction(num, denom)
     return R(frac.numerator, frac.denominator)
 
