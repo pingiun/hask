@@ -8,7 +8,6 @@ import sys
 from collections import deque, defaultdict
 
 from xoutil.objects import get_first_of
-
 from .type_system import typeof
 from .type_system import Typeclass
 from .type_system import TypedFunc
@@ -25,30 +24,24 @@ from .type_system import Undefined
 from .type_system import PyFunc
 
 
-__magic_methods__ = ["__%s__" % s for s in set((
-    "len", "getitem", "setitem", "delitem", "iter", "reversed", "contains",
-    "missing", "delattr", "call", "enter", "exit", "eq", "ne", "gt", "lt",
-    "ge", "le", "pos", "neg", "abs", "invert", "round", "floor", "ceil",
-    "trunc", "add", "sub", "mul", "div", "truediv", "floordiv", "mod",
-    "divmod", "pow", "lshift", "rshift", "or", "and", "xor", "radd", "rsub",
-    "rmul", "rdiv", "rtruediv", "rfloordiv", "rmod", "rdivmod", "rpow",
-    "rlshift", "rrshift", "ror", "rand", "rxor", "isub", "imul", "ifloordiv",
-    "idiv", "imod", "idivmod", "irpow", "ilshift", "irshift", "ior", "iand",
-    "ixor", "nonzero"))]
+def settle_magic_methods(fn):
+    '''Decorator to settle all magic methods to `fn`.'''
+    from xoutil.decorator import settle
+    names = (
+        "len", "getitem", "setitem", "delitem", "iter", "reversed",
+        "contains", "missing", "delattr", "call", "enter", "exit", "eq", "ne",
+        "gt", "lt", "ge", "le", "pos", "neg", "abs", "invert", "round",
+        "floor", "ceil", "trunc", "add", "sub", "mul", "div", "truediv",
+        "floordiv", "mod", "divmod", "pow", "lshift", "rshift", "or", "and",
+        "xor", "radd", "rsub", "rmul", "rdiv", "rtruediv", "rfloordiv",
+        "rmod", "rdivmod", "rpow", "rlshift", "rrshift", "ror", "rand",
+        "rxor", "isub", "imul", "ifloordiv", "idiv", "imod", "idivmod",
+        "irpow", "ilshift", "irshift", "ior", "iand", "ixor", "nonzero"
+    )
+    return settle(**{'__{}__'.format(name): fn for name in names})
 
 
-def replace_magic_methods(cls, fn):
-    """
-    Replace the magic method of a class with some function or method.
-
-    Args:
-        cls: The class to modify
-        fn: The function to replace cls's magic methods with
-    """
-    for attr in __magic_methods__:
-        setattr(cls, attr, fn)
-
-
+@settle_magic_methods(lambda self, *args: self.__syntaxerr__())
 class Syntax(object):
     """
     Base class for new syntactic constructs. All of the new "syntax" elements
@@ -65,13 +58,8 @@ class Syntax(object):
         self.__syntax_err_msg = err_msg
         self.invalid_syntax = SyntaxError(self.__syntax_err_msg)
 
-    def __raise(self):
+    def __syntaxerr__(self):
         raise self.invalid_syntax
-
-    __syntaxerr__ = lambda s, *a: s.__raise()
-
-
-replace_magic_methods(Syntax, Syntax.__syntaxerr__)
 
 
 class instance(Syntax):
@@ -242,6 +230,8 @@ def typify(fn, hkt=None):
     return sig(__signature__(args, []))
 
 
+# TODO: `undefined` was `__undefined__()`
+@settle(**method_for_magics(lambda self, *args: undefined))
 class __undefined__(Undefined):
     """
     Undefined value with special syntactic powers. Whenever you try to use one
@@ -253,7 +243,6 @@ class __undefined__(Undefined):
     pass
 
 
-replace_magic_methods(__undefined__, lambda *a: __undefined__())
 undefined = __undefined__()
 
 
