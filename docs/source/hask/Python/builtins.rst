@@ -65,3 +65,6 @@
 .. function:: sorted
 
    ``sorted ** (H/ "a" >> list)``
+
+   .. note:: Python's ``sorted`` may take an optional `key` argument.  This
+             cannot be properly capture by Hask.
