@@ -146,8 +146,8 @@ class __constraints__(Syntax):
 
 
 class __signature__(Syntax):
-    """
-    Class that represents a (complete or incomplete) type signature.
+    """A (complete or incomplete) type signature.
+
     """
     def __init__(self, args, constraints):
         self.sig = TypeSignature(args, constraints)

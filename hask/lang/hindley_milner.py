@@ -287,9 +287,10 @@ def fresh(t, non_generic):
 
 
 def unify_var(v1, t2):
-    '''Unify the type variable `v1` and the type `t2`, i.e. makes their types the
-    same and unifies typeclass constraints.  Note: Must be called with v1 and
-    t2 pre-pruned
+    '''Unify the type variable `v1` and the type `t2`.
+
+    Unification makes their types the same and unifies typeclass constraints.
+    Note: Must be called with v1 and t2 pre-pruned
 
     :param v1: The type variable to be made equivalent
     :param t2: The second type to be be equivalent
@@ -313,12 +314,14 @@ def unify_var(v1, t2):
 
 
 def unify(t1, t2):
-    '''Unify the two types t1 and t2.  Makes the types t1 and t2 the same.
+    '''Unify the two types t1 and t2.
 
-    Note that the current method of unifying higher-kinded types does not
-    properly handle kind, i.e. it will happily unify `f a` and `g b c`.
-    This is due to the way that typeclasses are implemented, and will be fixed
-    in future versions.
+    Makes the types t1 and t2 the same.
+
+    .. note:: The current method of unifying higher-kinded types does not
+       properly handle kind, i.e. it will happily unify `f a` and `g b c`.
+       This is due to the way that typeclasses are implemented, and will be
+       fixed in future versions.
 
     :param t1: The first type to be made equivalent
     :param t2: The second type to be be equivalent
