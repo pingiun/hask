@@ -16,12 +16,8 @@ try:
     from __builtin__ import cmp as pycmp
 except ImportError:
     def pycmp(a, b):
-        if a == b:
-            return 0
-        elif a < b:
-            return -1
-        else:
-            return 1
+        '''Return negative if x<y, zero if x==y, positive if x>y.'''
+        return 0 if a == b else (-1 if a < b else 1)
 
 callable = callable ** (H/ "a" >> bool)
 cmp = pycmp ** (H/ "a" >> "a" >> int)
