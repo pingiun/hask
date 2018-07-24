@@ -18,32 +18,40 @@ from .type_system import pattern_match
 from .type_system import Undefined
 from .type_system import PyFunc
 
+# Magic Names
+_OPS = {
+    # < <= == != > >=
+    'comparison': {'lt', 'le', 'eq', 'ne', 'gt', 'ge'},
+    'object-base': {'call', 'delattr', 'bool'},
+    'context-manager': {'enter', 'exit'},
+    # `obj[key]` `obj[key] = value` `del obj[key]` `key in obj` ...
+    # length_hint?
+    'container': {'getitem', 'setitem', 'delitem', 'contains', 'len', 'iter',
+                   'reversed', 'missing'},
+    'math': {'round', 'trunc', 'floor', 'ceil'},
+    # - + abs() ~
+    'arithmetic-unary': {'neg', 'pos', 'abs', 'invert'},
+    # + - * @ / // % divmod() ** << >> & ^ |
+    'arithmetic-binary': {'add', 'sub', 'mul', 'matmul', 'truediv',
+                          'floordiv', 'mod', 'divmod', 'pow', 'lshift',
+                          'rshift', 'and', 'xor', 'or'},
+    }
 
-# Utilities
-# TODO: Move to another module
-def settle_magic_methods(fn):
+_PYTHON2 = {'div', 'rdiv', 'idiv', 'nonzero'}
+_MAGICS = set.union(
+    {'{}{}'.format(p, o) for p in 'ri' for o in _OPS['arithmetic-binary']},
+    _PYTHON2 if sys.version[0] == '2' else set(),
+    *_OPS.values())
+
+
+def settle_magic_methods(function, names=_MAGICS):
     '''Decorator to settle all magic methods to `fn`.'''
     from xoutil.decorator import settle
-    names = (
-        "len", "getitem", "setitem", "delitem", "iter", "reversed",
-        "contains", "missing", "delattr", "call", "enter", "exit", "eq", "ne",
-        "gt", "lt", "ge", "le", "pos", "neg", "abs", "invert", "round",
-        "floor", "ceil", "trunc", "add", "sub", "mul", "div", "truediv",
-        "floordiv", "mod", "divmod", "pow", "lshift", "rshift", "or", "and",
-        "xor", "radd", "rsub", "rmul", "rdiv", "rtruediv", "rfloordiv",
-        "rmod", "rdivmod", "rpow", "rlshift", "rrshift", "ror", "rand",
-        "rxor", "isub", "imul", "ifloordiv", "idiv", "imod", "idivmod",
-        "irpow", "ilshift", "irshift", "ior", "iand", "ixor", "nonzero"
-    )
-    return settle(**{'__{}__'.format(name): fn for name in names})
-
-
-def safe_issubclass(cls, class_or_tuple):
-    from inspect import isclass
-    return isclass(cls) and issubclass(cls, class_or_tuple)
+    return settle(**{'__{}__'.format(name): function for name in names})
 
 
 # Main
+
 @settle_magic_methods(lambda self, *args: self.__syntaxerr__())
 class Syntax(object):
     """
@@ -300,8 +308,7 @@ class MatchStack(object):
 
 
 class __var_bind__(Syntax):
-    """
-    ``m.*`` binds a local variable while pattern matching.
+    """``m.*`` binds a local variable while pattern matching.
 
     For example usage, see `caseof`:class:.
 
