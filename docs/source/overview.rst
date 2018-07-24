@@ -683,10 +683,11 @@ Guards
 ------
 
 If you don't need the full power of pattern matching and just want a neater
-switch statement, you can use guards. The syntax for guards is almost
+switch statement, you can use guards.  The syntax for guards is almost
 identical to the syntax for pattern matching.
 
 ::
+
     ~(guard(expr_to_test)
         | c(test_1) >> return_value_1
         | c(test_2) >> return_value_2
@@ -694,10 +695,9 @@ identical to the syntax for pattern matching.
     )
 
 
-As in Haskell, `~hask.lang.syntax.otherwise`:object: will always evaluate to
-True and can be used as a catch-all in guard expressions. If no match is found
-(and an otherwise clause is not present), a `NoGuardMatchException` will be
-raised.
+As in Haskell, `~hask.lang.syntax.otherwise`:obj: will always evaluate to True
+and can be used as a catch-all in guard expressions. If no match is found (and
+an otherwise clause is not present), a `NoGuardMatchException` will be raised.
 
 Guards will also play nicely with sections:
 
