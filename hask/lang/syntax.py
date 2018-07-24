@@ -77,6 +77,7 @@ class instance(Syntax):
 
     """
     def __init__(self, typecls, cls):
+        from hask.hack import safe_issubclass
         if not safe_issubclass(typecls, Typeclass):
             raise TypeError("%s is not a typeclass" % typecls)
         self.typeclass = typecls
@@ -116,6 +117,7 @@ class __constraints__(Syntax):
         super(__constraints__, self).__init__("Syntax error in type signature")
 
     def __add_constraint(self, con):
+        from hask.hack import safe_issubclass
         # TODO: Create utility
         if len(con) != 2 or not isinstance(con, tuple):
             raise SyntaxError("Invalid typeclass constraint: %s" % str(con))
@@ -198,6 +200,7 @@ def t(type_constructor, *params):
     '''Helper to instantiate `~hask.lang.type_system.TypeSignatureHKT`:class:.
 
     '''
+    from hask.hack import safe_issubclass
     if (safe_issubclass(type_constructor, ADT) and
         len(type_constructor.__params__) != len(params)):
         raise TypeError("Incorrect number of type parameters to %s" %
