@@ -51,16 +51,3 @@ Features not yet implemented, but coming soon:
 
 .. warning:: Note that all of this is still very much pre-alpha, and some
              things may be buggy!
-
-
-Credits
-=======
-
-This is a fork of `hask <https://github.com/billmurphy/hask_>`__ modified to
-run in Python 3.4+.
-
-See the `LICENSE file <https://github.com/mvaled/hask/blob/master/LICENSE_>`__
-keeps the original author and rights.
-
-Changes are copyright `Merchise Autrement [~º/~] and Contributors`, but with
-the same
