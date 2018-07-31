@@ -46,14 +46,14 @@ instance(Monad, Maybe).where(
 def in_maybe(fn):
     """Decorator for monadic error handling.
 
-    If the decorated function raises an exception, return Nothing. Otherwise,
+    If the decorated function raises an exception, return Nothing.  Otherwise,
     take the result and wrap it in a Just.
 
     """
     def closure_in_maybe(*args, **kwargs):
         try:
             return Just(fn(*args, **kwargs))
-        except:  # noqa
+        except:    # noqa
             return Nothing
     return typify(fn, hkt=lambda x: t(Maybe, x))(closure_in_maybe)
 
@@ -62,10 +62,10 @@ def in_maybe(fn):
 def maybe(default, f, maybe_a):
     """``maybe :: b -> (a -> b) -> Maybe a -> b``
 
-    The maybe function takes a default value, a function, and a Maybe value. If
-    the Maybe value is Nothing, the function returns the default value.
-    Otherwise, it applies the function to the value inside the Just and returns
-    the result.
+    The maybe function takes a default value, a function, and a Maybe value.
+    If the Maybe value is Nothing, the function returns the default value.
+    Otherwise, it applies the function to the value inside the Just and
+    returns the result.
 
     """
     return default if maybe_a == Nothing else f(maybe_a[0])

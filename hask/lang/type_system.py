@@ -25,7 +25,7 @@ del string
 
 import types    # noqa
 if sys.version[0] == '2':
-    __python_builtins__ = set((
+    __python_builtins__ = {
         types.BooleanType, types.BufferType, types.BuiltinFunctionType,
         types.BuiltinMethodType, types.ClassType, types.CodeType,
         types.ComplexType, types.DictProxyType, types.DictType,
@@ -38,26 +38,26 @@ if sys.version[0] == '2':
         types.SliceType, types.StringType, types.StringTypes,
         types.TracebackType, types.TupleType, types.TypeType,
         types.UnboundMethodType, types.UnicodeType, types.XRangeType, set,
-        frozenset))
+        frozenset}
 
-    __python_function_types__ = set((
+    __python_function_types__ = {
         types.FunctionType, types.LambdaType, types.MethodType,
         types.UnboundMethodType, types.BuiltinFunctionType,
-        types.BuiltinMethodType))
+        types.BuiltinMethodType}
 
 else:
-    __python_builtins__ = set((
+    __python_builtins__ = {
         bool, dict, type(Ellipsis), float, int, type(None), str, tuple,
         complex, list, set, frozenset, slice,
         type, types.BuiltinFunctionType, types.BuiltinMethodType,
         types.CodeType, types.DynamicClassAttribute, types.FrameType,
         types.FunctionType, types.GeneratorType, types.GetSetDescriptorType,
         types.LambdaType, types.MappingProxyType, types.MemberDescriptorType,
-        types.MethodType, types.ModuleType, types.TracebackType))
+        types.MethodType, types.ModuleType, types.TracebackType}
 
-    __python_function_types__ = set((
+    __python_function_types__ = {
         types.FunctionType, types.LambdaType, types.MethodType,
-        types.BuiltinFunctionType, types.BuiltinMethodType))
+        types.BuiltinFunctionType, types.BuiltinMethodType}
 del types
 
 
@@ -71,39 +71,36 @@ def is_collection(m):
 
 
 def is_builtin(cls):
-    """
-    Test whether a class or type is a Python builtin.
+    """Test whether a class or type is a Python builtin.
 
-    Args:
-        cls: The class or type to examine
+    :param cls: The class or type to examine.
 
-    Returns:
-        True if a type is a Python builtin type, and False otherwise.
+    :returns: True if a type is a Python builtin type, and False otherwise.
+
     """
     return cls in __python_builtins__
 
 
 def nt_to_tuple(nt):
-    """
-    Convert an instance of namedtuple (or an instance of a subclass of
-    namedtuple) to a tuple, even if the instance's __iter__
-    method has been changed. Useful for writing derived instances of
-    typeclasses.
+    """Convert a namedtuple instance to a tuple.
 
-    Args:
-        nt: an instance of namedtuple
+    Even if the instance's __iter__ method has been changed.  Useful for
+    writing derived instances of typeclasses.
 
-    Returns:
-        A tuple containing each of the items in nt
+    :param nt: namedtuple instance.
+
+    :returns: A tuple containing each of the items in nt
+
     """
     return tuple((getattr(nt, f) for f in nt.__class__._fields))
 
 
 class TypeMeta(type):
-    """
-    Metaclass for Typeclass type. Ensures that all typeclasses are instantiated
-    with a dictionary to map instances to their member functions, and a list of
-    dependencies.
+    """Metaclass for Typeclass type.
+
+    Ensures that all typeclasses are instantiated with a dictionary to map
+    instances to their member functions, and a list of dependencies.
+
     """
     def __init__(self, *args):
         super(TypeMeta, self).__init__(*args)
@@ -200,10 +197,11 @@ class Hask(object):
 
 
 class Undefined(Hask):
-    """
-    A class with no concrete type definition (so its type can unify with any
-    other type). Used to create `undefined` and to enable psuedo-laziness in
-    pattern matching.
+    """A class with no concrete type definition.
+
+    So its type can unify with any other type.  Used to create `undefined`
+    and to enable psuedo-laziness in pattern matching.
+
     """
     def __type__(self):
         return TypeVariable()
@@ -518,28 +516,31 @@ def make_data_const(name, fields, type_constructor, slot_num):
 
 
 def build_ADT(typename, typeargs, data_constructors, to_derive):
-    """
-    Create a new algebraic data type (a type constructor and at least one data
-    constructor).
+    """Create a new algebraic data type.
 
-    Args:
-        typename: a string representing the name of the type constructor
-        typeargs: strings representing the type parameters of the type
-                  constructor (should be unique, lowercase strings)
-        data_constructors: a list of (name, [field]) pairs representing
-                           each of the data constructors for the new type.
-        to_derive: a list of typeclasses (subclasses of Typeclass) that should
-                   be derived for the new type
+    A type constructor and at least one data constructor.
 
-    Returns:
-        The type constructor, followed by each of the data constructors (in the
-        order they were defined)
+    :param typename: a string representing the name of the type constructor.
 
-    Example usage:
+    :param typeargs: strings representing the type parameters of the type
+           constructor (should be unique, lowercase strings).
+
+    :param data_constructors: a list of (name, [field]) pairs representing
+           each of the data constructors for the new type.
+
+    :param to_derive: a list of typeclasses (subclasses of Typeclass) that
+           should be derived for the new type.
+
+    :returns: the type constructor, followed by each of the data constructors
+              (in the order they were defined)
+
+    Example usage::
+
         build_ADT(typename="Maybe",
                   typeargs=["a"],
                   data_constructors=[("Nothing", []), ("Just", ["a"])],
                   to_derive=[Read, Show, Eq, Ord])
+
     """
     # 1) Create the new type constructor and data constructors
     newtype = make_type_const(typename, typeargs)

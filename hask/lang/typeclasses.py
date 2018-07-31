@@ -129,14 +129,17 @@ class Ord(Eq):
     """
     @classmethod
     def make_instance(typeclass, cls, lt, le=None, gt=None, ge=None):
-        def_le = lambda s, o: s.__lt__(o) or s.__eq__(o)
-        def_gt = lambda s, o: not s.__lt__(o) and not s.__eq__(o)
-        def_ge = lambda s, o: not s.__lt__(o) or s.__eq__(o)
+        if le is None:
+            le = lambda s, o: s.__lt__(o) or s.__eq__(o)
+        if gt is None:
+            gt = lambda s, o: not s.__lt__(o) and not s.__eq__(o)
+        if ge is None:
+            ge = lambda s, o: not s.__lt__(o) or s.__eq__(o)
 
         __lt__ = lt ** (H/ "a" >> "a" >> bool)
-        __le__ = (def_le if le is None else le) ** (H/ "a" >> "a" >> bool)
-        __gt__ = (def_gt if gt is None else gt) ** (H/ "a" >> "a" >> bool)
-        __ge__ = (def_ge if ge is None else ge) ** (H/ "a" >> "a" >> bool)
+        __le__ = le ** (H/ "a" >> "a" >> bool)
+        __gt__ = gt ** (H/ "a" >> "a" >> bool)
+        __ge__ = ge ** (H/ "a" >> "a" >> bool)
 
         lt = lambda self, other: __lt__(self, other)
         le = lambda self, other: __le__(self, other)

@@ -2,8 +2,6 @@ import unittest
 from hask import has_instance, deriving, data, d, instance
 from hask.Prelude import Show, Eq, Ord
 
-te = TypeError
-
 
 class TestTypeclass(unittest.TestCase):
 
@@ -13,9 +11,9 @@ class TestTypeclass(unittest.TestCase):
         self.assertTrue(has_instance(A, Show))
         self.assertTrue(has_instance(A, Eq))
         self.assertFalse(has_instance(A, Ord))
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             Ord[B]
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             A, B = data.A == d.B & deriving(Show, Ord)
 
         class example(object):
@@ -23,9 +21,9 @@ class TestTypeclass(unittest.TestCase):
                 return "example()"
 
         instance(Show, example).where(show=example.__str__)
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             instance(1, example)
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             instance(example, str)
 
         from hask.Prelude import show

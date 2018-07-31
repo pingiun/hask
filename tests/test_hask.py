@@ -434,7 +434,7 @@ class Test_README_Examples(unittest.TestCase):
         # map a Python (untyped) function over a Python (untyped) set
         @sig(H/ func >> set >> set)
         def set_map(fn, lst):
-            return set((fn(x) for x in lst))
+            return {fn(x) for x in lst}
 
         # map a typed function over a List
         @sig(H/ (H/ "a" >> "b") >> ["a"] >> ["b"])
@@ -456,8 +456,7 @@ class Test_README_Examples(unittest.TestCase):
         def launch_missiles(num_missiles):
             return
 
-        Ratio, R =\
-                data.Ratio("a") == d.R("a", "a") & deriving(Eq)
+        Ratio, R = data.Ratio("a") == d.R("a", "a") & deriving(Eq)
 
         Rational = t(Ratio, int)
 
@@ -504,7 +503,8 @@ class Test_README_Examples(unittest.TestCase):
         self.assertEqual(default_to_zero(Just(27)), 27)
         self.assertEqual(default_to_zero(Nothing), 0)
         self.assertEqual(Just(20.0)[0], 20.0)
-        self.assertEqual(Left("words words words words")[0], "words words words words")
+        self.assertEqual(Left("words words words words")[0],
+                         "words words words words")
         with self.assertRaises(IndexError): Nothing[0]
 
     def test_typeclasses(self):

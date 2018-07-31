@@ -83,9 +83,9 @@ class Let(AST):
 def show_type(type_name):
     '''Pretty-print a Python type or internal type name.
 
-    :param type_name: a Python type, or a string representing a type name
+    :param type_name: a Python type, or a string representing a type name.
 
-    :returns: a string representation of the type
+    :returns: a string representation of the type.
 
     '''
     if isinstance(type_name, str):
