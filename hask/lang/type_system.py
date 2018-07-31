@@ -200,10 +200,11 @@ class Hask(object):
 
 
 class Undefined(Hask):
-    """
-    A class with no concrete type definition (so its type can unify with any
-    other type). Used to create `undefined` and to enable psuedo-laziness in
-    pattern matching.
+    """A class with no concrete type definition.
+
+    So its type can unify with any other type.  Used to create `undefined`
+    and to enable psuedo-laziness in pattern matching.
+
     """
     def __type__(self):
         return TypeVariable()
@@ -518,28 +519,31 @@ def make_data_const(name, fields, type_constructor, slot_num):
 
 
 def build_ADT(typename, typeargs, data_constructors, to_derive):
-    """
-    Create a new algebraic data type (a type constructor and at least one data
-    constructor).
+    """Create a new algebraic data type.
 
-    Args:
-        typename: a string representing the name of the type constructor
-        typeargs: strings representing the type parameters of the type
-                  constructor (should be unique, lowercase strings)
-        data_constructors: a list of (name, [field]) pairs representing
-                           each of the data constructors for the new type.
-        to_derive: a list of typeclasses (subclasses of Typeclass) that should
-                   be derived for the new type
+    A type constructor and at least one data constructor.
 
-    Returns:
-        The type constructor, followed by each of the data constructors (in the
-        order they were defined)
+    :param typename: a string representing the name of the type constructor.
 
-    Example usage:
+    :param typeargs: strings representing the type parameters of the type
+           constructor (should be unique, lowercase strings).
+
+    :param data_constructors: a list of (name, [field]) pairs representing
+           each of the data constructors for the new type.
+
+    :param to_derive: a list of typeclasses (subclasses of Typeclass) that
+           should be derived for the new type.
+
+    :returns: the type constructor, followed by each of the data constructors
+              (in the order they were defined)
+
+    Example usage::
+
         build_ADT(typename="Maybe",
                   typeargs=["a"],
                   data_constructors=[("Nothing", []), ("Just", ["a"])],
                   to_derive=[Read, Show, Eq, Ord])
+
     """
     # 1) Create the new type constructor and data constructors
     newtype = make_type_const(typename, typeargs)

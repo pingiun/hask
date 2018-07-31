@@ -39,8 +39,9 @@ _OPS = {
 
 _PYTHON2 = {'div', 'rdiv', 'idiv', 'nonzero'}
 _MAGICS = set.union(
+    # TODO: After Python 3.6 `f'{p}{o}'`
     {'{}{}'.format(p, o) for p in 'ri' for o in _OPS['arithmetic-binary']},
-    _PYTHON2 if sys.version[0] == '2' else set(),
+    _PYTHON2 if sys.version[0] == '2' else (),
     *_OPS.values())
 
 
@@ -52,11 +53,13 @@ def settle_magic_methods(function, names=_MAGICS):
 
 # Main
 
+# TODO: Try to convert `Syntax` in a meta-class
+
 @settle_magic_methods(lambda self, *args: self.__syntaxerr__())
 class Syntax(object):
-    """
-    Base class for new syntactic constructs. All of the new "syntax" elements
-    of Hask inherit from this class.
+    """Base class for new syntactic constructs.
+
+    All of the new "syntax" elements of Hask inherit from this class.
 
     By default, a piece of syntax will raise a syntax error with a standard
     error message if the syntax object is used with a Python builtin operator.
@@ -74,8 +77,7 @@ class Syntax(object):
 
 
 class instance(Syntax):
-    """
-    Special syntax for defining typeclass instances.
+    """Special syntax for defining typeclass instances.
 
     Example usage::
 
@@ -86,10 +88,11 @@ class instance(Syntax):
     """
     def __init__(self, typecls, cls):
         from hask.hack import safe_issubclass
-        if not safe_issubclass(typecls, Typeclass):
-            raise TypeError("%s is not a typeclass" % typecls)
-        self.typeclass = typecls
-        self.cls = cls
+        if safe_issubclass(typecls, Typeclass):
+            self.typeclass = typecls
+            self.cls = cls
+        else:
+            raise TypeError("{} is not a type-class".format(typecls))
 
     def where(self, **kwargs):
         self.typeclass.make_instance(self.cls, **kwargs)
@@ -115,6 +118,7 @@ class __constraints__(Syntax):
         from collections import defaultdict
         self.constraints = defaultdict(lambda: [])
         if constraints:
+            # XXX: Next block is not clear
             # multiple typeclass constraints
             if isinstance(constraints[0], tuple):
                 for con in constraints:
@@ -122,46 +126,47 @@ class __constraints__(Syntax):
             # only one typeclass constraint
             else:
                 self.__add_constraint(constraints)
-        super(__constraints__, self).__init__("Syntax error in type signature")
+        _msg = "Syntax error in type signature"
+        super(__constraints__, self).__init__(_msg)
 
     def __add_constraint(self, con):
         from hask.hack import safe_issubclass
-        # TODO: Create utility
         if len(con) != 2 or not isinstance(con, tuple):
             raise SyntaxError("Invalid typeclass constraint: %s" % str(con))
-
-        if not isinstance(con[1], str):
+        elif not isinstance(con[1], str):
             raise SyntaxError("%s is not a type variable" % con[1])
-
-        if not safe_issubclass(con[0], Typeclass):
+        elif not safe_issubclass(con[0], Typeclass):
             raise SyntaxError("%s is not a typeclass" % con[0])
-
-        self.constraints[con[1]].append(con[0])
+        else:
+            self.constraints[con[1]].append(con[0])
 
     def __getitem__(self, constraints):
+        # TODO: `__constraints__` or `type(self)`?
         return __constraints__(constraints)
 
-    def __div__(self, arg):
-        return __signature__((), self.constraints).__rshift__(arg)
-
     def __truediv__(self, arg):
-        return self.__div__(arg)
+        return __signature__((), self.constraints) >> arg
+
+    __div__ = __truediv__
 
 
 class __signature__(Syntax):
-    """
-    Class that represents a (complete or incomplete) type signature.
-    """
+    """A (complete or incomplete) type signature."""
     def __init__(self, args, constraints):
         self.sig = TypeSignature(args, constraints)
         super(__signature__, self).__init__("Syntax error in type signature")
 
     def __rshift__(self, arg):
-        arg = arg.sig if isinstance(arg, __signature__) else arg
+        arg = __signature__._inner(arg)
+        # TODO: `__signature__` or `type(self)`?
         return __signature__(self.sig.args + (arg,), self.sig.constraints)
 
     def __rpow__(self, fn):
         return sig(self)(fn)
+
+    @staticmethod
+    def _inner(arg):
+        return arg.sig if isinstance(arg, __signature__) else arg
 
 
 H = __constraints__()
@@ -169,15 +174,17 @@ func = PyFunc
 
 
 class sig(Syntax):
-    """Decorator to convert a Python function into a statically typed function
-    (`~hask.lang.type_system.TypedFunc`:class: object).
+    """Convert a Python function into a Statically Typed Function.
+
+    Statically typed functions are represented by the class
+    `~hask.lang.type_system.TypedFunc`:class:.
 
     TypedFuncs are automagically curried, and polymorphic type arguments will
     be inferred by the type system.
 
     Usage::
 
-        @sig(H/ int >> int >> int )
+        @sig(H/ int >> int >> int)
         def add(x, y):
             return x + y
 
@@ -188,15 +195,13 @@ class sig(Syntax):
     """
     def __init__(self, signature):
         super(self.__class__, self).__init__("Syntax error in type signature")
-
         if not isinstance(signature, __signature__):
-            msg = "Signature expected in sig(); found %s" % signature
+            msg = "Signature expected in sig(); found {}".format(signature)
             raise SyntaxError(msg)
-
         elif len(signature.sig.args) < 2:
             raise SyntaxError("Not enough type arguments in signature")
-
-        self.sig = signature.sig
+        else:
+            self.sig = signature.sig
 
     def __call__(self, fn):
         fn_args = build_sig(self.sig)
@@ -205,17 +210,19 @@ class sig(Syntax):
 
 
 def t(type_constructor, *params):
-    '''Helper to instantiate `~hask.lang.type_system.TypeSignatureHKT`:class:.
+    '''Helper to instantiate a higher-kinded type.
+
+    See `~hask.lang.type_system.TypeSignatureHKT`:class: class.
 
     '''
     from hask.hack import safe_issubclass
     if (safe_issubclass(type_constructor, ADT) and
         len(type_constructor.__params__) != len(params)):
-        raise TypeError("Incorrect number of type parameters to %s" %
-                        type_constructor.__name__)
-
-    params = [p.sig if isinstance(p, __signature__) else p for p in params]
-    return TypeSignatureHKT(type_constructor, params)
+        _msg = "Incorrect number of type parameters to {}"
+        raise TypeError(_msg.format(type_constructor.__name__))
+    else:
+        params = [__signature__._inner(p) for p in params]
+        return TypeSignatureHKT(type_constructor, params)
 
 
 def typify(fn, hkt=None):
@@ -238,9 +245,8 @@ def typify(fn, hkt=None):
             return x + y
 
     """
-    from xoutil.objects import get_first_of
-    code = get_first_of(fn, '__code__', 'fn_code')
-    args = [chr(i) for i in range(97, 98 + code.co_argcount)]
+    A = ord('a')
+    args = [chr(i) for i in range(A, A + fn.__code__.co_argcount + 1)]
     if hkt is not None:
         args[-1] = hkt(args[-1])
     return sig(__signature__(args, []))
@@ -249,12 +255,13 @@ def typify(fn, hkt=None):
 # TODO: `undefined` was `__undefined__()`
 @settle_magic_methods(lambda self, *args: undefined)
 class __undefined__(Undefined):
-    """
-    Undefined value with special syntactic powers. Whenever you try to use one
-    if its magic methods, it returns undefined. Used to prevent overzealous
-    evaluation in pattern matching.
+    """Undefined value with special syntactic powers.
+
+    Whenever you try to use one if its magic methods, it returns
+    undefined.  Used to prevent overzealous evaluation in pattern matching.
 
     Its type unifies with any other type.
+
     """
     pass
 
@@ -271,7 +278,7 @@ class IncompletePatternError(Exception):
 
 
 class MatchStackFrame(object):
-    """One stack frame for pattern matching bound variable stack"""
+    """One stack frame for pattern matching bound variable stack."""
     def __init__(self, value):
         self.value = value
         self.cache = {}
@@ -279,32 +286,31 @@ class MatchStackFrame(object):
 
 
 class MatchStack(object):
-    """Stack for storing locally bound variables from matches"""
+    """Stack for storing locally bound variables from matches."""
     from collections import deque
     __stack__ = deque()
     del deque
 
     @classmethod
     def push(cls, value):
-        """Push a new frame onto the stack, representing a new case expr"""
+        """Push a new frame onto the stack, representing a new case expr."""
         cls.__stack__.append(MatchStackFrame(value))
 
     @classmethod
     def pop(cls):
-        """Pop the current frame off the stack"""
+        """Pop the current frame off the stack."""
         cls.__stack__.pop()
 
     @classmethod
     def get_frame(cls):
-        """Access the current frame"""
+        """Access the current frame."""
         return cls.__stack__[-1]
 
     @classmethod
     def get_name(cls, name):
-        """Lookup a variable name in the current frame"""
-        if cls.get_frame().matched:
-            return undefined
-        return cls.get_frame().cache.get(name, undefined)
+        """Lookup a variable name in the current frame."""
+        frm = cls.get_frame()
+        return undefined if frm.matched else frm.cache.get(name, undefined)
 
 
 class __var_bind__(Syntax):
@@ -338,9 +344,11 @@ p = __var_access__("Syntax error in pattern match")
 
 
 class __pattern_bind_list__(Syntax, PatternMatchListBind):
-    """
-    Class that represents a pattern designed to match an iterable, consisting
-    of a head (one element) and a tail (zero to many elements).
+    """Represents a pattern designed to match a bind list.
+
+    A bind list is any iterable, consisting of a head (one element) and a tail
+    (zero to many elements).
+
     """
     def __init__(self, head, tail):
         self.head = [head]
@@ -353,10 +361,7 @@ class __pattern_bind_list__(Syntax, PatternMatchListBind):
 
 
 class __pattern_bind__(Syntax, PatternMatchBind):
-    """
-    Class that represents a pattern designed to match any value and bind it to
-    a name.
-    """
+    """A pattern designed to match any value and bind it to a name."""
     def __init__(self, name):
         self.name = name
         super(__pattern_bind__, self).__init__("Syntax error in match")
@@ -367,15 +372,16 @@ class __pattern_bind__(Syntax, PatternMatchBind):
     def __xor__(self, other):
         if isinstance(other, __pattern_bind_list__):
             return other.__rxor__(self)
-
         elif isinstance(other, __pattern_bind__):
             return __pattern_bind_list__(self, other)
-
-        raise self.invalid_syntax
+        else:
+            raise self.invalid_syntax
 
 
 class __match_line__(Syntax):
-    """One line of a caseof expression, i.e.: ``m( ... ) >> return_value``
+    """One line of a caseof expression.
+
+    i.e.: ``m( ... ) >> return_value``.
 
     """
     def __init__(self, is_match, return_value):
@@ -384,7 +390,9 @@ class __match_line__(Syntax):
 
 
 class __match_test__(Syntax):
-    """The pattern part of one caseof line, i.e.: ``m( ... )``
+    """The pattern part of one caseof line.
+
+    i.e.: ``m( ... )``.
 
     """
     def __init__(self, is_match):
@@ -396,8 +404,10 @@ class __match_test__(Syntax):
 
 
 class __unmatched_case__(Syntax):
-    """A caseof expression in mid-evaluation, when zero or more lines have been
-    tested, but before a match has been found.
+    """An unmatched caseof expression in mid-evaluation.
+
+    That is, when zero or more lines have been tested, but before a match has
+    been found.
 
     """
     def __or__(self, line):
@@ -413,8 +423,9 @@ class __unmatched_case__(Syntax):
 
 
 class __matched_case__(Syntax):
-    """A caseof expression in mid-evaluation, when one or more lines have been
-    tested and after a match has been found.
+    """A matched caseof expression in mid-evaluation.
+
+    When one or more lines have been tested and after a match has been found.
 
     """
     def __init__(self, return_value):
@@ -429,8 +440,10 @@ class __matched_case__(Syntax):
 
 
 class caseof(__unmatched_case__):
-    """Pattern matching can be used to deconstruct lists and ADTs, and is a very
-    useful control flow tool.
+    """Pattern matching.
+
+    Can be used to deconstruct lists and ADTs, and it is a very useful control
+    flow tool.
 
     Usage::
 
@@ -458,31 +471,32 @@ class caseof(__unmatched_case__):
 # ADT creation syntax ("data" expressions)
 # "data"/type constructor half of the expression
 
+
 class __data__(Syntax):
-    r"""`data` is part of Hask's special syntax for defining ADTs.
+    """`data`:obj: class, syntax for defining Algebraic Data Types.
 
     Example usage:
 
         >>> from hask import data, d, deriving, Read, Show, Eq, Ord
 
-        >>> Maybe, Nothing, Just =\
-        ...     data.Maybe("a") == d.Nothing | d.Just("a") & \
+        >>> Maybe, Nothing, Just = (
+        ...     data.Maybe("a") == d.Nothing | d.Just("a") &
         ...     deriving(Read, Show, Eq, Ord)
+        ...     )
 
     """
     def __init__(self):
         super(__data__, self).__init__("Syntax error in `data`")
 
     def __getattr__(self, value):
-        if not value[0].isupper():
+        if value[0].isupper():
+            return __new_tcon_enum__(value)
+        else:
             raise SyntaxError("Type constructor name must be capitalized")
-        return __new_tcon_enum__(value)
 
 
 class __new_tcon__(Syntax):
-    """
-    Base class for Syntax classes related to creating new type constructors.
-    """
+    """Base for Syntax classes related to creating new type constructors."""
     def __init__(self, name, args=()):
         self.name = name
         self.args = args
@@ -492,19 +506,18 @@ class __new_tcon__(Syntax):
         # one data constructor, zero or more derived typeclasses
         if isinstance(d, __new_dcon__):
             return build_ADT(self.name, self.args, [(d.name, d.args)], d.classes)
-
         # one or more data constructors, zero or more derived typeclasses
         elif isinstance(d, __new_dcons_deriving__):
             return build_ADT(self.name, self.args, d.dcons, d.classes)
-
-        raise self.invalid_syntax
+        else:
+            raise self.invalid_syntax
 
 
 class __new_tcon_enum__(__new_tcon__):
-    """
-    This class represents a `data` statement in mid evaluation; it represents
-    the part of the expression that builds the type constructor, before type
-    parameters have been added.
+    """A `data` statement in mid evaluation.
+
+    It represents the part of the expression that builds the type constructor,
+    before type parameters have been added.
 
     Examples::
 
@@ -513,31 +526,23 @@ class __new_tcon_enum__(__new_tcon__):
 
     """
     def __call__(self, *typeargs):
-        if len(typeargs) < 1:
-            msg = "Missing type args in statement: `data.%s()`" % self.name
-            raise SyntaxError(msg)
-
-        # make sure all type params are strings
-        if not all((type(arg) == str for arg in typeargs)):
-            raise SyntaxError("Type parameters must be strings")
-
-        # make sure all type params are letters only
-        is_letters = lambda xs: all(x.islower() for x in xs)
-        if not all((is_letters(arg) for arg in typeargs)):
-            raise SyntaxError("Type parameters must be lowercase letters")
-
-        # all type parameters must have unique names
-        if len(typeargs) != len(set(typeargs)):
+        count = len(typeargs)
+        if count == 0:
+            msg = "Missing type arguments in statement: `data.{}()`"
+            raise SyntaxError(msg.format(self.name))
+        elif count != len(set(typeargs)):
             raise SyntaxError("Type parameters are not unique")
-
-        return __new_tcon_hkt__(self.name, typeargs)
+        elif not all(type(arg) == str and arg.islower() for arg in typeargs):
+            raise SyntaxError("Type parameters must be lowercase strings")
+        else:
+            return __new_tcon_hkt__(self.name, typeargs)
 
 
 class __new_tcon_hkt__(__new_tcon__):
-    """
-    This class represents a `data` statement in mid evaluation; it represents
-    the part of the expression that builds the type constructor, after type
-    parameters have been added.
+    """A `data` statement in mid evaluation.
+
+    It represents the part of the expression that builds the type constructor,
+    after type parameters have been added.
 
     Examples::
 
@@ -559,15 +564,17 @@ class __d__(Syntax):
         super(__d__, self).__init__("Syntax error in `d`")
 
     def __getattr__(self, value):
-        if not value[0].isupper():
+        if value[0].isupper():
+            return __new_dcon_enum__(value)
+        else:
             raise SyntaxError("Data constructor name must be capitalized")
-        return __new_dcon_enum__(value)
 
 
 class __new_dcon__(Syntax):
-    """
-    Base class for Syntax objects that handle data constructor creation syntax
-    within a `data` statment (`d.*`).
+    """Base for Syntax objects that handle data constructor creation.
+
+    That is within a `data` statment (`d.*`).
+
     """
     def __init__(self, dcon_name, args=(), classes=()):
         self.name = dcon_name
@@ -577,10 +584,10 @@ class __new_dcon__(Syntax):
 
 
 class __new_dcon_params__(__new_dcon__):
-    """
-    This class represents a `data` statement in mid evaluation; it represents
-    the part of the expression that builds a data constructor, after type
-    parameters have been added.
+    """Represents a `data` statement in mid evaluation.
+
+    It represents the part of the expression that builds a data constructor,
+    after type parameters have been added.
 
     Examples::
 
@@ -589,26 +596,28 @@ class __new_dcon_params__(__new_dcon__):
 
     """
     def __and__(self, derive_exp):
-        if not isinstance(derive_exp, deriving):
+        if isinstance(derive_exp, deriving):
+            cls = __new_dcon_deriving__
+            return cls(self.name, self.args, derive_exp.classes)
+        else:
             raise self.invalid_syntax
-        return __new_dcon_deriving__(self.name, self.args, derive_exp.classes)
 
     def __or__(self, dcon):
         if isinstance(dcon, __new_dcon__):
             constructors = ((self.name, self.args), (dcon.name, dcon.args))
-
             if isinstance(dcon, __new_dcon_deriving__):
                 return __new_dcons_deriving__(constructors, dcon.classes)
-            return __new_dcons__(constructors)
-
-        raise self.invalid_syntax
+            else:
+                return __new_dcons__(constructors)
+        else:
+            raise self.invalid_syntax
 
 
 class __new_dcon_deriving__(__new_dcon__):
-    """
-    This class represents a `data` statement in mid evaluation; it represents
-    the part of the expression that builds a data constructor (with or without type
-    parameters) and adds derived typeclasses.
+    """Represents a `data` statement in mid evaluation.
+
+    The part of the expression that builds a data constructor (with or without
+    type parameters) and adds derived `~hask.lang.typeclasses`:mod:.
 
     Examples::
 
@@ -620,9 +629,9 @@ class __new_dcon_deriving__(__new_dcon__):
 
 
 class __new_dcon_enum__(__new_dcon_params__):
-    """
-    This class represents a `data` statement in mid evaluation; it represents
-    the part of the expression that builds a data constructor, after type
+    """Represents a `data` statement in mid evaluation.
+
+    The part of the expression that builds a data constructor, after type
     parameters have been added.
 
     Examples::
@@ -636,10 +645,10 @@ class __new_dcon_enum__(__new_dcon_params__):
 
 
 class __new_dcons_deriving__(Syntax):
-    """
-    This class represents a `data` statement in mid evaluation; it represents
-    the part of the expression that builds data constructors (with or without type
-    parameters) and adds derived typeclasses.
+    """A `data` statement in mid evaluation.
+
+    The part of the expression that builds data constructors (with or without
+    type parameters) and adds derived `~hask.lang.typeclasses`:mod:.
 
     Examples::
 
@@ -654,10 +663,10 @@ class __new_dcons_deriving__(Syntax):
 
 
 class __new_dcons__(__new_dcons_deriving__):
-    """
-    This class represents a `data` statement in mid evaluation; it represents
-    the part of the expression that builds data constructors (with or without type
-    parameters), with no derived typeclasses.
+    """A `data` statement in mid evaluation.
+
+    The part of the expression that builds data constructors (with or without
+    type parameters), with no derived `~hask.lang.typeclasses`:mod:.
 
     Examples::
 
@@ -669,13 +678,14 @@ class __new_dcons__(__new_dcons_deriving__):
 
     def __or__(self, new_dcon):
         if isinstance(new_dcon, __new_dcon__):
-            constructor = ((new_dcon.name, new_dcon.args),)
-
+            constructor = ((new_dcon.name, new_dcon.args), )
             if isinstance(new_dcon, __new_dcon_deriving__):
-                return __new_dcons_deriving__(self.dcons + constructor,
-                                              new_dcon.classes)
-            return __new_dcons__(self.dcons + constructor)
-        raise self.invalid_syntax
+                cls =  __new_dcons_deriving__
+                return cls(self.dcons + constructor, new_dcon.classes)
+            else:
+                return __new_dcons__(self.dcons + constructor)
+        else:
+            raise self.invalid_syntax
 
 
 data = __data__()
@@ -683,18 +693,18 @@ d = __d__()
 
 
 class deriving(Syntax):
-    """`deriving` is part of hask's special syntax for defining algebraic data
-    types.
+    """Part of hask's special syntax for defining algebraic data types.
 
     See `data`:class: for more information.
 
     """
     def __init__(self, *tclasses):
-        for tclass in tclasses:
-            if not issubclass(tclass, Typeclass):
-                raise TypeError("Cannot derive non-typeclass %s" % tclass)
-        self.classes = tclasses
-        super(deriving, self).__init__("Syntax error in `deriving`")
+        w = next((c for c in tclasses if not issubclass(c, Typeclass)), None)
+        if w is None:
+            self.classes = tclasses
+            super(deriving, self).__init__("Syntax error in `deriving`")
+        else:
+            raise TypeError("Cannot derive non-typeclass {}".format(w))
 
 
 class __section__(Syntax):
@@ -727,23 +737,23 @@ class __section__(Syntax):
 
     @staticmethod
     def __make_section(fn):
-        """
-        Create an operator section from a binary operator.
-        """
+        """Create an operator section from a binary operator."""
         def section_wrapper(self, y):
-            # double section, e.g. (__+__)
             if isinstance(y, __section__):
+                # double section, e.g. (__+__)
                 @sig(H/ "a" >> "b" >> "c")
                 def double_section(a, b):
                     return fn(a, b)
                 return double_section
-
-            # single section, e.g. (__+1) or (1+__)
-            @sig(H/ "a" >> "b")
-            def section(a):
-                return fn(a, y)
-            return section
+            else:
+                # single section, e.g. (__+1) or (1+__)
+                @sig(H/ "a" >> "b")
+                def section(a):
+                    return fn(a, y)
+                return section
         return section_wrapper
+
+    # TODO: Migrate next section methods definition into a class decorator
 
     # left section, e.g. (__+1)
     __wrap = __make_section.__func__
@@ -824,17 +834,19 @@ class __guard_test__(Syntax):
 
     """
     def __init__(self, fn):
-        if not callable(fn):
+        if callable(fn):
+            self.__test = fn
+            msg = "Syntax error in guard condition"
+            super(__guard_test__, self).__init__(msg)
+        else:
             raise ValueError("Guard condition must be callable")
-        self.__test = fn
-        super(__guard_test__, self).__init__("Syntax error in guard condition")
 
     def __rshift__(self, value):
-        if isinstance(value, __guard_test__) or \
-           isinstance(value, __guard_conditional__) or \
-           isinstance(value, __guard_base__):
+        wrong_types = (__guard_test__, __guard_conditional__, __guard_base__)
+        if not isinstance(value, wrong_types):
+            return __guard_conditional__(self.__test, value)
+        else:
             raise self.invalid_syntax
-        return __guard_conditional__(self.__test, value)
 
 
 class __guard_conditional__(Syntax):
@@ -859,9 +871,10 @@ class __guard_conditional__(Syntax):
 
 
 class __guard_base__(Syntax):
-    """Superclass for the classes __unmatched_guard__ and __matched_guard__
-    below, which represent the internal state of a guard expression as it is
-    being evaluated.
+    """Base for __unmatched_guard__ and __matched_guard__.
+
+    Represent the internal state of a guard expression as it is being
+    evaluated.
 
     See `guard`:class: for more details.
 
@@ -872,38 +885,38 @@ class __guard_base__(Syntax):
 
 
 class __unmatched_guard__(__guard_base__):
-    """Object that represents the state of a guard expression in mid-evaluation,
-    before one of the conditions in the expression has been satisfied.
+    """The state of a guard expression in mid-evaluation.
+
+    Before one of the conditions in the expression has been satisfied.
 
     See `guard`:class: for more details.
 
     """
     def __or__(self, cond):
         # Consume the next line of the guard expression
-
         if isinstance(cond, __guard_test__):
             raise SyntaxError("Guard expression is missing return value")
-
         elif not isinstance(cond, __guard_conditional__):
             raise SyntaxError("Guard condition expected, got %s" % cond)
-
         # If the condition is satisfied, change the evaluation state to
         # __matched_guard__, setting the return value to the value provided on
         # the current line
         elif cond.check(self.value):
             return __matched_guard__(cond.return_value)
-
         # If the condition is not satisfied, continue on with the next line,
         # still in __unmatched_guard__ state with the return value not set
-        return __unmatched_guard__(self.value)
+        else:
+            return __unmatched_guard__(self.value)
 
     def __invert__(self):
-        raise NoGuardMatchException("No match found in guard(%s)" % self.value)
+        msg = "No match found in guard({})".format(self.value)
+        raise NoGuardMatchException(msg)
 
 
 class __matched_guard__(__guard_base__):
-    """Object that represents the state of a guard expression in mid-evaluation,
-    after one of the conditions in the expression has been satisfied.
+    """State of a guard expression in mid-evaluation.
+
+    After one of the conditions in the expression has been satisfied.
 
     See `guard`:class: for more details.
 
@@ -914,7 +927,8 @@ class __matched_guard__(__guard_base__):
         # of the lines in the guard expression
         if isinstance(cond, __guard_conditional__):
             return self
-        raise self.invalid_syntax
+        else:
+            raise self.invalid_syntax
 
     def __invert__(self):
         return self.value
@@ -939,18 +953,19 @@ class guard(__unmatched_guard__):
              | otherwise          >> "unsure"
         )
 
-        # Using guards with sections. See help(__) for information on sections.
+        # Using guards with sections.
+        # See help(__) for information on sections.
         ~(guard(20)
             | c(__ > 10)  >> 20
             | c(__ == 10) >> 10
             | c(__ > 5)   >> 5
             | otherwise   >> 0)
 
-    :param value: the value being tested in the guard expression
+    :param value: the value being tested in the guard expression.
 
-    :returns: the return value corresponding to the first matching condition
+    :returns: the return value corresponding to the first matching condition.
 
-    :raises: NoGuardMatchException (if no match is found)
+    :raises: NoGuardMatchException (if no match is found).
 
     """
     def __invert__(self):
@@ -963,31 +978,31 @@ otherwise = c(lambda _: True)
 
 # REPL tools (:q, :t, :i)
 
-
 def _q(status=None):
-    """
-    Shorthand for sys.exit() or exit() with no arguments. Equivalent to :q in
-    Haskell. Should only be used in the REPL.
+    """Shorthand for sys.exit() or exit() with no arguments.
+
+    Equivalent to :q in Haskell.  Should only be used in the REPL.
 
     Usage:
 
-    >>> _q()
+        >>> _q()
+
     """
     if status is None:
         exit()
-    exit(status)
+    else:
+        exit(status)
 
 
 def _t(obj):
-    """Returns a string representing the type of an object, including
-    higher-kinded types and ADTs.
+    """Returns a string representing the type of an object.
 
-    Equivalent to ``:t`` in Haskell.  Meant to be used in the REPL, but might
-    also be useful for debugging.
+    Includes higher-kinded types and ADTs.  Equivalent to ``:t`` in Haskell.
+    Meant to be used in the REPL, but might also be useful for debugging.
 
-    :param obj: the object to inspect
+    :param obj: the object to inspect.
 
-    :returns: A string representation of the type
+    :returns: A string representation of the type.
 
     Usage:
 
@@ -1009,7 +1024,7 @@ def _i(obj):
     Equivalent to ``:i`` in Haskell or ``help(obj)`` in Python.  Should only
     be used in the REPL.
 
-    :param obj: the object to inspect
+    :param obj: the object to inspect.
 
     Usage::
 
