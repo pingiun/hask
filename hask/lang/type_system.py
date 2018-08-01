@@ -1,6 +1,5 @@
 from __future__ import division, print_function, absolute_import
 
-import sys
 from xoutil.eight.meta import metaclass
 
 from .hindley_milner import TypeVariable
@@ -15,14 +14,7 @@ from .hindley_milner import Tuple
 from .hindley_milner import ListType
 
 
-import string    # noqa
-if sys.version[0] == '2':
-    lowercase = string.lowercase
-else:
-    lowercase = string.ascii_lowercase
-del string
-
-
+import sys    # noqa
 import types    # noqa
 if sys.version[0] == '2':
     __python_builtins__ = {
@@ -58,7 +50,7 @@ else:
     __python_function_types__ = {
         types.FunctionType, types.LambdaType, types.MethodType,
         types.BuiltinFunctionType, types.BuiltinMethodType}
-del types
+del types, sys
 
 
 def is_collection(m):
@@ -268,59 +260,60 @@ class TypeSignatureError(Exception):
 
 
 def build_sig_arg(arg, cons, var_dict):
-    """
-    Covert a single argument of a type signature into its internal type system
+    """Covert an argument of a type signature into its internal type system
     representation.
 
-    Args:
-        arg: The argument (a string, a Python type, etc) to convert
-        cons: a dictionary of typeclass constraints for the type signature
-        var_dict: a dictionary of bound type variables
+    :param arg: The argument (a string, a Python type, etc) to convert.
 
-    Returns: A TypeVariable or TypeOperator representing the arg
+    :param cons: a dictionary of typeclass constraints for the type
+           signature.
 
-    Raises: TypeSignatureError, if the argument cannot be converted
+     :param var_dict: a dictionary of bound type variables.
+
+    :returns: A TypeVariable or TypeOperator representing the arg.
+
+    :raises TypeSignatureError: if the argument cannot be converted.
+
     """
-    # string representing type variable
-    if isinstance(arg, str) and all((l in lowercase for l in arg)):
-        if arg not in var_dict:
-            if arg in cons:
-                var_dict[arg] = TypeVariable(constraints=cons[arg])
-            else:
-                var_dict[arg] = TypeVariable()
-        return var_dict[arg]
-
+    res = None
+    if isinstance(arg, str):
+        if arg.islower():
+            if arg not in var_dict:
+                if arg in cons:
+                    var_dict[arg] = TypeVariable(constraints=cons[arg])
+                else:
+                    var_dict[arg] = TypeVariable()
+            res = var_dict[arg]
     # subsignature, e.g. H/ (H/ int >> int) >> int >> int
     elif isinstance(arg, TypeSignature):
-        return make_fn_type(build_sig(arg, var_dict))
-
+        res = make_fn_type(build_sig(arg, var_dict))
     # HKT, e.g. t(Maybe "a") or t("m", "a", "b")
     elif isinstance(arg, TypeSignatureHKT):
         if type(arg.tcon) == str:
             hkt = build_sig_arg(arg.tcon, cons, var_dict)
         else:
             hkt = arg.tcon
-        return TypeOperator(hkt, [build_sig_arg(a, cons, var_dict)
-                                  for a in arg.params])
-
+        types = [build_sig_arg(a, cons, var_dict) for a in arg.params]
+        res = TypeOperator(hkt, types)
     # None (the unit type)
     elif arg is None:
-        return TypeOperator(None, [])
-
+        res = TypeOperator(None, [])
     # Tuples: ("a", "b"), (int, ("a", float)), etc.
     elif isinstance(arg, tuple):
         f = lambda x: build_sig_arg(x, cons, var_dict)
-        return Tuple([f(x) for x in arg])
-
+        res = Tuple([f(x) for x in arg])
     # Lists: ["a"], [int], etc.
-    elif isinstance(arg, list) and len(arg) == 1:
-        return ListType(build_sig_arg(arg[0], cons, var_dict))
-
+    elif isinstance(arg, list):
+        if len(arg) == 1:
+            res = ListType(build_sig_arg(arg[0], cons, var_dict))
     # any other type, builtin or user-defined
     elif isinstance(arg, type):
-        return TypeOperator(arg, [])
-
-    raise TypeSignatureError("Invalid item in type signature: %s" % arg)
+        res = TypeOperator(arg, [])
+    if res is not None:
+        return res
+    else:
+        msg = "Invalid item in type signature: {}".format(arg)
+        raise TypeSignatureError(msg)
 
 
 def make_fn_type(params):
