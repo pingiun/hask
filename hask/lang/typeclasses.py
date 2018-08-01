@@ -171,14 +171,15 @@ class Ord(Eq):
 
 
 class Bounded(Typeclass):
-    """The Bounded class is used to name the upper and lower limits of a
-    type. Ord is not a superclass of Bounded since types that are not totally
+    """Used to name the upper and lower limits of a type.
+
+    `Ord` is not a super-class of `Bounded` since types that are not totally
     ordered may also have upper and lower bounds.
 
-    The Bounded class may be derived for any enumeration type; minBound is the
-    first constructor listed in the data declaration and maxBound is the last.
-    Bounded may also be derived for single-constructor datatypes whose
-    constituent types are in Bounded.
+    The Bounded class may be derived for any enumeration type; `minBound` is
+    the first constructor listed in the data declaration and `maxBound` is the
+    last.  `Bounded` may also be derived for single-constructor datatypes
+    whose constituent types are in Bounded.
 
     Attributes:
 
@@ -198,15 +199,15 @@ class Bounded(Typeclass):
 
     @classmethod
     def derive_instance(typeclass, cls):
-        # All data constructors must be enums
-        for data_con in cls.__constructors__:
-            if not isinstance(data_con, cls):
-                raise TypeError("Cannot derive Bounded; %s is not an enum" %
-                                 data_con.__name__)
-
-        maxBound = lambda s: cls.__constructors__[0]
-        minBound = lambda s: cls.__constructors__[-1]
-        Bounded.make_instance(cls, minBound=minBound, maxBound=maxBound)
+        constructors = cls.__constructors__
+        bad = next((c for c in constructors if not isinstance(c, cls)), None)
+        if bad is None:
+            maxBound = lambda s: constructors[0]
+            minBound = lambda s: constructors[-1]
+            Bounded.make_instance(cls, minBound=minBound, maxBound=maxBound)
+        else:
+            msg = "Cannot derive Bounded; {} is not an enum"
+            raise TypeError(msg.format(bad.__name__))
 
 
 class Read(Typeclass):
