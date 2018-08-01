@@ -107,19 +107,20 @@ class TypeMeta(type):
                 return self.__instances__[id(type(item))]
             elif isinstance(item, Hask):
                 return self.__instances__[id(typeof(item))]
-            return self.__instances__[id(type(item))]
+            else:
+                return self.__instances__[id(type(item))]
         except KeyError:
             raise TypeError("No instance for {0}".format(item))
 
 
 class Typeclass(metaclass(TypeMeta)):
-    """
-    Base class for Hask typeclasses.
+    """Base class for Hask typeclasses.
 
     All subclasses should implement make_instance, which controls what happens
-    when a new instance is added. This method should set up whatever
-    attributes/functions belong to the typeclass, and then call build_instance.
-    See typeclasses.py for examples.
+    when a new instance is added.  This method should set up whatever
+    attributes/functions belong to the typeclass, and then call
+    build_instance.  See typeclasses.py for examples.
+
     """
     @classmethod
     def make_instance(typeclass, type_, *args):
@@ -131,46 +132,48 @@ class Typeclass(metaclass(TypeMeta)):
 
 
 def build_instance(typeclass, cls, attrs):
-    """
-    Add a new instance to a typeclass, i.e. modify the typeclass's instance
-    dictionary to include the new instance.
+    """Add a new instance to a typeclass.
 
-    Args:
-        typeclass: The typeclass for which we are adding an instance
-        cls: The class or type to be added
-        attrs: A dict of {str:function}, mapping function names to functions
-               for the typeclass instance
+    i.e. modify the typeclass's instance dictionary to include the new
+    instance.
 
-    Returns: None
+    :param typeclass: The typeclass for which we are adding an instance.
 
-    Raises:
-        TypeError, if cls is not a member of all superclasses of typeclass
+    :param cls: The class or type to be added.
+
+    :param attrs: A dict of {str:function}, mapping function names to
+           functions for the typeclass instance
+
+    :returns: None
+
+    :raises TypeError: if cls is not a member of all superclasses of
+            typeclass.
+
     """
     from collections import namedtuple
-    # 1) check dependencies
-    for dep in typeclass.__dependencies__:
-        if id(cls) not in dep.__instances__:
-            raise TypeError("Missing dependency: %s" % dep.__name__)
-
-    # 2) add type and its instance method to typeclass's instance dictionary
-    __methods__ = namedtuple("__%s__" % str(id(cls)), attrs.keys())(**attrs)
-    typeclass.__instances__[id(cls)] = __methods__
+    deps = typeclass.__dependencies__
+    aux = id(cls)
+    bad = next((dep for dep in deps if aux not in dep.__instances__), None)
+    if bad is None:
+        __methods__ = namedtuple("__{}__".format(aux), attrs.keys())(**attrs)
+        typeclass.__instances__[id(cls)] = __methods__
+    else:
+        raise TypeError("Missing dependency: %s" % bad.__name__)
 
 
 def has_instance(cls, typeclass):
-    """
-    Test whether a class is a member of a particular typeclass.
+    """Test whether a class is a member of a particular typeclass.
 
-    Args:
-        cls: The class or type to test for membership
-        typeclass: The typeclass to check. Must be a subclass of Typeclass.
+    :param cls: The class or type to test for membership.
 
-    Returns:
-        True if cls is a member of typeclass, and False otherwise.
+    :param typeclass: The typeclass to check. Must be a subclass of
+           Typeclass.
+
+    :returns: True if cls is a member of typeclass, and False otherwise.
+
     """
-    if not issubclass(typeclass, Typeclass):
-        return False
-    return id(cls) in typeclass.__instances__
+    ok = issubclass(typeclass, Typeclass)
+    return ok and id(cls) in typeclass.__instances__
 
 
 class Hask(object):
@@ -200,9 +203,9 @@ class Undefined(Hask):
 
 
 class PyFunc(object):
-    """
-    Singleton object that represents (any of the) Python function types in the
-    type system and in type signatures.
+    """Singleton that represents (any of the) Python function types in
+    the type system and in type signatures.
+
     """
     pass
 
@@ -213,31 +216,29 @@ def typeof(obj):
     :param obj: the object to inspect
 
     :returns: An object representing the type in the internal type system
-        language (i.e., a `~hask.lang.hindley_milner.TypeOperator`:class: or
-        `~hask.lang.hindley_milner.TypeVariable`:class:).
+              language (i.e., a
+              `~hask.lang.hindley_milner.TypeOperator`:class: or
+              `~hask.lang.hindley_milner.TypeVariable`:class:).
 
     """
     TypeVariable.next_var_name = 'a'
-
     if isinstance(obj, Hask):
         return obj.__type__()
-
     elif isinstance(obj, tuple):
         return Tuple([typeof(o) for o in obj])
-
     elif obj is None:
         return TypeOperator(None, [])
-
     elif type(obj) in __python_function_types__:
         return TypeOperator(PyFunc, [])
-
-    return TypeOperator(type(obj), [])
+    else:
+        return TypeOperator(type(obj), [])
 
 
 class TypeSignature(object):
-    """Internal representation of a type signature, consisting of a list of
-    function type arguments and a list of (typeclass, type_variable) typeclass
-    constraint pairs.
+    """Internal representation of a type signature.
+
+    Consisting of a list of function type arguments and a list of (typeclass,
+    type_variable) typeclass constraint pairs.
 
     """
     def __init__(self, args, constraints):
@@ -246,8 +247,9 @@ class TypeSignature(object):
 
 
 class TypeSignatureHKT(object):
-    """Internal representation of a higher-kinded type within a type signature,
-    consisting of the type constructor and its type parameter names.
+    """Internal representation of a higher-kinded type within a signature.
+
+    Consisting of the type constructor and its type parameter names.
 
     """
     def __init__(self, tcon, params):
@@ -317,34 +319,35 @@ def build_sig_arg(arg, cons, var_dict):
 
 
 def make_fn_type(params):
-    """
-    Turn a list of type parameters into the corresponding internal type system
-    object that represents the type of a function over the parameters.
+    """Turn type parameters into corresponding internal type system object.
 
-    Args:
-        params: a list of type paramaters, e.g. from a type signature. These
-                should be instances of TypeOperator or TypeVariable
+    Returned object will represent the type of a function over the
+    parameters.
 
-    Returns:
-        An instance of TypeOperator representing the function type
+    :param params: a list of type paramaters, e.g. from a type
+           signature. These should be instances of TypeOperator or
+           TypeVariable.
+
+    :returns: An instance of TypeOperator representing the function type.
+
     """
     if len(params) == 2:
         last_input, return_type = params
         return Function(last_input, return_type)
-    return Function(params[0], make_fn_type(params[1:]))
+    else:
+        return Function(params[0], make_fn_type(params[1:]))
 
 
 def build_sig(type_signature, var_dict=None):
-    """
-    Parse a TypeSignature object and convert it to the internal type system
-    language.
+    """Parse a TypeSignature to obtain the internal type system language.
 
-    Args:
-        type_signature: an instance of TypeSignature
-        var_dict: a dictionary of already-bound type variables, or None
+    :param type_signature: an instance of TypeSignature.
 
-    Returns: A list of TypeVariable/TypeOperator objects, representing the
-             function type corresponding to the type signature
+    :param var_dict: a dictionary of already-bound type variables, or None.
+
+    :returns: A list of TypeVariable/TypeOperator objects, representing the
+              function type corresponding to the type signature.
+
     """
     args = type_signature.args
     cons = type_signature.constraints
@@ -353,9 +356,7 @@ def build_sig(type_signature, var_dict=None):
 
 
 class TypedFunc(Hask):
-    """Partially applied, statically typed function wrapper.
-
-    """
+    """Partially applied, statically typed function wrapper."""
     def __init__(self, fn, fn_args, fn_type):
         self.__doc__ = fn.__doc__
         self.func = fn
@@ -372,7 +373,6 @@ class TypedFunc(Hask):
         env = {id(self): self.fn_type}
         env.update({id(arg): typeof(arg) for arg in args})
         ap = Var(id(self))
-
         for arg in args:
             if isinstance(arg, Undefined):
                 return arg
@@ -387,47 +387,45 @@ class TypedFunc(Hask):
                          self.fn_args[len(args):], result_type)
 
     def __mod__(self, arg):
-        """
-        (%) :: (a -> b) -> a -> b
+        """(%) :: (a -> b) -> a -> b
 
         % is the apply operator, equivalent to $ in Haskell
+
         """
         return self.__call__(arg)
 
     def __mul__(self, fn):
-        """
-        (*) :: (b -> c) -> (a -> b) -> (a -> c)
+        """(*) :: (b -> c) -> (a -> b) -> (a -> c)
 
         * is the function compose operator, equivalent to . in Haskell
+
         """
         if not isinstance(fn, TypedFunc):
             return fn.__rmul__(self)
-
-        env = {id(self): self.fn_type, id(fn): fn.fn_type}
-        compose = Lam("arg", App(Var(id(self)), App(Var(id(fn)), Var("arg"))))
-        newtype = analyze(compose, env)
-
-        composed_fn = lambda x: self.func(fn.func(x))
-        newargs = [fn.fn_args[0]] + self.fn_args[1:]
-
-        return TypedFunc(composed_fn, fn_args=newargs, fn_type=newtype)
+        else:
+            env = {id(self): self.fn_type, id(fn): fn.fn_type}
+            app = App(Var(id(self)), App(Var(id(fn)), Var("arg")))
+            compose = Lam("arg", app)
+            newtype = analyze(compose, env)
+            composed_fn = lambda x: self.func(fn.func(x))
+            newargs = [fn.fn_args[0]] + self.fn_args[1:]
+            return TypedFunc(composed_fn, fn_args=newargs, fn_type=newtype)
 
 
 class ADT(Hask):
-    """Base class for Hask algebraic data types."""
+    """Base class for Hask Algebraic Data Types."""
     pass
 
 
 def make_type_const(name, typeargs):
-    """
-    Build a new type constructor given a name and the type parameters.
+    """Build a new type constructor given a name and the type parameters.
 
-    Args:
-        name: the name of the new type constructor to be created
-        typeargs: the type parameters to the constructor
+    :param name: the name of the new type constructor to be created.
 
-    Returns:
-        A new class that acts as a type constructor
+    :param typeargs: the type parameters to the constructor.
+
+    :returns: A new class that acts as a type constructor.
+
     """
     def raise_fn(err):
         raise err()
@@ -463,33 +461,34 @@ def make_type_const(name, typeargs):
 
 
 def make_data_const(name, fields, type_constructor, slot_num):
-    """
-    Build a data constructor given the name, the list of field types, and the
-    corresponding type constructor.
+    """Build a data constructor.
 
     The general approach is to create a subclass of the type constructor and a
     new class created with `namedtuple`, with some of the features from
     `namedtuple` such as equality and comparison operators stripped out.
 
-    Args:
-        name: the name of the data constructor (a string)
-        fields: the list of fields that the data constructor will have (a list
-                of strings and types)
-        type_constructor: the type constructor for the data constructor's type
-        slot_num: the position of the data constructor in the `data` statement
-                  defining the new type (e.g., Nothing=0, Just=1)
+    :param name: the name of the data constructor (a string).
 
-    Returns:
-        The new data constructor
+    :param fields: the list of fields that the data constructor will have (a
+           list of strings and types).
+
+    :param type_constructor: constructor for the data constructor's type.
+
+    :param slot_num: the position of the data constructor in the `data`
+           statement defining the new type (e.g., Nothing=0, Just=1).
+
+    :returns: The new data constructor.
+
     """
     from collections import namedtuple
     # create the data constructor
-    base = namedtuple(name, ["i%s" % i for i, _ in enumerate(fields)])
+    field_count = len(fields)
+    base = namedtuple(name, ["i{}".format(i) for i in range(field_count)])
     cls = type(name, (type_constructor, base), {})
     cls.__type_constructor__ = type_constructor
     cls.__ADT_slot__ = slot_num
 
-    if len(fields) == 0:
+    if field_count == 0:
         # If the data constructor takes no arguments, create an instance of it
         # and return that instance rather than returning the class
         cls = cls()
@@ -509,7 +508,7 @@ def make_data_const(name, fields, type_constructor, slot_num):
 
 
 def build_ADT(typename, typeargs, data_constructors, to_derive):
-    """Create a new algebraic data type.
+    """Create a new Algebraic Data Type.
 
     A type constructor and at least one data constructor.
 
@@ -546,13 +545,11 @@ def build_ADT(typename, typeargs, data_constructors, to_derive):
 
     # 3) Wrap data constructors in TypedFunc instances
     for i, (dc_name, dc_fields) in enumerate(data_constructors):
-        if len(dc_fields) == 0:
-            continue
-
-        return_type = TypeSignatureHKT(newtype, typeargs)
-        sig = TypeSignature(list(dc_fields) + [return_type], [])
-        sig_args = build_sig(sig, {})
-        dcons[i] = TypedFunc(dcons[i], sig_args, make_fn_type(sig_args))
+        if len(dc_fields) != 0:
+            return_type = TypeSignatureHKT(newtype, typeargs)
+            sig = TypeSignature(list(dc_fields) + [return_type], [])
+            sig_args = build_sig(sig, {})
+            dcons[i] = TypedFunc(dcons[i], sig_args, make_fn_type(sig_args))
     return tuple([newtype, ] + dcons)
 
 
@@ -563,15 +560,13 @@ class PatternMatchBind(object):
 
 
 class PatternMatchListBind(object):
-    """
-    Represents the head (first element) and tail (remaining elements) of a
-    pattern-matched list
-    """
+    """Represents head and tail of a pattern-matched list (``head:tail``)."""
     def __init__(self, head, tail):
         self.head = head
         self.tail = tail
 
 
+# TODO: This must return an Either monad ;)
 def pattern_match(value, pattern, env=None):
     """Pattern match a value and a pattern.
 
@@ -592,32 +587,33 @@ def pattern_match(value, pattern, env=None):
     env = {} if env is None else env
     if isinstance(pattern, PatternMatchBind):
         if pattern.name in env:
-            raise SyntaxError("Conflicting definitions for %s" % pattern.name)
-        env[pattern.name] = value
-        return True, env
-
+            msg = "Conflicting definitions for {}".format(pattern.name)
+            raise SyntaxError(msg)
+        else:
+            env[pattern.name] = value
+            return True, env
     elif isinstance(pattern, PatternMatchListBind):
         head, tail = list(value[:len(pattern.head)]), value[len(pattern.head):]
         matches, env = pattern_match(head, pattern.head, env)
         if matches:
             return pattern_match(tail, pattern.tail, env)
-        return False, env
-
+        else:
+            return False, env
     elif type(value) == type(pattern):
         if isinstance(value, ADT):
             return pattern_match(nt_to_tuple(value), nt_to_tuple(pattern), env)
-
         elif is_collection(value):
-            matches = []
             if len(value) != len(pattern):
                 return False, env
-
-            for v, p in zip(value, pattern):
-                match_status, env = pattern_match(v, p, env)
-                matches.append(match_status)
-            return all(matches), env
-
+            else:
+                matches = []
+                for v, p in zip(value, pattern):
+                    match_status, env = pattern_match(v, p, env)
+                    matches.append(match_status)
+                return all(matches), env
         elif value == pattern:
             return True, env
-
-    return False, env
+        else:
+            return False, env
+    else:
+        return False, env
