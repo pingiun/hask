@@ -14,6 +14,16 @@ class TestTypeclass(unittest.TestCase):
         with self.assertRaises(TypeError):
             Ord[B]
         with self.assertRaises(TypeError):
+            '''Notes:
+
+            >>> a = data.A    # __new_tcon_enum__('A')
+            >>> b = d.B    # __new_dcon_enum__('B')
+            >>> d = d.B & deriving(Show, Ord) \
+            ... # __new_dcon_deriving__('B', (), (Show, Ord))
+            >>> adt = (a == d) \
+            ... # build_ADT('A', (), [('B', ())], (Show, Ord))
+
+            '''
             A, B = data.A == d.B & deriving(Show, Ord)
 
         class example(object):
