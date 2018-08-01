@@ -438,20 +438,11 @@ def make_type_const(name, typeargs):
 
     # Unless typeclass instances are provided or derived, ADTs do not support
     # any of these attributes, and trying to use one is a TypeError
-    cls.__iter__ = lambda self: raise_fn(TypeError)
-    cls.__contains__ = lambda self, other: raise_fn(TypeError)
-    cls.__add__ = lambda self, other: raise_fn(TypeError)
-    cls.__radd__ = lambda self, other: raise_fn(TypeError)
-    cls.__rmul__ = lambda self, other: raise_fn(TypeError)
-    cls.__mul__ = lambda self, other: raise_fn(TypeError)
-    cls.__lt__ = lambda self, other: raise_fn(TypeError)
-    cls.__gt__ = lambda self, other: raise_fn(TypeError)
-    cls.__le__ = lambda self, other: raise_fn(TypeError)
-    cls.__ge__ = lambda self, other: raise_fn(TypeError)
-    cls.__eq__ = lambda self, other: raise_fn(TypeError)
-    cls.__ne__ = lambda self, other: raise_fn(TypeError)
-    cls.count = lambda self, other: raise_fn(TypeError)
-    cls.index = lambda self, other: raise_fn(TypeError)
+    magic = {'iter', 'contains', 'add', 'radd', 'rmul', 'mul', 'lt', 'gt',
+             'le', 'ge', 'eq', 'ne'}
+    magic = {'__{}__'.format(op) for op in magic} | {'count', 'index'}
+    for attr in magic:
+        setattr(cls, attr, lambda self: raise_fn(TypeError))
 
     # Unless Show is instantiated/derived, use object's `repr` method
     cls.__repr__ = object.__repr__
