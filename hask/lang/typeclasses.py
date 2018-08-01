@@ -103,28 +103,21 @@ class Eq(Typeclass):
 
 
 class Ord(Eq):
-    """The Ord class is used for totally ordered datatypes.
+    """The `Ord` class is used for totally ordered datatypes.
 
-    Instances of Ord can be derived for any user-defined datatype whose
-    constituent types are in Ord. The declared order of the constructors in the
-    data declaration determines the ordering in derived Ord instances. The
-    Ordering datatype allows a single comparison to determine the precise
+    Instances of `Ord` can be derived for any user-defined datatype whose
+    constituent types are in `Ord`.  The declared order of the constructors in
+    the data declaration determines the ordering in derived `Ord` instances.
+    The Ordering datatype allows a single comparison to determine the precise
     ordering of two objects.
 
     Dependencies:
 
     - `Eq`:class:
 
-    Attributes:
+    Attributes: ``< <= > >=``
 
-    - ``__lt__``
-    - ``__le__``
-    - ``__gt__``
-    - ``__ge__``
-
-    Minimal complete definition:
-
-    - ``lt``
+    Minimal complete definition: ``<``
 
     """
     @classmethod
@@ -159,14 +152,15 @@ class Ord(Eq):
         import operator
 
         def zip_cmp(self, other, fn):
-            """
-            Compare the data constructor and all of the fields of two ADTs.
-            """
+            """Compare data constructor and all fields of two ADTs."""
             if self.__ADT_slot__ == other.__ADT_slot__:
-                if len(nt_to_tuple(self)) == 0:
+                one = nt_to_tuple(self)
+                if len(one) == 0:
                     return fn((), ())
-                return fn(nt_to_tuple(self), nt_to_tuple(other))
-            return fn(self.__ADT_slot__, other.__ADT_slot__)
+                else:
+                    return fn(one, nt_to_tuple(other))
+            else:
+                return fn(self.__ADT_slot__, other.__ADT_slot__)
 
         lt = lambda s, o: zip_cmp(s, o, operator.lt)
         le = lambda s, o: zip_cmp(s, o, operator.le)
