@@ -102,15 +102,16 @@ class TypeMeta(type):
     def __getitem__(self, item):
         try:
             if isinstance(item, ADT):
-                return self.__instances__[id(item.__type_constructor__)]
+                key = item.__type_constructor__
             elif isinstance(typeof(item), ListType):
-                return self.__instances__[id(type(item))]
+                key = type(item)
             elif isinstance(item, Hask):
-                return self.__instances__[id(typeof(item))]
+                key = typeof(item)
             else:
-                return self.__instances__[id(type(item))]
+                key = type(item)
+            return self.__instances__[id(key)]
         except KeyError:
-            raise TypeError("No instance for {0}".format(item))
+            raise TypeError("No instance for {}".format(item))
 
 
 class Typeclass(metaclass(TypeMeta)):
@@ -152,11 +153,11 @@ def build_instance(typeclass, cls, attrs):
     """
     from collections import namedtuple
     deps = typeclass.__dependencies__
-    aux = id(cls)
-    bad = next((dep for dep in deps if aux not in dep.__instances__), None)
+    key = id(cls)
+    bad = next((dep for dep in deps if key not in dep.__instances__), None)
     if bad is None:
-        __methods__ = namedtuple("__{}__".format(aux), attrs.keys())(**attrs)
-        typeclass.__instances__[id(cls)] = __methods__
+        __methods__ = namedtuple("__{}__".format(key), attrs.keys())(**attrs)
+        typeclass.__instances__[key] = __methods__
     else:
         raise TypeError("Missing dependency: %s" % bad.__name__)
 
@@ -541,7 +542,7 @@ def build_ADT(typename, typeargs, data_constructors, to_derive):
             sig = TypeSignature(list(dc_fields) + [return_type], [])
             sig_args = build_sig(sig, {})
             dcons[i] = TypedFunc(dcons[i], sig_args, make_fn_type(sig_args))
-    return tuple([newtype, ] + dcons)
+    return tuple([newtype] + dcons)
 
 
 class PatternMatchBind(object):

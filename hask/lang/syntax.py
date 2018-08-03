@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from __future__ import division, print_function, absolute_import
 
 import operator
@@ -68,6 +71,9 @@ class Syntax(object):
     those objects.
 
     """
+    # TODO: Convert `__syntax_err_msg` in a class attribute.
+    # XXX: Having a common instance for an error, could produce problems with
+    # "Exception Chaining and Embedded Tracebacks" (see PEP 3134)
     def __init__(self, err_msg):
         self.__syntax_err_msg = err_msg
         self.invalid_syntax = SyntaxError(self.__syntax_err_msg)

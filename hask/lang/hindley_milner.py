@@ -1,7 +1,7 @@
-'''Implementation of Hindley-Milner type inference system for Python, based
-on Robert Smallshire's implementation for OWL BASIC.
+'''Implementation of Hindley-Milner type inference system for Python.
 
-Robert's original version can be found here:
+Based on Robert Smallshire's implementation for OWL BASIC.  Robert's original
+version can be found here:
 http://smallshire.org.uk/sufficientlysmall/2010/04/11/a-hindley-milner-type-inference-implementation-in-python/
 
 Changes from Robert's version:
@@ -27,8 +27,7 @@ from __future__ import division, print_function, absolute_import
 
 
 class AST(object):
-    '''A low-level AST node in a typed lambda calculus.'''
-    pass
+    '''A low-level Abstract Syntax Tree node in a typed lambda calculus.'''
 
 
 class Lam(AST):
@@ -92,7 +91,8 @@ def show_type(type_name):
         return type_name
     elif isinstance(type_name, type):
         return type_name.__name__
-    return str(type_name)
+    else:
+        return str(type_name)
 
 
 class TypeVariable(object):
@@ -115,7 +115,8 @@ class TypeVariable(object):
         self.__name = None
         self.constraints = constraints
 
-    def __getName(self):
+    @property
+    def name(self):
         '''
         Names are allocated to TypeVariables lazily, so that only TypeVariables
         converted to strings are given names.
@@ -125,15 +126,14 @@ class TypeVariable(object):
             TypeVariable.next_var_name = chr(ord(TypeVariable.next_var_name) + 1)
         return self.__name
 
-    name = property(__getName)
-
     def __str__(self):
         if self.instance is not None:
             return str(self.instance)
-        return self.name
+        else:
+            return self.name
 
     def __repr__(self):
-        return "TypeVariable(id = {0})".format(self.id)
+        return "TypeVariable(id = {})".format(self.id)
 
 
 class TypeOperator(object):
@@ -147,10 +147,14 @@ class TypeOperator(object):
         num_types = len(self.types)
         if num_types == 0:
             return show_type(self.name)
-        return "({0} {1})".format(
-            show_type(self.name),
-            ' '.join(show_type(t) for t in self.types)
-        )
+        else:
+            return "({} {})".format(
+                show_type(self.name),
+                ' '.join(map(show_type, self.types))
+            )
+
+    def __repr__(self):
+        return str(self)
 
 
 class Function(TypeOperator):
@@ -167,6 +171,7 @@ class Function(TypeOperator):
         )
 
 
+
 class Tuple(TypeOperator):
     '''N-ary constructor which builds tuple types'''
 
@@ -174,7 +179,7 @@ class Tuple(TypeOperator):
         super(self.__class__, self).__init__(tuple, types)
 
     def __str__(self):
-        return "({0})".format(", ".join(map(show_type, self.types)))
+        return "({})".format(", ".join(map(show_type, self.types)))
 
 
 class ListType(TypeOperator):
@@ -184,19 +189,19 @@ class ListType(TypeOperator):
         super(self.__class__, self).__init__("[]", [list_type])
 
     def __str__(self):
-        return "[{0}]".format(show_type(self.types[0]))
+        return "[{}]".format(show_type(self.types[0]))
 
 
 def analyze(node, env, non_generic=None):
     '''Computes the type of the expression given by node.
 
     The type of the node is computed in the context of the supplied type
-    environment, env.  Data types can be introduced into the language simply
-    by having a predefined set of identifiers in the initial environment.
-    This way there is no need to change the syntax or, more importantly, the
-    type-checking program when extending the language.
+    environment, ``env``.  Data types can be introduced into the language
+    simply by having a predefined set of identifiers in the initial
+    environment.  This way there is no need to change the syntax or, more
+    importantly, the type-checking program when extending the language.
 
-    :param node: The root of the abstract syntax tree.
+    :param node: The root of the Abstract Syntax Tree.
 
     :param env: The type environment is a mapping of expression identifier
                 names to type assignments.  to type assignments.
@@ -207,12 +212,13 @@ def analyze(node, env, non_generic=None):
 
     :raises TypeError: The type of the expression could not be inferred, for
          example if it is not possible to unify two types such as Integer and
-         Bool or if the abstract syntax tree rooted at node could not be
+         Bool or if the Abstract Syntax Tree rooted at node could not be
          parsed
 
     '''
     if non_generic is None:
         non_generic = set()
+    # XXX: Anti-pattern - Move each implementation as a class-method.
     if isinstance(node, Var):
         return getType(node.name, env, non_generic)
     elif isinstance(node, App):
@@ -239,6 +245,7 @@ def analyze(node, env, non_generic=None):
         unify(new_type, defn_type)
         return analyze(node.body, new_env, non_generic)
     else:
+        # TODO: Change next for a raise.
         assert False, "Unhandled syntax node {0}".format(node)
 
 
@@ -246,15 +253,24 @@ def getType(name, env, non_generic):
     '''Get the type of identifier name from the type environment env.
 
     :param name: The identifier name
+
     :param env: The type environment mapping from identifier names to types
+
     :param non_generic: A set of non-generic TypeVariables
 
     :raises ParseError: Raised if name is an undefined symbol in the type
             environment.
+
     '''
+    # XXX: Consider for Python 3
+    # try
+    #     return fresh(env[name], non_generic)
+    # except KeyError as error:
+    #     raise TypeError("Undefined symbol {}".format(name)) from error
     if name in env:
         return fresh(env[name], non_generic)
-    raise TypeError("Undefined symbol {0}".format(name))
+    else:
+        raise TypeError("Undefined symbol {}".format(name))
 
 
 def fresh(t, non_generic):
