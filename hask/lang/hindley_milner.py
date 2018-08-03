@@ -22,12 +22,43 @@ Changes from Robert's version:
 
 from __future__ import division, print_function, absolute_import
 
+from xoutil.eight.abc import abstractmethod, ABC
+
 # Class definitions for the AST nodes which comprise the type language for
 # which types will be inferred
 
 
-class AST(object):
+class AST(ABC):
     '''A low-level Abstract Syntax Tree node in a typed lambda calculus.'''
+
+    def __repr__(self):
+        return str(self)
+
+    @abstractmethod
+    def analyze(self, env, non_generic=None):
+        '''Computes the type of the expression given by node.
+
+        The type of the node is computed in the context of the supplied type
+        environment, ``env``.  Data types can be introduced into the language
+        simply by having a predefined set of identifiers in the initial
+        environment.  This way there is no need to change the syntax or, more
+        importantly, the type-checking program when extending the language.
+
+        :param self: The root of the Abstract Syntax Tree.
+
+        :param env: The type environment is a mapping of expression identifier
+                    names to type assignments.
+
+        :param non_generic: A set of non-generic variables, or None.
+
+        :returns: The computed type of the expression.
+
+        :raises TypeError: The type of the expression could not be inferred,
+             for example if it is not possible to unify two types such as
+             Integer and Bool or if the Abstract Syntax Tree rooted at node
+             (self) could not be parsed,
+
+        '''
 
 
 class Lam(AST):
@@ -40,6 +71,17 @@ class Lam(AST):
     def __str__(self):
         return "(\{v} -> {body})".format(v=self.v, body=self.body)
 
+    def analyze(self, env, non_generic=None):
+        if non_generic is None:
+            non_generic = set()
+        arg_type = TypeVariable()
+        new_env = env.copy()
+        new_env[self.v] = arg_type
+        new_non_generic = non_generic.copy()
+        new_non_generic.add(arg_type)
+        result_type = self.body.analyze(new_env, new_non_generic)
+        return Function(arg_type, result_type)
+
 
 class Var(AST):
     '''Variable/Identifier'''
@@ -49,6 +91,11 @@ class Var(AST):
 
     def __str__(self):
         return str(self.name)
+
+    def analyze(self, env, non_generic=None):
+        if non_generic is None:
+            non_generic = set()
+        return getType(self.name, env, non_generic)
 
 
 class App(AST):
@@ -65,6 +112,15 @@ class App(AST):
     def __str__(self):
         return "({fn} {arg})".format(fn=self.fn, arg=self.arg)
 
+    def analyze(self, env, non_generic=None):
+        if non_generic is None:
+            non_generic = set()
+        fun_type = self.fn.analyze(env, non_generic)
+        arg_type = self.arg.analyze(env, non_generic)
+        result_type = TypeVariable()
+        unify(Function(arg_type, result_type), fun_type)
+        return result_type
+
 
 class Let(AST):
     '''Let binding (always recursive)'''
@@ -77,6 +133,18 @@ class Let(AST):
     def __str__(self):
         exp = "(let {v} = {defn} in {body})"
         return exp.format(v=self.v, defn=self.defn, body=self.body)
+
+    def analyze(self, env, non_generic=None):
+        if non_generic is None:
+            non_generic = set()
+        new_type = TypeVariable()
+        new_env = env.copy()
+        new_env[self.v] = new_type
+        new_non_generic = non_generic.copy()
+        new_non_generic.add(new_type)
+        defn_type = self.defn.analyze(new_env, new_non_generic)
+        unify(new_type, defn_type)
+        return analyze(self.body, new_env, non_generic)
 
 
 def show_type(type_name):
@@ -171,7 +239,6 @@ class Function(TypeOperator):
         )
 
 
-
 class Tuple(TypeOperator):
     '''N-ary constructor which builds tuple types'''
 
@@ -193,60 +260,8 @@ class ListType(TypeOperator):
 
 
 def analyze(node, env, non_generic=None):
-    '''Computes the type of the expression given by node.
-
-    The type of the node is computed in the context of the supplied type
-    environment, ``env``.  Data types can be introduced into the language
-    simply by having a predefined set of identifiers in the initial
-    environment.  This way there is no need to change the syntax or, more
-    importantly, the type-checking program when extending the language.
-
-    :param node: The root of the Abstract Syntax Tree.
-
-    :param env: The type environment is a mapping of expression identifier
-                names to type assignments.  to type assignments.
-
-    :param non_generic: A set of non-generic variables, or None
-
-    :returns: The computed type of the expression.
-
-    :raises TypeError: The type of the expression could not be inferred, for
-         example if it is not possible to unify two types such as Integer and
-         Bool or if the Abstract Syntax Tree rooted at node could not be
-         parsed
-
-    '''
-    if non_generic is None:
-        non_generic = set()
-    # XXX: Anti-pattern - Move each implementation as a class-method.
-    if isinstance(node, Var):
-        return getType(node.name, env, non_generic)
-    elif isinstance(node, App):
-        fun_type = analyze(node.fn, env, non_generic)
-        arg_type = analyze(node.arg, env, non_generic)
-        result_type = TypeVariable()
-        unify(Function(arg_type, result_type), fun_type)
-        return result_type
-    elif isinstance(node, Lam):
-        arg_type = TypeVariable()
-        new_env = env.copy()
-        new_env[node.v] = arg_type
-        new_non_generic = non_generic.copy()
-        new_non_generic.add(arg_type)
-        result_type = analyze(node.body, new_env, new_non_generic)
-        return Function(arg_type, result_type)
-    elif isinstance(node, Let):
-        new_type = TypeVariable()
-        new_env = env.copy()
-        new_env[node.v] = new_type
-        new_non_generic = non_generic.copy()
-        new_non_generic.add(new_type)
-        defn_type = analyze(node.defn, new_env, new_non_generic)
-        unify(new_type, defn_type)
-        return analyze(node.body, new_env, non_generic)
-    else:
-        # TODO: Change next for a raise.
-        assert False, "Unhandled syntax node {0}".format(node)
+    '''Use ``node.analyze(env, non_generic)``.'''
+    return node.analyze(env, non_generic)
 
 
 def getType(name, env, non_generic):
@@ -280,6 +295,7 @@ def fresh(t, non_generic):
     non_generic variables are shared.
 
     :param t: A type to be copied.
+
     :param non_generic: A set of non-generic TypeVariables
 
     '''
