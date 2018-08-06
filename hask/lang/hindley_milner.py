@@ -207,10 +207,7 @@ class TypeVariable(object):
         return res
 
     def __str__(self):
-        if self.instance is not None:
-            return str(self.instance)
-        else:
-            return self.name
+        return str(self.instance) if self.instance is not None else self.name
 
     def __repr__(self):
         return "TypeVariable(id = {})".format(self.id)
@@ -224,14 +221,8 @@ class TypeOperator(object):
         self.types = types
 
     def __str__(self):
-        num_types = len(self.types)
-        if num_types == 0:
-            return show_type(self.name)
-        else:
-            return "({} {})".format(
-                show_type(self.name),
-                ' '.join(map(show_type, self.types))
-            )
+        from itertools import chain
+        return ' '.join(map(show_type, chain([self.name], self.types)))
 
     def __repr__(self):
         return str(self)
@@ -244,11 +235,8 @@ class Function(TypeOperator):
         super(self.__class__, self).__init__("->", [from_type, to_type])
 
     def __str__(self):
-        return "({1} {0} {2})".format(
-            show_type(self.name),
-            show_type(self.types[0]),
-            show_type(self.types[1]),
-        )
+        aux = (self.types[0], self.name, self.types[1])
+        return ' '.join(map(show_type, aux))
 
 
 class Tuple(TypeOperator):
@@ -289,22 +277,18 @@ def getType(name, env, non_generic):
             environment.
 
     '''
-    # XXX: Consider for Python 3
-    # try
-    #     return fresh(env[name], non_generic)
-    # except KeyError as error:
-    #     raise TypeError("Undefined symbol {}".format(name)) from error
-    if name in env:
+    try:
         return fresh(env[name], non_generic)
-    else:
+    except KeyError:
+        # XXX: Use ``from ...`` in Python 3
         raise TypeError("Undefined symbol {}".format(name))
 
 
 def fresh(t, non_generic):
     '''Makes a copy of a type expression.
 
-    The type t is copied.  The the generic variables are duplicated and the
-    non_generic variables are shared.
+    The type ``t`` is copied.  The the generic variables are duplicated and
+    the ``non_generic`` variables are shared.
 
     :param t: A type to be copied.
 
@@ -329,11 +313,14 @@ def fresh(t, non_generic):
 
 
 def unify_var(v1, t2):
-    '''Unify the type variable `v1` and the type `t2`, i.e. makes their types the
-    same and unifies typeclass constraints.  Note: Must be called with v1 and
-    t2 pre-pruned
+    '''Unify the type variable `v1` and the type `t2`.
+
+    i.e. makes their types the same and unifies typeclass constraints.
+
+    Note: Must be called with v1 and t2 pre-pruned
 
     :param v1: The type variable to be made equivalent
+
     :param t2: The second type to be be equivalent
 
     Instead of returning, modify `v1` and `t2` to add the unification as a
@@ -348,10 +335,10 @@ def unify_var(v1, t2):
             union = tuple(set(v1.constraints + t2.constraints))
             v1.constraints = union
             t2.constraints = union
-
-        if occursInType(v1, t2):
+        if not occursInType(v1, t2):
+            v1.instance = t2
+        else:
             raise TypeError("recursive unification")
-        v1.instance = t2
 
 
 def unify(t1, t2):
@@ -362,8 +349,9 @@ def unify(t1, t2):
     This is due to the way that typeclasses are implemented, and will be fixed
     in future versions.
 
-    :param t1: The first type to be made equivalent
-    :param t2: The second type to be be equivalent
+    :param t1: The first type to be made equivalent.
+
+    :param t2: The second type to be be equivalent.
 
     Modify `t1` and `t2` in-place, by modifying their constraints for the
     unification.
@@ -385,10 +373,9 @@ def unify(t1, t2):
             unify(a, b)
         elif isinstance(b.name, TypeVariable):
             unify(b, a)
-
         # Unify concrete higher-kinded type
         elif (a.name != b.name or len(a.types) != len(b.types)):
-            raise TypeError("Type mismatch: {0} != {1}".format(str(a), str(b)))
+            raise TypeError("Type mismatch: {} != {}".format(a, b))
         for p, q in zip(a.types, b.types):
             unify(p, q)
     else:
@@ -418,19 +405,19 @@ def prune(t):
 
 
 def isGeneric(v, non_generic):
-    '''
-    Checks whether a given variable occurs in a list of non-generic variables
+    '''Checks whether a given variable occurs in non-generic variables.
 
-    Note that a variables in such a list may be instantiated to a type term,
-    in which case the variables contained in the type term are considered
+    Note that a variable in such a list may be instantiated to a type term, in
+    which case the variables contained in the type term are considered
     non-generic.
 
     .. note:: Must be called with `v` pre-pruned
 
-    :param v: The TypeVariable to be tested for genericity
-    :param non_generic: A set of non-generic TypeVariables
+    :param v: The TypeVariable to be tested for genericity.
 
-    :returns: True if v is a generic variable, otherwise False
+    :param non_generic: A set of non-generic TypeVariables.
+
+    :returns: True if v is a generic variable, otherwise False.
 
     '''
     return not occursIn(v, non_generic)
@@ -441,10 +428,11 @@ def occursInType(v, type2):
 
     .. note:: Must be called with v pre-pruned
 
-    :param v:  The TypeVariable to be tested for
-    :param type2: The type in which to search
+    :param v:  The TypeVariable to be tested for.
 
-    :returns: True if v occurs in type2, otherwise False
+    :param type2: The type in which to search.
+
+    :returns: True if v occurs in type2, otherwise False.
 
     '''
     pruned_type2 = prune(type2)
@@ -452,16 +440,18 @@ def occursInType(v, type2):
         return True
     elif isinstance(pruned_type2, TypeOperator):
         return occursIn(v, pruned_type2.types)
-    return False
+    else:
+        return False
 
 
 def occursIn(t, types):
     '''Checks whether a types variable occurs in any other types.
 
-    :param v:  The TypeVariable to be tested for
-    :param types: The sequence of types in which to search
+    :param v:  The TypeVariable to be tested for.
 
-    :returns: True if t occurs in any of types, otherwise False
+    :param types: The sequence of types in which to search.
+
+    :returns: True if t occurs in any of types, otherwise False.
 
     '''
     return any(occursInType(t, t2) for t2 in types)
