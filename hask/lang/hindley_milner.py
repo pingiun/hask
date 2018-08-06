@@ -23,6 +23,8 @@ Changes from Robert's version:
 from __future__ import division, print_function, absolute_import
 
 from xoutil.eight.abc import abstractmethod, ABC
+from xoutil.objects import staticproperty
+
 
 # Class definitions for the AST nodes which comprise the type language for
 # which types will be inferred
@@ -173,26 +175,36 @@ class TypeVariable(object):
 
     '''
 
-    next_variable_id = 0
+    __next_id = 0
     next_var_name = 'a'
 
     def __init__(self, constraints=()):
-        self.id = TypeVariable.next_variable_id
-        TypeVariable.next_variable_id += 1
+        self.id = TypeVariable._next_id
         self.instance = None
         self.__name = None
         self.constraints = constraints
 
     @property
     def name(self):
-        '''
-        Names are allocated to TypeVariables lazily, so that only TypeVariables
-        converted to strings are given names.
+        '''Names are allocated to TypeVariables lazily.
+
+        So that only those converted to strings are given names.
+
         '''
         if self.__name is None:
-            self.__name = TypeVariable.next_var_name
-            TypeVariable.next_var_name = chr(ord(TypeVariable.next_var_name) + 1)
+            # Reduce thread-safe risks
+            cls = TypeVariable
+            res, cls.next_var_name = (cls.next_var_name,
+                                      chr(ord(cls.next_var_name) + 1))
+            self.__name = res
         return self.__name
+
+    @staticproperty
+    def _next_id():
+        # Reduce thread-safe risks
+        res, TypeVariable.__next_id = (TypeVariable.__next_id,
+                                       TypeVariable.__next_id + 1)
+        return res
 
     def __str__(self):
         if self.instance is not None:
