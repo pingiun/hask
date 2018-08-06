@@ -209,6 +209,12 @@ class sig(Syntax):
         else:
             self.sig = signature.sig
 
+    def __str__(self):
+        # TODO: f'sig({self.sig})'
+        return str(self.sig)
+
+    __repr__ = __str__
+
     def __call__(self, fn):
         fn_args = build_sig(self.sig)
         fn_type = make_fn_type(fn_args)
