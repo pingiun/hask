@@ -357,11 +357,9 @@ class List(collections.Sequence, Hask):
         return self.__head.index(x)
 
     def __contains__(self, x):
+        from hask.hack import isin
         unify(self.__type__(), ListType(typeof(x)))
-        for item in iter(self):
-            if item is x:
-                return True
-        return False
+        return isin(x, iter(self))
 
     def __getitem__(self, ix):
         is_slice = isinstance(ix, slice)
@@ -410,13 +408,13 @@ instance(Ord, List).where(
 
 
 class __list_comprehension__(Syntax):
-    """
-    L is the syntactic construct for Haskell-style list comprehensions and lazy
-    list creation. To create a new List, just wrap an interable in L[ ].
+    """``L`` is the Haskell-style for list comprehensions and lazy creation.
 
-    List comprehensions can be used with any instance of Enum, including the
-    built-in types int, long, float, and char.
-    There are four basic list comprehension patterns:
+    To create a new List, just wrap an interable in ``L[ ]``.
+
+    List comprehensions can be used with any instance of `Enum`, including the
+    built-in types int, long, float, and char.  There are four basic list
+    comprehension patterns:
 
     >>> L[1, ...]
     # list from 1 to infinity, counting by ones
@@ -432,30 +430,26 @@ class __list_comprehension__(Syntax):
 
     """
     def __getitem__(self, lst):
-        if isinstance(lst, tuple) and len(lst) < 5 and \
-                any((Ellipsis is x for x in lst)):
+        from hask.hack import isin
+        if isinstance(lst, tuple) and len(lst) < 5 and isin(Ellipsis, lst):
             # L[x, ...]
             if len(lst) == 2 and lst[1] is Ellipsis:
                 return enumFrom(lst[0])
-
             # L[x, y, ...]
             elif len(lst) == 3 and lst[2] is Ellipsis:
                 return enumFromThen(lst[0], lst[1])
-
             # L[x, ..., y]
             elif len(lst) == 3 and lst[1] is Ellipsis:
                 return enumFromTo(lst[0], lst[2])
-
             # L[x, y, ..., z]
             elif len(lst) == 4 and lst[2] is Ellipsis:
                 return enumFromThenTo(lst[0], lst[1], lst[3])
-
-            raise SyntaxError("Invalid list comprehension: %s" % str(lst))
-
+            else:
+                raise SyntaxError("Invalid list comprehension: %s" % str(lst))
         elif hasattr(lst, "next") or hasattr(lst, "__next__"):
             return List(tail=lst)
-
-        return List(head=lst)
+        else:
+            return List(head=lst)
 
 
 L = __list_comprehension__("Invalid input to list constructor")

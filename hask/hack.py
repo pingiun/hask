@@ -23,3 +23,8 @@ from __future__ import division, print_function, absolute_import
 def safe_issubclass(cls, class_or_tuple):
     from inspect import isclass
     return isclass(cls) and issubclass(cls, class_or_tuple)
+
+
+def isin(a, b):
+    '''Same as ``a in b`` but using ``is`` operator to compare.'''
+    return any(a is item for item in b)
