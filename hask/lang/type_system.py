@@ -101,6 +101,7 @@ class TypeMeta(type):
 
     def __getitem__(self, item):
         try:
+            # TODO: Add ``elif isinstance(item, type): key = item``?
             if isinstance(item, ADT):
                 key = item.__type_constructor__
             elif isinstance(typeof(item), ListType):
@@ -235,6 +236,7 @@ def typeof(obj):
         return TypeOperator(type(obj), [])
 
 
+# TODO: Implement string representation.
 class TypeSignature(object):
     """Internal representation of a type signature.
 
@@ -356,6 +358,7 @@ def build_sig(type_signature, var_dict=None):
     return [build_sig_arg(i, cons, var_dict) for i in args]
 
 
+# TODO: Implement string representation.
 class TypedFunc(Hask):
     """Partially applied, statically typed function wrapper."""
     def __init__(self, fn, fn_args, fn_type):
