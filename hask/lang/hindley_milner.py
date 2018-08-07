@@ -342,12 +342,14 @@ def unify_var(v1, t2):
 
 
 def unify(t1, t2):
-    '''Unify the two types t1 and t2.  Makes the types t1 and t2 the same.
+    '''Unify the two types t1 and t2.
 
-    Note that the current method of unifying higher-kinded types does not
-    properly handle kind, i.e. it will happily unify `f a` and `g b c`.
-    This is due to the way that typeclasses are implemented, and will be fixed
-    in future versions.
+    Makes the types t1 and t2 the same.
+
+    .. note:: The current method of unifying higher-kinded types does not
+       properly handle kind, i.e. it will happily unify `f a` and `g b c`.
+       This is due to the way that typeclasses are implemented, and will be
+       fixed in future versions.
 
     :param t1: The first type to be made equivalent.
 

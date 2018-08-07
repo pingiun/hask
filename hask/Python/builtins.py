@@ -33,7 +33,11 @@ len = len ** (H/ "a" >> int)
 oct = oct ** (H/ int >> str)
 repr = repr ** (H/ "a" >> str)
 setattr = setattr ** (H/ "a" >> str >> "b" >> None)
+
+# Sorted may take an optional key argument.  This cannot be properly capture
+# by Hask.
 sorted = sorted ** (H/ "a" >> list)
+
 try:
     from __builtin__ import unichr as pyunichr
 except ImportError:

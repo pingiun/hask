@@ -19,8 +19,7 @@
 
    There are four basic list comprehension patterns:
 
-       >>> from hask.lang import L
-
+       >>> from hask import L
        >>> # list from 1 to infinity, counting by ones
        >>> L[1, ...]
        L[1, ...]

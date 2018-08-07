@@ -550,6 +550,8 @@ instance for the Maybe type.  First, however, Maybe needs `Functor
 Maybe is now an instance of Functor. This allows us to call ``fmap`` and map
 any function of type ``a -> b`` into a value of type ``Maybe a``.
 
+    >>> from hask.Data.Maybe import Just, Nothing
+    >>> from hask.Data.Functor import fmap
     >>> times2 = (lambda x: x * 2) ** (H/ int >> int)
     >>> toFloat = float ** (H/ int >> float)
 
@@ -579,7 +581,9 @@ implementations. To implement Applicative, we just need to provide
 ``pure``. To implement Monad, we need to provide ``bind``.
 
 
+    >>> from hask import instance, m, caseof, p
     >>> from hask import Applicative, Monad
+    >>> from hask.Data.Maybe import Maybe, Just, Nothing
     >>> instance(Applicative, Maybe).where(
     ...    pure = Just
     ... )
@@ -591,6 +595,9 @@ implementations. To implement Applicative, we just need to provide
     ... )
 
 The ``bind`` function also has an infix form, which is ``>>`` in Hask.
+
+    >>> from hask import sig, t
+    >>> from hask.Data.Maybe import Maybe, Just, Nothing
 
     >>> @sig(H/ int >> int >> t(Maybe, int))
     ... def safe_div(x, y):
@@ -612,11 +619,14 @@ The ``bind`` function also has an infix form, which is ``>>`` in Hask.
 As in Haskell, List is also a monad, and ``bind`` for the List type is just
 ``concatMap``.
 
+    >>> from hask import L
     >>> from hask.Data.List import replicate
     >>> L[1, 2] >> replicate(2) >> replicate(2)
     L[1, 1, 1, 1, 2, 2, 2, 2]
 
 You can also define typeclass instances for classes that are not ADTs:
+
+    >>> from hask import instance, Eq
 
     >>> class Person(object):
     ...     def __init__(self, name, age):
@@ -651,7 +661,7 @@ automagically curried and typechecked.
     >>> f(10)
     8172
 
-    >>> ((90/__) * (10+__)) * Just(20)
+    >>> ((90//__) * (10+__)) * Just(20)
     Just(3)
 
     >>> from hask.Data.List import takeWhile
@@ -741,6 +751,8 @@ If a function wrapped in ``in_maybe`` raises an exception, the wrapped
 function will return Nothing. Otherwise, the result will be returned wrapped
 in a Just.
 
+    >>> from hask.Data.Maybe import in_maybe
+
     >>> def eat_cheese(cheese):
     ...     if cheese <= 0:
     ...         raise ValueError("Out of cheese error")
@@ -759,7 +771,9 @@ makes it easier to use the convineient monad error handling style commonly
 seen in Haskell with existing Python functions.
 
 Continuing with this silly example, let's try to eat three pieces of cheese,
-returning `Nothing` if the attempt was unsuccessful:
+returning Nothing if the attempt was unsuccessful:
+
+    >>> from hask.Data.Maybe import Just
 
     >>> cheese = 10
     >>> cheese_left = Just(cheese) >> maybe_eat >> maybe_eat >> maybe_eat
@@ -777,6 +791,8 @@ and are now handling it in a type-safe, monadic way.
 The ``in_either`` function works just like ``in_maybe``. If an Exception is
 thrown, the wrapped function will return the exception wrapped in
 Left. Otherwise, the result will be returned wrapped in Right.
+
+    >>> from hask.Data.Either import in_either, Right, Left
 
     >>> either_eat = in_either(eat_cheese)
     >>> either_eat(Right(10))

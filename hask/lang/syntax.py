@@ -208,6 +208,8 @@ class sig(Syntax):
             raise SyntaxError("Not enough type arguments in signature")
         else:
             self.sig = signature.sig
+            self.fn_args = fn_args = build_sig(self.sig)
+            self.fn_type = make_fn_type(fn_args)
 
     def __str__(self):
         # TODO: f'sig({self.sig})'
@@ -216,9 +218,7 @@ class sig(Syntax):
     __repr__ = __str__
 
     def __call__(self, fn):
-        fn_args = build_sig(self.sig)
-        fn_type = make_fn_type(fn_args)
-        return TypedFunc(fn, fn_args, fn_type)
+        return TypedFunc(fn, self.fn_args, self.fn_type)
 
 
 def t(type_constructor, *params):
