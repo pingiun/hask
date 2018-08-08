@@ -1,11 +1,10 @@
-======
- Hask
-======
+=======
+ Hask3
+=======
 
 .. image:: https://travis-ci.org/mvaled/hask.svg
 
-
-Hask is a pure-Python, zero-dependencies library that mimics most of the core
+Hask3 is a pure-Python, zero-dependencies library that mimics most of the core
 language tools from Haskell, including:
 
 * Full Hindley-Milner type system (with typeclasses) that will typecheck any
@@ -39,6 +38,8 @@ language tools from Haskell, including:
 
 Features not yet implemented, but coming soon:
 
+* MultiParamTypeclasses
+
 * Better support for polymorphic return values/type defaulting
 
 * Better support for lazy evaluation (beyond just the `List` type and pattern
@@ -57,7 +58,7 @@ Credits
 =======
 
 This is a fork of `hask <https://github.com/billmurphy/hask_>`__ modified to
-run in Python 3.4+.
+run in Python 3.6+.
 
 See the `LICENSE file <https://github.com/mvaled/hask/blob/master/LICENSE_>`__
 keeps the original author and rights.

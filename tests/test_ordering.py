@@ -1,20 +1,20 @@
 import unittest
 
-from hask import has_instance
-from hask import Read, Show, Eq, Ord, Bounded
+from hask3 import has_instance
+from hask3 import Read, Show, Eq, Ord, Bounded
 
 
 class TestOrdering(unittest.TestCase):
 
     def test_ordering(self):
-        from hask.Data.Ord import Ordering, LT, EQ, GT
+        from hask3.Data.Ord import Ordering, LT, EQ, GT
         self.assertTrue(has_instance(Ordering, Read))
         self.assertTrue(has_instance(Ordering, Show))
         self.assertTrue(has_instance(Ordering, Eq))
         self.assertTrue(has_instance(Ordering, Ord))
         self.assertTrue(has_instance(Ordering, Bounded))
 
-        from hask.Prelude import show
+        from hask3.Prelude import show
         self.assertEqual("LT", show(LT))
         self.assertEqual("EQ", show(EQ))
         self.assertEqual("GT", show(GT))

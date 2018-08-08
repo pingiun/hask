@@ -1,10 +1,10 @@
 import unittest
 
-from hask import Either, Left, Right, Read, Show, Eq, Functor, Applicative
-from hask import Typeclass, Num, Foldable, Traversable, Monad
-from hask import has_instance
-from hask import __, H, sig, t
-from hask import L
+from hask3 import Either, Left, Right, Read, Show, Eq, Functor, Applicative
+from hask3 import Typeclass, Num, Foldable, Traversable, Monad
+from hask3 import has_instance
+from hask3 import __, H, sig, t
+from hask3 import L
 
 
 te = TypeError
@@ -26,7 +26,7 @@ class TestEither(unittest.TestCase):
         self.assertFalse(has_instance(Either, Traversable))
 
     def test_show(self):
-        from hask.Prelude import show
+        from hask3.Prelude import show
         self.assertEqual("Left(1)", str(Left(1)))
         self.assertEqual("Left('1')", str(Left("1")))
         self.assertEqual("Right(1)", str(Right(1)))
@@ -97,7 +97,7 @@ class TestEither(unittest.TestCase):
         self.assertTrue(Right(2) >= Right(2))
 
     def test_functor(self):
-        from hask.Prelude import id, fmap, const
+        from hask3.Prelude import id, fmap, const
         self.assertEqual(Left(7), fmap(__+1, Left(7)))
         self.assertEqual(Left("a"), fmap(__+1, Left("a")))
         self.assertEqual(Right(8), fmap(__+1, Right(7)))
@@ -122,8 +122,8 @@ class TestEither(unittest.TestCase):
         self.assertEqual(Left("a"), fmap(f, fmap(g, Left("a"))))
 
     def test_monad(self):
-        from hask.Prelude import flip
-        from hask.Control.Monad import bind, join
+        from hask3.Prelude import flip
+        from hask3.Control.Monad import bind, join
 
         @sig(H/ int >> int >> t(Either, str, int))
         def sub_whole(x, y):
@@ -153,12 +153,12 @@ class TestEither(unittest.TestCase):
         self.assertEqual(join(Right(Left(1))), Left(1))
 
     def test_functions(self):
-        from hask.Data.Either import either
-        from hask.Data.Either import isRight
-        from hask.Data.Either import isLeft
-        from hask.Data.Either import lefts
-        from hask.Data.Either import rights
-        from hask.Data.Either import partitionEithers
+        from hask3.Data.Either import either
+        from hask3.Data.Either import isRight
+        from hask3.Data.Either import isLeft
+        from hask3.Data.Either import lefts
+        from hask3.Data.Either import rights
+        from hask3.Data.Either import partitionEithers
 
         f = (lambda x: x + " world") ** (H/ str >> str)
         g = (lambda x: str(x * 10)) ** (H/ int >> str)

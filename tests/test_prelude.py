@@ -2,7 +2,7 @@
 
 import unittest
 
-from hask import __
+from hask3 import __
 
 
 class TestPrelude(unittest.TestCase):
@@ -11,37 +11,37 @@ class TestPrelude(unittest.TestCase):
         """
         Prelude imports from Data.* modules; ensure things get loaded correctly
         """
-        from hask.Prelude import fst, snd, curry, uncurry
-        from hask.Prelude import lines, words, unlines, unwords
-        from hask.Prelude import Maybe, Just, Nothing, maybe
-        from hask.Prelude import Either, Left, Right, either
-        from hask.Prelude import Ordering, LT, EQ, GT, max, min, compare
-        from hask.Prelude import Num, abs, negate, subtract
-        from hask.Prelude import Fractional, recip
-        from hask.Prelude import Integral, toRatio, Ratio, R, Rational
-        from hask.Prelude import Floating, exp, sqrt, log, pow, logBase, sin
-        from hask.Prelude import tan, cos, asin, atan, acos, sinh, tanh, cosh
-        from hask.Prelude import asinh, atanh, acosh
-        from hask.Prelude import Real, toRational
-        from hask.Prelude import RealFrac, properFraction, truncate, round
-        from hask.Prelude import ceiling, floor
-        from hask.Prelude import RealFloat, isNaN, isInfinite, isNegativeZero
-        from hask.Prelude import atan2
+        from hask3.Prelude import fst, snd, curry, uncurry
+        from hask3.Prelude import lines, words, unlines, unwords
+        from hask3.Prelude import Maybe, Just, Nothing, maybe
+        from hask3.Prelude import Either, Left, Right, either
+        from hask3.Prelude import Ordering, LT, EQ, GT, max, min, compare
+        from hask3.Prelude import Num, abs, negate, subtract
+        from hask3.Prelude import Fractional, recip
+        from hask3.Prelude import Integral, toRatio, Ratio, R, Rational
+        from hask3.Prelude import Floating, exp, sqrt, log, pow, logBase, sin
+        from hask3.Prelude import tan, cos, asin, atan, acos, sinh, tanh, cosh
+        from hask3.Prelude import asinh, atanh, acosh
+        from hask3.Prelude import Real, toRational
+        from hask3.Prelude import RealFrac, properFraction, truncate, round
+        from hask3.Prelude import ceiling, floor
+        from hask3.Prelude import RealFloat, isNaN, isInfinite, isNegativeZero
+        from hask3.Prelude import atan2
 
         # Data.List, Data.Foldable
-        from hask.Prelude import map, filter, head, last, tail, init, null
-        from hask.Prelude import length, reverse, foldl, foldl1, foldr
-        from hask.Prelude import foldr1, and_, or_, any, all, sum, product
-        from hask.Prelude import concat, concatMap, maximum, minimum, scanl
-        from hask.Prelude import scanl1, scanr, scanr1, iterate, repeat
-        from hask.Prelude import replicate, cycle, take, drop, splitAt
-        from hask.Prelude import takeWhile, dropWhile, span, break_, elem
-        from hask.Prelude import notElem, lookup, zip, zip3, unzip, unzip3
-        from hask.Prelude import zipWith, zipWith3
+        from hask3.Prelude import map, filter, head, last, tail, init, null
+        from hask3.Prelude import length, reverse, foldl, foldl1, foldr
+        from hask3.Prelude import foldr1, and_, or_, any, all, sum, product
+        from hask3.Prelude import concat, concatMap, maximum, minimum, scanl
+        from hask3.Prelude import scanl1, scanr, scanr1, iterate, repeat
+        from hask3.Prelude import replicate, cycle, take, drop, splitAt
+        from hask3.Prelude import takeWhile, dropWhile, span, break_, elem
+        from hask3.Prelude import notElem, lookup, zip, zip3, unzip, unzip3
+        from hask3.Prelude import zipWith, zipWith3
 
     def test_functions(self):
-        from hask.Prelude import subtract, even, odd, gcd, lcm, id, const, flip
-        from hask.Prelude import until, asTypeOf, error
+        from hask3.Prelude import subtract, even, odd, gcd, lcm, id, const, flip
+        from hask3.Prelude import until, asTypeOf, error
 
         self.assertEqual(5, subtract(2, 7))
         self.assertEqual(-5, subtract(7, 2))

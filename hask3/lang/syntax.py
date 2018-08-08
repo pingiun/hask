@@ -457,7 +457,7 @@ class __data__(Syntax):
 
     Example usage:
 
-        >>> from hask import data, d, deriving, Read, Show, Eq, Ord
+        >>> from hask3 import data, d, deriving, Read, Show, Eq, Ord
 
         >>> Maybe, Nothing, Just =\
         ...     data.Maybe("a") == d.Nothing | d.Just("a") & \
@@ -700,7 +700,7 @@ class __section__(Syntax):
     Example usage:
 
         >>> from __future__ import division
-        >>> from hask.lang import __
+        >>> from hask3.lang import __
 
         >>> (__+1)(5)
         6
@@ -985,7 +985,7 @@ def _t(obj):
 
     Usage:
 
-        >>> from hask import _t
+        >>> from hask3 import _t
 
         >>> _t(1)
         'int'
