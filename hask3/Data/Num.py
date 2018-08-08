@@ -25,8 +25,8 @@ class Num(Show, Eq):
 
     Dependencies:
 
-    - `~hask.lang.typeclasses.Show`:class:
-    - `~hask.lang.typeclasses.Eq`:class:
+    - `~hask3.lang.typeclasses.Show`:class:
+    - `~hask3.lang.typeclasses.Eq`:class:
 
     Attributes:
 
@@ -415,7 +415,7 @@ class Real(Num, Ord):
     Dependencies:
 
     - `Num`:class:
-    - `~hask.lang.typeclasses.Ord`:class:
+    - `~hask3.lang.typeclasses.Ord`:class:
 
     Attributes:
 
@@ -447,7 +447,7 @@ class Integral(Real, Enum):
     Dependencies:
 
     - `Real`:class:
-    - `~hask.lang.lazylist.Enum`:class:
+    - `~hask3.lang.lazylist.Enum`:class:
 
     Attributes:
 

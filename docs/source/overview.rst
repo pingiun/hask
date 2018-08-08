@@ -42,13 +42,13 @@ Features
 The List type and list comprehensions
 -------------------------------------
 
-Hask provides the `~hask.lang.lazylist.List`:class: type, a lazy and
+Hask provides the `~hask3.lang.lazylist.List`:class: type, a lazy and
 statically-typed list, similar to Haskell's standard list type.
 
 To create a new List, just put the elements inside ``L[`` and ``]`` brackets,
 or wrap an existing iterable inside ``L[ ]``:
 
-    >>> from hask import L
+    >>> from hask3 import L
     >>> L[1, 2, 3]
     L[1, 2, 3]
 
@@ -104,20 +104,20 @@ there are four basic type of list comprehensions::
 
 
 List comprehensions can be used on ints, longs, floats, one-character strings,
-or any other instance of the `~hask.lang.lazylist.Enum`:class: typeclass (more
+or any other instance of the `~hask3.lang.lazylist.Enum`:class: typeclass (more
 on this later).
 
 Hask provides all of the Haskell functions for List manipulation
-(`~hask.Data.List.take`:func:, `~hask.Data.List.drop`:func:,
-`~hask.Data.List.takeWhile`:func:, etc.), or you can also use Python-style
+(`~hask3.Data.List.take`:func:, `~hask3.Data.List.drop`:func:,
+`~hask3.Data.List.takeWhile`:func:, etc.), or you can also use Python-style
 indexing:
 
-    >>> from hask import L
+    >>> from hask3 import L
     >>> L[1, ...]
     L[1 ...]
 
 
-    >>> from hask.Data.List import take
+    >>> from hask3.Data.List import take
     >>> take(5, L["a", "b", ...])
     L['a', 'b', 'c', 'd', 'e']
 
@@ -126,8 +126,8 @@ indexing:
     L[6, 7, 8, 9, 10]
 
 
-    >>> from hask.Data.List import map
-    >>> from hask.Data.Char import chr
+    >>> from hask3.Data.List import map
+    >>> from hask3.Data.Char import chr
     >>> letters = map(chr, L[97, ...])
     >>> letters[:9]
     L['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']
@@ -135,10 +135,10 @@ indexing:
 
     >>> # DON'T do this: len(L[1, 3, ...])
 
-Otherwise, you can use `~hask.lang.lazylist.List`:class: just like you would
+Otherwise, you can use `~hask3.lang.lazylist.List`:class: just like you would
 use a regular Python list:
 
-    >>> from hask import L
+    >>> from hask3 import L
     >>> for i in L[0, ..., 3]:
     ...     print(i)
     0
@@ -159,10 +159,10 @@ with a fixed number of typed, unnamed fields.
 
 .. _algebraic datatypes: https://wiki.haskell.org/Algebraic_data_type
 
-Here is the definition for the infamous `~hask.Data.Maybe.Maybe`:class: type:
+Here is the definition for the infamous `~hask3.Data.Maybe.Maybe`:class: type:
 
-    >>> from hask import data, d, deriving
-    >>> from hask import Read, Show, Eq, Ord
+    >>> from hask3 import data, d, deriving
+    >>> from hask3 import Read, Show, Eq, Ord
 
     >>> Maybe, Nothing, Just =\
     ...     data.Maybe("a") == d.Nothing | d.Just("a") & \
@@ -190,14 +190,14 @@ constructor has no fields, you can omit the parens. For example:
 To automagically derive typeclass instances for the type, add ``&
 deriving(...typeclasses...)`` after the data constructor declarations.
 Currently, the only typeclasses that can be derived are
-`~hask.lang.typeclasses.Eq`:class:, `~hask.lang.typeclasses.Show`:class:,
-`~hask.lang.typeclasses.Read`:class:, `~hask.lang.typeclasses.Ord`:class:, and
-`~hask.lang.typeclasses.Bounded`:class:.
+`~hask3.lang.typeclasses.Eq`:class:, `~hask3.lang.typeclasses.Show`:class:,
+`~hask3.lang.typeclasses.Read`:class:, `~hask3.lang.typeclasses.Ord`:class:, and
+`~hask3.lang.typeclasses.Bounded`:class:.
 
 Putting it all together, here are the definitions of
-`~hask.Data.Either.Either`:class: and `~hask.Data.Ordering.Ordering`:class:\ :
+`~hask3.Data.Either.Either`:class: and `~hask3.Data.Ordering.Ordering`:class:\ :
 
-    >>> from hask import Read, Show, Eq, Ord, Bounded
+    >>> from hask3 import Read, Show, Eq, Ord, Bounded
 
     >>> Either, Left, Right =\
     ...    data.Either("a", "b") == d.Left("a") | d.Right("b") & deriving(Read, Show, Eq)
@@ -225,10 +225,10 @@ can use it just like a variable:
     >>> Foo(1, 2, "hello")
     Foo(1, 2, 'hello')
 
-You can view the type of an object with `~hask.lang.syntax._t`:func:
+You can view the type of an object with `~hask3.lang.syntax._t`:func:
 (equivalent to `:t` in ghci).
 
-    >>> from hask import _t, L
+    >>> from hask3 import _t, L
 
     >>> _t(1)
     'int'
@@ -250,11 +250,11 @@ The type system and typed functions
 -----------------------------------
 
 So what's up with those types? Hask operates its own shadow `Hindley-Milner
-type system`_ on top of Python's type system; `~hask.lang.syntax._t`:func:
+type system`_ on top of Python's type system; `~hask3.lang.syntax._t`:func:
 shows the Hask type of a particular object.
 
 In Hask, typed functions take the form of
-`~hask.lang.type_system.TypedFunc`:func: objects, which are typed wrappers
+`~hask3.lang.type_system.TypedFunc`:func: objects, which are typed wrappers
 around Python functions. There are two ways to create TypedFunc objects:
 
 - Use the `sig` decorator to decorate the function with the type signature::
@@ -278,7 +278,7 @@ checked -- when arguments are supplied, the type inference engine will check
 whether their types match the type signature, and raise a TypeError if there
 is a discrepancy.
 
-    >>> from hask import H
+    >>> from hask3 import H
     >>> f = (lambda x, y: x + y) ** (H/ int >> int >> int)
 
     >>> f(2, 3)
@@ -293,7 +293,7 @@ is a discrepancy.
 
 Second, TypedFunc objects can be partially applied:
 
-   >>> from hask import H
+   >>> from hask3 import H
    >>> g = (lambda a, b, c: a // (b + c)) ** (H/ int >> int >> int >> int)
 
    >>> g(10, 2, 3)
@@ -316,7 +316,7 @@ application) cannot be overstated -- you can get rid of a ton of nested
 parenthesis this way:
 
 
-   >>> from hask.Prelude import flip
+   >>> from hask3.Prelude import flip
    >>> h = (lambda x, y: x / y) ** (H/ float >> float >> float)
    >>> h(3.0) * h(6.0) * flip(h, 2.0) % 36.0
    9.0
@@ -412,8 +412,8 @@ Some examples::
 
 
 It is also possible to create type synonyms using
-`~hask.lang.syntax.t`:func:. For example, check out the definition of
-:obj:`~hask.Data.Num.Rational`:
+`~hask3.lang.syntax.t`:func:. For example, check out the definition of
+:obj:`~hask3.Data.Num.Rational`:
 
 ::
 
@@ -450,7 +450,7 @@ Here is a function that uses pattern matching to compute the fibonacci
 sequence.  Note that within a pattern match expression, ``m.*`` is used to
 bind variables, and ``p.*`` is used to access them:
 
-  >>> from hask import caseof, m, p, sig, H
+  >>> from hask3 import caseof, m, p, sig, H
   >>> @sig(H/ int >> int)
   ... def fib(x):
   ...     return ~(caseof(x)
@@ -474,8 +474,8 @@ the variable after the ``^`` is bound to the rest of the iterable. Here is a
 function that adds the first two elements of any iterable, returning
 ``Nothing`` if there are less than two elements:
 
-  >>> from hask import sig, t, caseof, m, p, H
-  >>> from hask import Num, Maybe, Just, Nothing
+  >>> from hask3 import sig, t, caseof, m, p, H
+  >>> from hask3 import Num, Maybe, Just, Nothing
 
   >>> @sig(H[(Num, "a")]/ ["a"] >> t(Maybe, "a"))
   ... def add_first_two(xs):
@@ -492,8 +492,8 @@ function that adds the first two elements of any iterable, returning
 Pattern matching is also very useful for deconstructing ADTs and assigning
 their fields to temporary variables.
 
-    >>> from hask import caseof, m, p
-    >>> from hask import Num, Maybe, Just, Nothing
+    >>> from hask3 import caseof, m, p
+    >>> from hask3 import Num, Maybe, Just, Nothing
 
     >>> def default_to_zero(x):
     ...     return ~(caseof(x)
@@ -550,8 +550,8 @@ instance for the Maybe type.  First, however, Maybe needs `Functor
 Maybe is now an instance of Functor. This allows us to call ``fmap`` and map
 any function of type ``a -> b`` into a value of type ``Maybe a``.
 
-    >>> from hask.Data.Maybe import Just, Nothing
-    >>> from hask.Data.Functor import fmap
+    >>> from hask3.Data.Maybe import Just, Nothing
+    >>> from hask3.Data.Functor import fmap
     >>> times2 = (lambda x: x * 2) ** (H/ int >> int)
     >>> toFloat = float ** (H/ int >> float)
 
@@ -581,9 +581,9 @@ implementations. To implement Applicative, we just need to provide
 ``pure``. To implement Monad, we need to provide ``bind``.
 
 
-    >>> from hask import instance, m, caseof, p
-    >>> from hask import Applicative, Monad
-    >>> from hask.Data.Maybe import Maybe, Just, Nothing
+    >>> from hask3 import instance, m, caseof, p
+    >>> from hask3 import Applicative, Monad
+    >>> from hask3.Data.Maybe import Maybe, Just, Nothing
     >>> instance(Applicative, Maybe).where(
     ...    pure = Just
     ... )
@@ -594,16 +594,16 @@ implementations. To implement Applicative, we just need to provide
     ...                             | m(Nothing)   >> Nothing)
     ... )
 
-The ``bind`` function also has an infix form, which is ``>>`` in Hask.
+The ``bind`` function also has an infix form, which is ``>>`` in Hask3.
 
-    >>> from hask import sig, t
-    >>> from hask.Data.Maybe import Maybe, Just, Nothing
+    >>> from hask3 import sig, t
+    >>> from hask3.Data.Maybe import Maybe, Just, Nothing
 
     >>> @sig(H/ int >> int >> t(Maybe, int))
     ... def safe_div(x, y):
     ...     return Nothing if y == 0 else Just(x/y)
 
-    >>> from hask.Prelude import flip
+    >>> from hask3.Prelude import flip
     >>> divBy = flip(safe_div)
 
     >>> Just(9) >> divBy(3)
@@ -619,14 +619,14 @@ The ``bind`` function also has an infix form, which is ``>>`` in Hask.
 As in Haskell, List is also a monad, and ``bind`` for the List type is just
 ``concatMap``.
 
-    >>> from hask import L
-    >>> from hask.Data.List import replicate
+    >>> from hask3 import L
+    >>> from hask3.Data.List import replicate
     >>> L[1, 2] >> replicate(2) >> replicate(2)
     L[1, 1, 1, 1, 2, 2, 2, 2]
 
 You can also define typeclass instances for classes that are not ADTs:
 
-    >>> from hask import instance, Eq
+    >>> from hask3 import instance, Eq
 
     >>> class Person(object):
     ...     def __init__(self, name, age):
@@ -641,22 +641,22 @@ You can also define typeclass instances for classes that are not ADTs:
     False
 
 If you want instances of the Show, Eq, Read, Ord, and Bounded typeclasses for
-your ADTs, it is adviseable to use `~hask.lang.syntax.deriving`:class: to
+your ADTs, it is adviseable to use `~hask3.lang.syntax.deriving`:class: to
 automagically generate instances rather than defining them manually.
 
 Defining your own typeclasses is pretty easy--take a look at
-`~hask.lang.type_system.Typeclass`:class: and look at the typeclasses defined
-in `hask.Data.Functor`:mod: and `hask.Data.Num`:mod: to see how it's done.
+`~hask3.lang.type_system.Typeclass`:class: and look at the typeclasses defined
+in `hask3.Data.Functor`:mod: and `hask3.Data.Num`:mod: to see how it's done.
 
 
 Operator sections
 -----------------
 
 Hask also supports operator sections (e.g. ``(1+)`` in Haskell). Sections are
-just `~hask.lang.type_system.TypedFunc`:class: objects, so they are
+just `~hask3.lang.type_system.TypedFunc`:class: objects, so they are
 automagically curried and typechecked.
 
-    >>> from hask import __
+    >>> from hask3 import __
     >>> f = (__ - 20) * (2 ** __) * (__ + 3)
     >>> f(10)
     8172
@@ -664,7 +664,7 @@ automagically curried and typechecked.
     >>> ((90//__) * (10+__)) * Just(20)
     Just(3)
 
-    >>> from hask.Data.List import takeWhile
+    >>> from hask3.Data.List import takeWhile
     >>> takeWhile(__<5, L[1, ...])
     L[1, 2, 3, 4]
 
@@ -674,7 +674,7 @@ automagically curried and typechecked.
     >>> (__**__)(2)(10)
     1024
 
-    >>> from hask.Data.List import zipWith, take
+    >>> from hask3.Data.List import zipWith, take
     >>> take(5) % zipWith(__ * __, L[1, ...], L[1, ...])
     L[1, 4, 9, 16, 25]
 
@@ -686,7 +686,7 @@ polymorphic, to allow for any operator overloading.
 
 Note that if you are using IPython, Hask's ``__`` will conflict with IPython's
 special double underscore variable.  To avoid conflicts, you can use ``from
-hask import __ as _s`` in IPython.
+hask3 import __ as _s`` in IPython.
 
 
 Guards
@@ -704,14 +704,14 @@ identical to the syntax for pattern matching.
     )
 
 
-As in Haskell, `~hask.lang.syntax.otherwise`:object: will always evaluate to
+As in Haskell, `~hask3.lang.syntax.otherwise`:object: will always evaluate to
 True and can be used as a catch-all in guard expressions. If no match is found
 (and an otherwise clause is not present), a `NoGuardMatchException` will be
 raised.
 
 Guards will also play nicely with sections:
 
-    >>> from hask import guard, c, otherwise
+    >>> from hask3 import guard, c, otherwise
     >>> porridge_tempurature = 80
     >>> ~(guard(porridge_tempurature)
     ...     | c(__ < 20)  >> "Porridge is too cold!"
@@ -741,8 +741,8 @@ Python functions, or any other callable in your guard condition.
 Monadic error handling (of Python functions)
 --------------------------------------------
 
-If you want to use `~hask.Data.Maybe.Maybe`:class: and
-`~hask.Data.Either.Either`:class: to handle errors raised by Python functions
+If you want to use `~hask3.Data.Maybe.Maybe`:class: and
+`~hask3.Data.Either.Either`:class: to handle errors raised by Python functions
 defined outside Hask, you can use the decorators ``in_maybe`` and
 ``in_either`` to create functions that call the original function and return
 the result wrapped inside a Maybe or Either value.
@@ -751,7 +751,7 @@ If a function wrapped in ``in_maybe`` raises an exception, the wrapped
 function will return Nothing. Otherwise, the result will be returned wrapped
 in a Just.
 
-    >>> from hask.Data.Maybe import in_maybe
+    >>> from hask3.Data.Maybe import in_maybe
 
     >>> def eat_cheese(cheese):
     ...     if cheese <= 0:
@@ -773,7 +773,7 @@ seen in Haskell with existing Python functions.
 Continuing with this silly example, let's try to eat three pieces of cheese,
 returning Nothing if the attempt was unsuccessful:
 
-    >>> from hask.Data.Maybe import Just
+    >>> from hask3.Data.Maybe import Just
 
     >>> cheese = 10
     >>> cheese_left = Just(cheese) >> maybe_eat >> maybe_eat >> maybe_eat
@@ -792,7 +792,7 @@ The ``in_either`` function works just like ``in_maybe``. If an Exception is
 thrown, the wrapped function will return the exception wrapped in
 Left. Otherwise, the result will be returned wrapped in Right.
 
-    >>> from hask.Data.Either import in_either, Right, Left
+    >>> from hask3.Data.Either import in_either, Right, Left
 
     >>> either_eat = in_either(eat_cheese)
     >>> either_eat(Right(10))

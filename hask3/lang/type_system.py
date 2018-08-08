@@ -191,7 +191,7 @@ class Hask(object):
     """Base class for objects within hask.
 
     `ADTs <ADT>`:class:, `TypedFunc`:class:,
-    `~hask.lang.lazylist.List`:class:, `Undefined`:class:, and other
+    `~hask3.lang.lazylist.List`:class:, `Undefined`:class:, and other
     hask-related types are all subclasses of Hask.
 
     All subclasses must define ``__type__``, which returns a representation of
@@ -226,8 +226,8 @@ def typeof(obj):
     :param obj: the object to inspect
 
     :returns: An object representing the type in the internal type system
-        language (i.e., a `~hask.lang.hindley_milner.TypeOperator`:class: or
-        `~hask.lang.hindley_milner.TypeVariable`:class:).
+        language (i.e., a `~hask3.lang.hindley_milner.TypeOperator`:class: or
+        `~hask3.lang.hindley_milner.TypeVariable`:class:).
 
     """
     TypeVariable.next_var_name = 'a'

@@ -19,8 +19,8 @@ class Traversable(Foldable, Functor):
 
     Dependencies:
 
-    - `~hask.Data.Foldable.Foldable`:class:
-    - `~hask.Data.Functor.Functor`:class:
+    - `~hask3.Data.Foldable.Foldable`:class:
+    - `~hask3.Data.Functor.Functor`:class:
 
     Attributes:
 

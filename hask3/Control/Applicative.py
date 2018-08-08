@@ -15,7 +15,7 @@ class Applicative(Functor):
 
     Dependencies:
 
-    - `~hask.Data.Functor.Functor`:class:
+    - `~hask3.Data.Functor.Functor`:class:
 
     Attributes:
 

@@ -167,7 +167,7 @@ func = PyFunc
 
 class sig(Syntax):
     """Decorator to convert a Python function into a statically typed function
-    (`~hask.lang.type_system.TypedFunc`:class: object).
+    (`~hask3.lang.type_system.TypedFunc`:class: object).
 
     TypedFuncs are automagically curried, and polymorphic type arguments will
     be inferred by the type system.
@@ -202,7 +202,7 @@ class sig(Syntax):
 
 
 def t(type_constructor, *params):
-    '''Helper to instantiate `~hask.lang.type_system.TypeSignatureHKT`:class:.
+    '''Helper to instantiate `~hask3.lang.type_system.TypeSignatureHKT`:class:.
 
     '''
     if inspect.isclass(type_constructor) and \
@@ -223,7 +223,7 @@ def typify(fn, hkt=None):
     :param hkt: A higher-kinded type wrapped in a closure (e.g.,
                ``lambda x: t(Maybe, x)``)
 
-    :returns: A `~hask.lang.type_system.TypedFunc`:class: object with a
+    :returns: A `~hask3.lang.type_system.TypedFunc`:class: object with a
         polymorphic type (e.g. ``a -> b -> c``, etc) with the same number of
         arguments as `fn`.  If `hkt` is supplied, the return type will be the
         supplied HKT parameterized by a type variable.

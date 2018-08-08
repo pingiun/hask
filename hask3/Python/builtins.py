@@ -3,7 +3,7 @@
 This makes it easier to chain lots of things together in function composition
 without having to manually add type signatures to Python builtins.
 
-Each function is a `~hask.lang.type_system.TypedFunc`:class: replacement of
+Each function is a `~hask3.lang.type_system.TypedFunc`:class: replacement of
 the corresponding Python builtin with the right signature.
 
 '''

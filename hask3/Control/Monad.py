@@ -24,7 +24,7 @@ class Monad(Applicative):
 
     Dependencies:
 
-    - `~hask.Control.Applicative.Applicative`:class:
+    - `~hask3.Control.Applicative.Applicative`:class:
 
     Attributes:
 
