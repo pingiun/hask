@@ -1,7 +1,3 @@
-from __future__ import (division as _py3_division,
-                        print_function as _py3_print,
-                        absolute_import as _py3_abs_import)
-
 import inspect
 import operator
 import sys
@@ -698,9 +694,6 @@ class __section__(Syntax):
     arguments (operands).
 
     Example usage:
-
-        >>> from __future__ import division
-        >>> from hask3.lang import __
 
         >>> (__+1)(5)
         6
