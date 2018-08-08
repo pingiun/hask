@@ -421,6 +421,9 @@ class __list_comprehension__(Syntax):
     # list from 1 to 20 (inclusive), counting by fours
 
     """
+
+    invalid_syntax_message = "Invalid input to list constructor"
+
     def __getitem__(self, lst):
         from hask.hack import isin
         if isinstance(lst, tuple) and len(lst) < 5 and isin(Ellipsis, lst):
@@ -444,4 +447,4 @@ class __list_comprehension__(Syntax):
             return List(head=lst)
 
 
-L = __list_comprehension__("Invalid input to list constructor")
+L = __list_comprehension__()

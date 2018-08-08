@@ -71,15 +71,8 @@ class Syntax(object):
     those objects.
 
     """
-    # TODO: Convert `__syntax_err_msg` in a class attribute.
-    # XXX: Having a common instance for an error, could produce problems with
-    # "Exception Chaining and Embedded Tracebacks" (see PEP 3134)
-    def __init__(self, err_msg):
-        self.__syntax_err_msg = err_msg
-        self.invalid_syntax = SyntaxError(self.__syntax_err_msg)
-
     def __syntaxerr__(self):
-        raise self.invalid_syntax
+        raise SyntaxError(self.invalid_syntax_message)
 
 
 class instance(Syntax):
@@ -120,6 +113,9 @@ class __constraints__(Syntax):
     See `sig`:class: for more information on type signature decorators.
 
     """
+
+    invalid_syntax_message = "Syntax error in type signature"
+
     def __init__(self, constraints=None):
         from collections import defaultdict
         self.constraints = defaultdict(lambda: [])
@@ -132,8 +128,7 @@ class __constraints__(Syntax):
             # only one typeclass constraint
             else:
                 self.__add_constraint(constraints)
-        _msg = "Syntax error in type signature"
-        super(__constraints__, self).__init__(_msg)
+        super(__constraints__, self).__init__()
 
     def __add_constraint(self, con):
         from hask.hack import safe_issubclass
@@ -158,9 +153,12 @@ class __constraints__(Syntax):
 
 class __signature__(Syntax):
     """A (complete or incomplete) type signature."""
+
+    invalid_syntax_message = "Syntax error in type signature"
+
     def __init__(self, args, constraints):
         self.sig = TypeSignature(args, constraints)
-        super(__signature__, self).__init__("Syntax error in type signature")
+        super(__signature__, self).__init__()
 
     def __rshift__(self, arg):
         arg = __signature__._inner(arg)
@@ -199,17 +197,22 @@ class sig(Syntax):
             return str(x)
 
     """
+
+    invalid_syntax_message = "Syntax error in type signature"
+
     def __init__(self, signature):
-        super(self.__class__, self).__init__("Syntax error in type signature")
-        if not isinstance(signature, __signature__):
+
+        if isinstance(signature, __signature__):
+            if len(signature.sig.args) >= 2:
+                super(self.__class__, self).__init__()
+                self.sig = signature.sig
+                self.fn_args = fn_args = build_sig(self.sig)
+                self.fn_type = make_fn_type(fn_args)
+            else:
+                raise SyntaxError("Not enough type arguments in signature")
+        else:
             msg = "Signature expected in sig(); found {}".format(signature)
             raise SyntaxError(msg)
-        elif len(signature.sig.args) < 2:
-            raise SyntaxError("Not enough type arguments in signature")
-        else:
-            self.sig = signature.sig
-            self.fn_args = fn_args = build_sig(self.sig)
-            self.fn_type = make_fn_type(fn_args)
 
     def __str__(self):
         # TODO: f'sig({self.sig})'
@@ -331,6 +334,9 @@ class __var_bind__(Syntax):
     For example usage, see `caseof`:class:.
 
     """
+
+    invalid_syntax_message = "Syntax error in pattern match"
+
     def __getattr__(self, name):
         return __pattern_bind__(name)
 
@@ -347,12 +353,15 @@ class __var_access__(Syntax):
     For example usage, see `caseof`:class:.
 
     """
+
+    invalid_syntax_message = "Syntax error in pattern match"
+
     def __getattr__(self, name):
         return MatchStack.get_name(name)
 
 
-m = __var_bind__("Syntax error in pattern match")
-p = __var_access__("Syntax error in pattern match")
+m = __var_bind__()
+p = __var_access__()
 
 
 class __pattern_bind_list__(Syntax, PatternMatchListBind):
@@ -362,10 +371,11 @@ class __pattern_bind_list__(Syntax, PatternMatchListBind):
     (zero to many elements).
 
     """
+
+    invalid_syntax_message = "Syntax error in match"
+
     def __init__(self, head, tail):
-        self.head = [head]
-        self.tail = tail
-        super(__pattern_bind_list__, self).__init__("Syntax error in match")
+        super(__pattern_bind_list__, self).__init__([head], tail)
 
     def __rxor__(self, head):
         self.head.insert(0, head)
@@ -374,9 +384,8 @@ class __pattern_bind_list__(Syntax, PatternMatchListBind):
 
 class __pattern_bind__(Syntax, PatternMatchBind):
     """A pattern designed to match any value and bind it to a name."""
-    def __init__(self, name):
-        self.name = name
-        super(__pattern_bind__, self).__init__("Syntax error in match")
+
+    invalid_syntax_message = "Syntax error in match"
 
     def __rxor__(self, cell):
         return __pattern_bind_list__(cell, self)
@@ -387,7 +396,7 @@ class __pattern_bind__(Syntax, PatternMatchBind):
         elif isinstance(other, __pattern_bind__):
             return __pattern_bind_list__(self, other)
         else:
-            raise self.invalid_syntax
+            raise SyntaxError(self.invalid_syntax_message)
 
 
 class __match_line__(Syntax):
@@ -497,8 +506,8 @@ class __data__(Syntax):
         ...     )
 
     """
-    def __init__(self):
-        super(__data__, self).__init__("Syntax error in `data`")
+
+    invalid_syntax_message = "Syntax error in `data`"
 
     def __getattr__(self, value):
         if value[0].isupper():
@@ -509,10 +518,13 @@ class __data__(Syntax):
 
 class __new_tcon__(Syntax):
     """Base for Syntax classes related to creating new type constructors."""
+
+    invalid_syntax_message = "Syntax error in `data`"
+
     def __init__(self, name, args=()):
         self.name = name
         self.args = args
-        super(__new_tcon__, self).__init__("Syntax error in `data`")
+        super(__new_tcon__, self).__init__()
 
     def __eq__(self, d):
         # one data constructor, zero or more derived typeclasses
@@ -522,7 +534,7 @@ class __new_tcon__(Syntax):
         elif isinstance(d, __new_dcons_deriving__):
             return build_ADT(self.name, self.args, d.dcons, d.classes)
         else:
-            raise self.invalid_syntax
+            raise SyntaxError(self.invalid_syntax_message)
 
 
 class __new_tcon_enum__(__new_tcon__):
@@ -572,8 +584,8 @@ class __d__(Syntax):
     See `data`:obj: for more information.
 
     """
-    def __init__(self):
-        super(__d__, self).__init__("Syntax error in `d`")
+
+    invalid_syntax_message = "Syntax error in `d`"
 
     def __getattr__(self, value):
         if value[0].isupper():
@@ -588,11 +600,14 @@ class __new_dcon__(Syntax):
     That is within a `data` statment (`d.*`).
 
     """
+
+    invalid_syntax_message = "Syntax error in `d`"
+
     def __init__(self, dcon_name, args=(), classes=()):
         self.name = dcon_name
         self.args = args
         self.classes = classes
-        super(__new_dcon__, self).__init__("Syntax error in `d`")
+        super(__new_dcon__, self).__init__()
 
 
 class __new_dcon_params__(__new_dcon__):
@@ -612,7 +627,7 @@ class __new_dcon_params__(__new_dcon__):
             cls = __new_dcon_deriving__
             return cls(self.name, self.args, derive_exp.classes)
         else:
-            raise self.invalid_syntax
+            raise SyntaxError(self.invalid_syntax_message)
 
     def __or__(self, dcon):
         if isinstance(dcon, __new_dcon__):
@@ -622,7 +637,7 @@ class __new_dcon_params__(__new_dcon__):
             else:
                 return __new_dcons__(constructors)
         else:
-            raise self.invalid_syntax
+            raise SyntaxError(self.invalid_syntax_message)
 
 
 class __new_dcon_deriving__(__new_dcon__):
@@ -668,10 +683,13 @@ class __new_dcons_deriving__(Syntax):
         d.Foo(int, "a", "b", str) | d.Bar & deriving(Eq)
 
     """
+
+    invalid_syntax_message = "Syntax error in `d`"
+
     def __init__(self, data_consts, classes=()):
         self.dcons = data_consts
         self.classes = classes
-        super(__new_dcons_deriving__, self).__init__("Syntax error in `d`")
+        super(__new_dcons_deriving__, self).__init__()
 
 
 class __new_dcons__(__new_dcons_deriving__):
@@ -697,7 +715,7 @@ class __new_dcons__(__new_dcons_deriving__):
             else:
                 return __new_dcons__(self.dcons + constructor)
         else:
-            raise self.invalid_syntax
+            raise SyntaxError(self.invalid_syntax_message)
 
 
 data = __data__()
@@ -710,11 +728,14 @@ class deriving(Syntax):
     See `data`:class: for more information.
 
     """
+
+    invalid_syntax_message = "Syntax error in `deriving`"
+
     def __init__(self, *tclasses):
         w = next((c for c in tclasses if not issubclass(c, Typeclass)), None)
         if w is None:
             self.classes = tclasses
-            super(deriving, self).__init__("Syntax error in `deriving`")
+            super(deriving, self).__init__()
         else:
             raise TypeError("Cannot derive non-typeclass {}".format(w))
 
@@ -744,8 +765,8 @@ class __section__(Syntax):
         + - * / // ** >> << | & ^ == != > >= < <=
 
     """
-    def __init__(self, syntax_err_msg):
-        super(__section__, self).__init__(syntax_err_msg)
+
+    invalid_syntax_message = "Error in section"
 
     @staticmethod
     def __make_section(fn):
@@ -813,7 +834,7 @@ class __section__(Syntax):
         __rdiv__ = __wrap(__flip(operator.div))
 
 
-__ = __section__("Error in section")
+__ = __section__()
 
 
 # Guards! Guards!
@@ -845,11 +866,13 @@ class __guard_test__(Syntax):
     See `guard`:class: for more details.
 
     """
+
+    invalid_syntax_message = "Syntax error in guard condition"
+
     def __init__(self, fn):
         if callable(fn):
             self.__test = fn
-            msg = "Syntax error in guard condition"
-            super(__guard_test__, self).__init__(msg)
+            super(__guard_test__, self).__init__()
         else:
             raise ValueError("Guard condition must be callable")
 
@@ -858,7 +881,7 @@ class __guard_test__(Syntax):
         if not isinstance(value, wrong_types):
             return __guard_conditional__(self.__test, value)
         else:
-            raise self.invalid_syntax
+            raise SyntaxError(self.invalid_syntax_message)
 
 
 class __guard_conditional__(Syntax):
@@ -875,11 +898,13 @@ class __guard_conditional__(Syntax):
     See `guard`:class: for more details.
 
     """
+
+    invalid_syntax_message = "Syntax error in guard condition"
+
     def __init__(self, fn, return_value):
         self.check = fn
         self.return_value = return_value
-        msg = "Syntax error in guard condition"
-        super(__guard_conditional__, self).__init__(msg)
+        super(__guard_conditional__, self).__init__()
 
 
 class __guard_base__(Syntax):
@@ -891,9 +916,12 @@ class __guard_base__(Syntax):
     See `guard`:class: for more details.
 
     """
+
+    invalid_syntax_message = "Syntax error in guard"
+
     def __init__(self, value):
         self.value = value
-        super(__guard_base__, self).__init__("Syntax error in guard")
+        super(__guard_base__, self).__init__()
 
 
 class __unmatched_guard__(__guard_base__):
@@ -940,7 +968,7 @@ class __matched_guard__(__guard_base__):
         if isinstance(cond, __guard_conditional__):
             return self
         else:
-            raise self.invalid_syntax
+            raise SyntaxError(self.invalid_syntax_message)
 
     def __invert__(self):
         return self.value
@@ -981,7 +1009,7 @@ class guard(__unmatched_guard__):
 
     """
     def __invert__(self):
-        raise self.invalid_syntax
+        raise SyntaxError(self.invalid_syntax_message)
 
 
 c = __guard_test__
