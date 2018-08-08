@@ -1,6 +1,6 @@
 import unittest
 
-from hask import __
+from hask3 import __
 
 te = TypeError
 
@@ -8,10 +8,10 @@ te = TypeError
 class TestPython(unittest.TestCase):
 
     def test_builtins(self):
-        from hask.Python.builtins import callable, cmp, delattr, divmod
-        from hask.Python.builtins import getattr, hasattr, hash  # noqa: F401
-        from hask.Python.builtins import hex, isinstance, issubclass, len, oct  # noqa: F401
-        from hask.Python.builtins import repr, setattr, sorted  # noqa: F401
+        from hask3.Python.builtins import callable, cmp, delattr, divmod
+        from hask3.Python.builtins import getattr, hasattr, hash  # noqa: F401
+        from hask3.Python.builtins import hex, isinstance, issubclass, len, oct  # noqa: F401
+        from hask3.Python.builtins import repr, setattr, sorted  # noqa: F401
 
         class Example(object):
             a = 1

@@ -1,14 +1,14 @@
 import unittest
 
-from hask import Eq
-from hask import H, sig, func
-from hask import L
-from hask import Just, Nothing
-from hask import Left, Right
+from hask3 import Eq
+from hask3 import H, sig, func
+from hask3 import L
+from hask3 import Just, Nothing
+from hask3 import Left, Right
 
 # internals
-from hask.lang.type_system import pattern_match
-from hask.lang.type_system import PatternMatchBind
+from hask3.lang.type_system import pattern_match
+from hask3.lang.type_system import PatternMatchBind
 
 te = TypeError
 se = SyntaxError

@@ -1,13 +1,13 @@
 import unittest
 
-from hask import __
-from hask import TypeSignatureError
-from hask import NoGuardMatchException
-from hask import IncompletePatternError
-from hask import caseof, guard, otherwise
-from hask import H, c, m, t, sig, p
-from hask import Just, Nothing, Maybe, Either
-from hask import GT, EQ, LT, Ordering, Eq, L
+from hask3 import __
+from hask3 import TypeSignatureError
+from hask3 import NoGuardMatchException
+from hask3 import IncompletePatternError
+from hask3 import caseof, guard, otherwise
+from hask3 import H, c, m, t, sig, p
+from hask3 import Just, Nothing, Maybe, Either
+from hask3 import GT, EQ, LT, Ordering, Eq, L
 
 
 te = TypeError
@@ -18,7 +18,7 @@ ve = ValueError
 class TestSyntax(unittest.TestCase):
 
     def test_syntax(self):
-        from hask.lang.syntax import Syntax
+        from hask3.lang.syntax import Syntax
         s = Syntax("err")
         with self.assertRaises(se):
             len(s)
