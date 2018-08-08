@@ -1,8 +1,8 @@
 ============================================
- :mod:`hask.Data.List` -- The ``Data.List``
+ :mod:`hask3.Data.List` -- The ``Data.List``
 ============================================
 
-.. automodule:: hask.Data.List
+.. automodule:: hask3.Data.List
 
 .. autofunction:: head
 

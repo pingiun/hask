@@ -1,8 +1,8 @@
 ================================================
- :mod:`hask.Data.String` -- The ``Data.String``
+ :mod:`hask3.Data.String` -- The ``Data.String``
 ================================================
 
-.. automodule:: hask.Data.String
+.. automodule:: hask3.Data.String
 
 .. autofunction:: lines
 

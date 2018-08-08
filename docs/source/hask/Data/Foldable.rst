@@ -1,8 +1,8 @@
 ====================================================
- :mod:`hask.Data.Foldable` -- The ``Data.Foldable``
+ :mod:`hask3.Data.Foldable` -- The ``Data.Foldable``
 ====================================================
 
-.. automodule:: hask.Data.Foldable
+.. automodule:: hask3.Data.Foldable
    :members: Foldable
 
 .. autofunction:: foldr

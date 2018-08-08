@@ -1,8 +1,8 @@
 ============================================================================
- :mod:`hask.lang.syntax` -- The "syntactic" elements to build Hask programs
+ :mod:`hask3.lang.syntax` -- The "syntactic" elements to build Hask programs
 ============================================================================
 
-.. automodule:: hask.lang.syntax
+.. automodule:: hask3.lang.syntax
 
 .. autoclass:: sig
 

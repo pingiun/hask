@@ -1,8 +1,8 @@
 ================================================
- :mod:`hask.Data.Monoid` -- The ``Data.Monoid``
+ :mod:`hask3.Data.Monoid` -- The ``Data.Monoid``
 ================================================
 
-.. automodule:: hask.Data.Monoid
+.. automodule:: hask3.Data.Monoid
 
 .. autoclass:: Monoid
 

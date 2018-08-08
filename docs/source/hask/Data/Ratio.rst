@@ -1,8 +1,8 @@
 ==============================================
- :mod:`hask.Data.Ratio` -- The ``Data.Ratio``
+ :mod:`hask3.Data.Ratio` -- The ``Data.Ratio``
 ==============================================
 
-.. automodule:: hask.Data.Ratio
+.. automodule:: hask3.Data.Ratio
 
 .. autofunction:: numerator
 

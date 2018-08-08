@@ -1,8 +1,8 @@
 ==========================================================
- :mod:`hask.Data.Traversable` -- The ``Data.Traversable``
+ :mod:`hask3.Data.Traversable` -- The ``Data.Traversable``
 ==========================================================
 
-.. automodule:: hask.Data.Traversable
+.. automodule:: hask3.Data.Traversable
 
 .. autoclass:: Traversable
 
