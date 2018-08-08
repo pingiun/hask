@@ -24,6 +24,8 @@
 
 .. autofunction:: fromJust
 
+.. autofunction:: fromMaybe
+
 .. autofunction:: listToMaybe
 
 .. autofunction:: maybeToList

@@ -95,6 +95,22 @@ def fromJust(x):
     raise ValueError("Cannot call fromJust on Nothing.")
 
 
+@sig(H/ 'a' >> t(Maybe, 'a') >> 'a')
+def fromMaybe(default, x):
+    '''Return the value wrapped or the default.
+
+    If the Maybe is Nothing, return the default value; otherwise, return the
+    value contained in the Maybe.
+
+    Type signature is ``a -> Maybe a -> a``.
+
+    '''
+    return ~(caseof(x)
+        | m(Nothing) >> default
+        | m(Just(m.x)) >> p.x
+    )
+
+
 @sig(H/ ["a"] >> t(Maybe, "a"))
 def listToMaybe(a):
     '``listToMaybe :: [a] -> [Maybe a]``'

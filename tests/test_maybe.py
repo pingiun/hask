@@ -188,6 +188,7 @@ class TestMaybe(unittest.TestCase):
 
     def test_functions(self):
         from hask.Data.Maybe import maybe, isJust, isNothing, fromJust
+        from hask.Data.Maybe import fromMaybe
         from hask.Data.Maybe import listToMaybe, maybeToList, catMaybes
         from hask.Data.Maybe import mapMaybe
 
@@ -224,3 +225,6 @@ class TestMaybe(unittest.TestCase):
             ** (H/ int >> t(Maybe, int))
         self.assertEqual(L[4, 5], mapMaybe(f, L[1, ..., 5]))
         self.assertEqual(L[[]], mapMaybe(f, L[1, ..., 3]))
+
+        self.assertEqual(1, fromMaybe(1, Nothing))
+        self.assertEqual(2, fromMaybe(1, Just(2)))
