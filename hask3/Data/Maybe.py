@@ -58,12 +58,13 @@ def in_maybe(fn):
 
 @sig(H/ "b" >> (H/ "a" >> "b") >> t(Maybe, "a") >> "b")
 def maybe(default, f, maybe_a):
-    """``maybe :: b -> (a -> b) -> Maybe a -> b``
+    """Apply `f` to `maybe_a` (if possible) or return `default`.
 
-    The maybe function takes a default value, a function, and a Maybe value. If
-    the Maybe value is Nothing, the function returns the default value.
-    Otherwise, it applies the function to the value inside the Just and returns
-    the result.
+    Take a `default` value, a function, and a Maybe value.  If the Maybe value
+    is Nothing, return the default value.  Otherwise, apply the function to
+    the value inside the Just and return the result.
+
+    Type signature: ``maybe :: b -> (a -> b) -> Maybe a -> b``.
 
     """
     return default if maybe_a == Nothing else f(maybe_a[0])
@@ -71,13 +72,21 @@ def maybe(default, f, maybe_a):
 
 @sig(H/ t(Maybe, "a") >> bool)
 def isJust(a):
-    '``isJust :: [Maybe a] -> bool``'
+    '''Return True iff its argument is of the form ``Just(_)``.
+
+    Type signature: ``isJust :: [Maybe a] -> bool``
+
+    '''
     return not isNothing(a)
 
 
 @sig(H/ t(Maybe, "a")  >> bool)
 def isNothing(a):
-    '``isNothing :: [Maybe a] -> bool``'
+    '''Return True iff its argument is of the form ``Nothing``.
+
+    Type signature: ``isNothing :: [Maybe a] -> bool``.
+
+    '''
     return ~(caseof(a)
                 | m(Nothing)   >> True
                 | m(Just(m.x)) >> False)
@@ -85,7 +94,13 @@ def isNothing(a):
 
 @sig(H/ t(Maybe, "a") >> "a")
 def fromJust(x):
-    '``fromJust :: [Maybe a] -> a``'
+    '''Extract the value from a ``Just(x)``.
+
+    If `x` is not of the form ``Just(_)``, raise a ValueError.
+
+    Type signature: ``fromJust :: [Maybe a] -> a``.
+
+    '''
     if isJust(x):
         return x[0]
     raise ValueError("Cannot call fromJust on Nothing.")
@@ -98,7 +113,7 @@ def fromMaybe(default, x):
     If the Maybe is Nothing, return the default value; otherwise, return the
     value contained in the Maybe.
 
-    Type signature is ``a -> Maybe a -> a``.
+    Type signature:: ``fromMaybe :: a -> Maybe a -> a``.
 
     '''
     return ~(caseof(x)
@@ -108,19 +123,27 @@ def fromMaybe(default, x):
 
 
 @sig(H/ ["a"] >> t(Maybe, "a"))
-def listToMaybe(a):
-    '``listToMaybe :: [a] -> [Maybe a]``'
-    return ~(caseof(a)
+def listToMaybe(ls):
+    '''Wrap the head of the list with the Maybe functor.
+
+    If the list is empty, return Nothing; otherwise return ``Just(head(ls))``.
+
+    Type signature: ``listToMaybe :: [a] -> [Maybe a]``.
+
+    '''
+    return ~(caseof(ls)
                 | m(m.a ^ m.b) >> Just(p.a)
                 | m(m.a)       >> Nothing)
 
 
 @sig(H/ t(Maybe, "a") >> ["a"])
 def maybeToList(a):
-    """``maybeToList :: Maybe a -> [a]``
+    """Return a list from a Maybe value.
 
-    The maybeToList function returns an empty list when given Nothing or a
-    singleton list when not given Nothing.
+    When given Nothing, return the empty list.  When given ``Just(x)`` return
+    the list ``[x]``.
+
+    Type signature: ``maybeToList :: Maybe a -> [a]``.
 
     """
     return ~(caseof(a)
@@ -129,24 +152,25 @@ def maybeToList(a):
 
 
 @sig(H/ [t(Maybe, "a")] >> ["a"])
-def catMaybes(a):
-    """``catMaybes :: [Maybe a] -> [a]``
+def catMaybes(maybes):
+    """Extract all non-Nothing values.
 
-    The catMaybes function takes a list of Maybes and returns a list of all the
-    Just values.
+    Type signature: ``catMaybes :: [Maybe a] -> [a]``.
 
     """
-    return L[(fromJust(item) for item in a if isJust(item))]
+    return L[(fromJust(item) for item in maybes if isJust(item))]
 
 
 @sig(H/ (H/ "a" >> t(Maybe, "b")) >> ["a"] >> ["b"])
 def mapMaybe(f, la):
-    """``mapMaybe :: (a -> Maybe b) -> [a] -> [b]``
+    """Apply `f` to all non-Nothing values.
 
-    The mapMaybe function is a version of map which can throw out elements. In
-    particular, the functional argument returns something of type Maybe b. If
-    this is Nothing, no element is added on to the result list. If it is Just
-    b, then b is included in the result list.
+    `mapMaybe`:func: is a version of map which can throw out elements.  In
+    particular, the functional argument returns something of type ``Maybe b``.
+    If this is Nothing, no element is added on to the result list.  If it is
+    Just b, then b is included in the result list.
+
+    Type signature: ``mapMaybe :: (a -> Maybe b) -> [a] -> [b]``
 
     """
     return L[(fromJust(b) for b in (f(a) for a in la) if isJust(b))]

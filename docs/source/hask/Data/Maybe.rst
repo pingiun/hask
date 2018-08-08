@@ -16,20 +16,20 @@
 
 .. autofunction:: in_maybe
 
-.. autofunction:: maybe
+.. autofunction:: maybe(default, f, maybe_a)
 
-.. autofunction:: isJust
+.. autofunction:: isJust(a)
 
-.. autofunction:: isNothing
+.. autofunction:: isNothing(a)
 
-.. autofunction:: fromJust
+.. autofunction:: fromJust(x)
 
-.. autofunction:: fromMaybe
+.. autofunction:: fromMaybe(default, maybe_a)
 
-.. autofunction:: listToMaybe
+.. autofunction:: listToMaybe(ls)
 
-.. autofunction:: maybeToList
+.. autofunction:: maybeToList(maybe_a)
 
-.. autofunction:: catMaybes
+.. autofunction:: catMaybes(ms)
 
-.. autofunction:: mapMaybe
+.. autofunction:: mapMaybe(f, ls)
