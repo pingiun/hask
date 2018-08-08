@@ -7,9 +7,8 @@
  Welcome to Hask3's documentation!
 ===================================
 
-This is a fork for the original project `hask`_ for Python 3.4+.
-
-Most of the code of this project is still from the original authors.
+This is a fork for the original project `hask`_ for Python 3.4+ (see the our
+`Travis CI builds`_ to get the full list of supported versions).
 
 .. toctree::
    :glob:
