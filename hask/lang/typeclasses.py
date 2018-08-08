@@ -1,15 +1,7 @@
 from __future__ import division, print_function, absolute_import
 
-import sys
-
-from .type_system import Typeclass
-from .type_system import is_builtin
-from .type_system import nt_to_tuple
-from .type_system import build_instance
-
-from .syntax import instance
-from .syntax import sig
-from .syntax import H
+from hask.lang.type_system import Typeclass
+from hask.lang.syntax import instance, sig, H
 
 
 class Show(Typeclass):
@@ -27,6 +19,7 @@ class Show(Typeclass):
     """
     @classmethod
     def make_instance(typeclass, cls, show):
+        from hask.lang.type_system import is_builtin, build_instance
         __show__ = show ** (H/ "a" >> str)
         show = lambda self: __show__(self)
 
@@ -38,11 +31,12 @@ class Show(Typeclass):
     @classmethod
     def derive_instance(typeclass, cls):
         def show(self):
+            from hask.lang.type_system import nt_to_tuple
             if len(self.__class__._fields) == 0:
                 return self.__class__.__name__
             nt_tup = nt_to_tuple(self)
             if len(nt_tup) == 1:
-                tuple_str = "(%s)" % Show[nt_tup[0]].show(nt_tup[0])
+                tuple_str = "({})".format(Show[nt_tup[0]].show(nt_tup[0]))
             else:
                 tuple_str = Show[nt_tup].show(nt_tup)
             return "{0}{1}".format(self.__class__.__name__, tuple_str)
@@ -74,6 +68,8 @@ class Eq(Typeclass):
     """
     @classmethod
     def make_instance(typeclass, cls, eq, ne=None):
+        from hask.lang.type_system import is_builtin, build_instance
+
         def default_ne(self, other):
             return not eq(self, other)
 
@@ -89,13 +85,15 @@ class Eq(Typeclass):
 
     @classmethod
     def derive_instance(typeclass, cls):
+        from hask.lang.type_system import nt_to_tuple
+
         def __eq__(self, other):
-            return self.__class__ == other.__class__ and \
-                nt_to_tuple(self) == nt_to_tuple(other)
+            return (self.__class__ == other.__class__ and
+                    nt_to_tuple(self) == nt_to_tuple(other))
 
         def __ne__(self, other):
-            return self.__class__ != other.__class__ or  \
-                nt_to_tuple(self) != nt_to_tuple(other)
+            return (self.__class__ != other.__class__ or
+                    nt_to_tuple(self) != nt_to_tuple(other))
 
         Eq.make_instance(cls, eq=__eq__, ne=__ne__)
 
@@ -120,6 +118,7 @@ class Ord(Eq):
     """
     @classmethod
     def make_instance(typeclass, cls, lt, le=None, gt=None, ge=None):
+        from hask.lang.type_system import is_builtin, build_instance
         if le is None:
             le = lambda s, o: s.__lt__(o) or s.__eq__(o)
         if gt is None:
@@ -151,6 +150,7 @@ class Ord(Eq):
 
         def zip_cmp(self, other, fn):
             """Compare data constructor and all fields of two ADTs."""
+            from hask.lang.type_system import nt_to_tuple
             if self.__ADT_slot__ == other.__ADT_slot__:
                 one = nt_to_tuple(self)
                 if len(one) == 0:
@@ -192,6 +192,7 @@ class Bounded(Typeclass):
     """
     @classmethod
     def make_instance(typeclass, cls, minBound, maxBound):
+        from hask.lang.type_system import build_instance
         attrs = {"minBound": minBound, "maxBound": maxBound}
         build_instance(Bounded, cls, attrs)
 
@@ -222,6 +223,7 @@ class Read(Typeclass):
     """
     @classmethod
     def make_instance(typeclass, cls, read):
+        from hask.lang.type_system import build_instance
         build_instance(Read, cls, {"read": read})
 
     @classmethod
@@ -275,6 +277,7 @@ instance(Ord, dict).where(lt=dict.__lt__, le=dict.__le__,
 instance(Ord, frozenset).where(lt=frozenset.__lt__, le=frozenset.__le__,
                                gt=frozenset.__gt__, ge=frozenset.__ge__)
 
+import sys    # noqa
 if sys.version[0] == '2':
     instance(Show, long).where(show=long.__str__)
     instance(Show, unicode).where(show=unicode.__str__)
@@ -286,3 +289,4 @@ if sys.version[0] == '2':
                               gt=long.__gt__, ge=long.__ge__)
     instance(Ord, unicode).where(lt=unicode.__lt__, le=unicode.__le__,
                                 gt=unicode.__gt__, ge=unicode.__ge__)
+del sys

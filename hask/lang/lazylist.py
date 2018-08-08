@@ -400,7 +400,7 @@ instance(Ord, List).where(
 
 
 class __list_comprehension__(Syntax):
-    """``L`` is the Haskell-style for list comprehensions and lazy creation.
+    """``L`` is for comprehensions and lazy creation of Haskell-style lists.
 
     To create a new List, just wrap an interable in ``L[ ]``.
 

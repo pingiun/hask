@@ -7,6 +7,7 @@ from .typeclasses import Read
 from .typeclasses import Eq
 from .typeclasses import Ord
 from .typeclasses import Bounded
+
 from .lazylist import Enum
 from .lazylist import succ
 from .lazylist import pred
@@ -15,6 +16,10 @@ from .lazylist import enumFrom
 from .lazylist import enumFromTo
 from .lazylist import enumFromThen
 from .lazylist import enumFromThenTo
+from .lazylist import List
+
+# comprehensions and lazy creation of Haskell-style lists
+from .lazylist import L
 
 from .type_system import typeof
 from .type_system import is_builtin
@@ -48,6 +53,3 @@ from .syntax import __
 from .syntax import _t
 from .syntax import _q
 from .syntax import _i
-
-from .lazylist import List
-from .lazylist import L

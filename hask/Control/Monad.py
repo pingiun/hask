@@ -6,8 +6,6 @@ from ..lang import sig
 from ..lang import H
 from ..lang import t
 from ..lang import L
-from ..lang import build_instance
-from ..lang import is_builtin
 from ..lang import List
 from ..lang import instance
 from ..Data.Functor import fmap
@@ -15,10 +13,11 @@ from .Applicative import Applicative
 
 
 class Monad(Applicative):
-    """The Monad class defines the basic operations over a monad, a concept from
-    a branch of mathematics known as category theory.  From the perspective of
-    a Haskell programmer, however, it is best to think of a monad as an
-    abstract datatype of actions.
+    """Basic operations over a monad.
+
+    Monad is a concept from a branch of mathematics known as Category Theory.
+    From the perspective of a Haskell programmer, however, it is best to think
+    of a monad as an abstract datatype of actions.
 
     Dependencies:
 
@@ -33,10 +32,10 @@ class Monad(Applicative):
 
     - ``bind``
 
-
     """
     @classmethod
     def make_instance(typeclass, cls, bind):
+        from hask.lang.type_system import build_instance, is_builtin
         bind = bind ** (H[(Monad, "m")]/ t("m", "a") >> (H/ "a" >> t("m", "b"))
                 >> t("m", "b"))
         if not is_builtin(cls):
