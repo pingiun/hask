@@ -2,20 +2,9 @@ from __future__ import division, print_function, absolute_import
 
 from xoutil.eight.meta import metaclass
 
-from .hindley_milner import TypeVariable
-from .hindley_milner import TypeOperator
-from .hindley_milner import Var
-from .hindley_milner import App
-from .hindley_milner import Lam
-from .hindley_milner import unify
-from .hindley_milner import analyze
-from .hindley_milner import Function
-from .hindley_milner import Tuple
-from .hindley_milner import ListType
+import sys
+import types
 
-
-import sys    # noqa
-import types    # noqa
 if sys.version[0] == '2':
     __python_builtins__ = {
         types.BooleanType, types.BufferType, types.BuiltinFunctionType,
@@ -50,6 +39,7 @@ else:
     __python_function_types__ = {
         types.FunctionType, types.LambdaType, types.MethodType,
         types.BuiltinFunctionType, types.BuiltinMethodType}
+
 del types, sys
 
 
@@ -100,6 +90,7 @@ class TypeMeta(type):
         self.__dependencies__ = self.mro()[1:-2]  # excl self, Typeclass, object
 
     def __getitem__(self, item):
+        from hask.lang.hindley_milner import ListType
         try:
             # TODO: Add ``elif isinstance(item, type): key = item``?
             if isinstance(item, ADT):
@@ -201,6 +192,7 @@ class Undefined(Hask):
 
     """
     def __type__(self):
+        from hask.lang.hindley_milner import TypeVariable
         return TypeVariable()
 
 
@@ -223,6 +215,8 @@ def typeof(obj):
               `~hask.lang.hindley_milner.TypeVariable`:class:).
 
     """
+    from hask.lang.hindley_milner import TypeVariable, TypeOperator, Tuple
+    # XXX: WTF?
     TypeVariable.next_var_name = 'a'
     if isinstance(obj, Hask):
         return obj.__type__()
@@ -280,6 +274,8 @@ def build_sig_arg(arg, cons, var_dict):
     :raises TypeSignatureError: if the argument cannot be converted.
 
     """
+    from hask.lang.hindley_milner import TypeVariable, TypeOperator
+    from hask.lang.hindley_milner import Tuple, ListType
     res = None
     if isinstance(arg, str):
         if arg.islower():
@@ -334,6 +330,7 @@ def make_fn_type(params):
     :returns: An instance of TypeOperator representing the function type.
 
     """
+    from hask.lang.hindley_milner import Function
     if len(params) == 2:
         last_input, return_type = params
         return Function(last_input, return_type)
@@ -374,6 +371,8 @@ class TypedFunc(Hask):
         # the environment contains the type of the function and the types
         # of the arguments
         import functools
+        from hask.lang.hindley_milner import Var, App
+        from hask.lang.hindley_milner import unify, analyze
         env = {id(self): self.fn_type}
         env.update({id(arg): typeof(arg) for arg in args})
         ap = Var(id(self))
@@ -404,6 +403,8 @@ class TypedFunc(Hask):
         * is the function compose operator, equivalent to . in Haskell
 
         """
+        from hask.lang.hindley_milner import Var, App, Lam
+        from hask.lang.hindley_milner import analyze
         if not isinstance(fn, TypedFunc):
             return fn.__rmul__(self)
         else:
@@ -431,6 +432,8 @@ def make_type_const(name, typeargs):
     :returns: A new class that acts as a type constructor.
 
     """
+    from hask.lang.hindley_milner import TypeVariable, TypeOperator
+
     def raise_fn(err):
         raise err()
 
@@ -476,6 +479,7 @@ def make_data_const(name, fields, type_constructor, slot_num):
 
     """
     from collections import namedtuple
+    from hask.lang.hindley_milner import TypeVariable, TypeOperator
     # create the data constructor
     field_count = len(fields)
     base = namedtuple(name, ["i{}".format(i) for i in range(field_count)])
@@ -612,3 +616,6 @@ def pattern_match(value, pattern, env=None):
             return False, env
     else:
         return False, env
+
+
+del metaclass
