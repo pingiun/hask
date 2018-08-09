@@ -1,15 +1,12 @@
 from __future__ import division, print_function, absolute_import
 
-import itertools
-
-from ..lang import sig
-from ..lang import H
-from ..lang import t
-from ..lang import L
-from ..lang import List
-from ..lang import instance
-from ..Data.Functor import fmap
-from .Applicative import Applicative
+from hask.lang.syntax import sig
+from hask.lang.syntax import H
+from hask.lang.syntax import t
+from hask.lang.syntax import instance
+from hask.lang import List
+from hask.Data.Functor import fmap
+from hask.Control.Applicative import Applicative
 
 
 class Monad(Applicative):
@@ -36,8 +33,9 @@ class Monad(Applicative):
     @classmethod
     def make_instance(typeclass, cls, bind):
         from hask.lang.type_system import build_instance, is_builtin
-        bind = bind ** (H[(Monad, "m")]/ t("m", "a") >> (H/ "a" >> t("m", "b"))
-                >> t("m", "b"))
+        from hask.lang.syntax import H, t
+        bind = bind ** (H[Monad, "m"]/
+                        t("m", "a") >> (H/ "a" >> t("m", "b")) >> t("m", "b"))
         if not is_builtin(cls):
             def bind_wrap(s, o):
                 return Monad[s].bind(s, o)
@@ -45,10 +43,9 @@ class Monad(Applicative):
         build_instance(Monad, cls, {"bind": bind})
 
 
-@sig(H[(Monad, "m")]/ t("m", "a") >> (H/ "a" >> t("m", "b")) >> t("m", "b"))
+@sig(H[Monad, "m"]/ t("m", "a") >> (H/ "a" >> t("m", "b")) >> t("m", "b"))
 def bind(m, fn):
-    """
-    ``bind :: Monad m => m a -> (a -> m b) -> m b``
+    """``bind :: Monad m => m a -> (a -> m b) -> m b``
 
     Monadic bind.
 
@@ -56,7 +53,7 @@ def bind(m, fn):
     return Monad[m].bind(m, fn)
 
 
-@sig(H[(Monad, "m")]/ t("m", t("m", "a")) >> t("m", "a"))
+@sig(H[Monad, "m"]/ t("m", t("m", "a")) >> t("m", "a"))
 def join(m):
     """``join :: Monad m => m (m a) -> m a``
 
@@ -65,14 +62,13 @@ def join(m):
     the outer level.
 
     """
-    __id = (lambda x: x) ** (H/ "a" >> "a")
-    return bind(m, __id)
+    from hask.Prelude import id
+    return bind(m, id)
 
 
-@sig(H[(Monad, "m")]/ (H/ "a" >> "r") >> t("m", "a") >> t("m", "r"))
+@sig(H[Monad, "m"]/ (H/ "a" >> "r") >> t("m", "a") >> t("m", "r"))
 def liftM(fn, m):
-    """
-    ``liftM :: Monad m => (a1 -> r) -> m a1 -> m r``
+    """``liftM :: Monad m => (a1 -> r) -> m a1 -> m r``
 
     Promote a function to a monad.
 
@@ -80,6 +76,15 @@ def liftM(fn, m):
     return fmap(fn, m)
 
 
+def _list_bind(x, fn):
+    from itertools import chain
+    from hask.lang import L
+    return L[chain.from_iterable(fmap(fn, x))]
+
+
 instance(Monad, List).where(
-    bind = lambda x, fn: L[itertools.chain.from_iterable(fmap(fn, x))]
+    bind = _list_bind
 )
+
+
+del _list_bind, Applicative, List, instance, t, H, sig
