@@ -3,6 +3,8 @@ from __future__ import division, print_function, absolute_import
 import collections
 import sys
 
+from hask.hack import objectify
+
 from .hindley_milner import TypeVariable
 from .hindley_milner import ListType
 from .hindley_milner import unify
@@ -21,6 +23,8 @@ from .syntax import Syntax
 from .syntax import instance
 from .syntax import sig
 from .syntax import H
+
+# LT, EQ, GT = -1, 0, 1
 
 try:
     from __builtin__ import cmp
@@ -399,7 +403,8 @@ instance(Ord, List).where(
 )
 
 
-class __list_comprehension__(Syntax):
+@objectify
+class L(Syntax):
     """``L`` is for comprehensions and lazy creation of Haskell-style lists.
 
     To create a new List, just wrap an interable in ``L[ ]``.
@@ -445,6 +450,3 @@ class __list_comprehension__(Syntax):
             return List(tail=lst)
         else:
             return List(head=lst)
-
-
-L = __list_comprehension__()

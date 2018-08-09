@@ -6,7 +6,8 @@ from __future__ import division, print_function, absolute_import
 import operator
 import sys
 
-from .type_system import typeof
+from hask.hack import objectify
+
 from .type_system import Typeclass
 from .type_system import TypedFunc
 from .type_system import TypeSignature
@@ -97,7 +98,8 @@ class instance(Syntax):
         self.typeclass.make_instance(self.cls, **kwargs)
 
 
-class __constraints__(Syntax):
+@objectify
+class H(Syntax):
     """H/ creates a new function type signature.
 
     Examples::
@@ -128,7 +130,7 @@ class __constraints__(Syntax):
             # only one typeclass constraint
             else:
                 self.__add_constraint(constraints)
-        super(__constraints__, self).__init__()
+        Syntax.__init__(self)    # TODO: super().__init__()
 
     def __add_constraint(self, con):
         from hask.hack import safe_issubclass
@@ -142,8 +144,7 @@ class __constraints__(Syntax):
             self.constraints[con[1]].append(con[0])
 
     def __getitem__(self, constraints):
-        # TODO: `__constraints__` or `type(self)`?
-        return __constraints__(constraints)
+        return type(self)(constraints)
 
     def __truediv__(self, arg):
         return __signature__((), self.constraints) >> arg
@@ -173,7 +174,6 @@ class __signature__(Syntax):
         return arg.sig if isinstance(arg, __signature__) else arg
 
 
-H = __constraints__()
 func = PyFunc
 
 
@@ -267,9 +267,9 @@ def typify(fn, hkt=None):
     return sig(__signature__(args, []))
 
 
-# TODO: `undefined` was `__undefined__()`
+@objectify
 @settle_magic_methods(lambda self, *args: undefined)
-class __undefined__(Undefined):
+class undefined(Undefined):
     """Undefined value with special syntactic powers.
 
     Whenever you try to use one if its magic methods, it returns
@@ -279,9 +279,6 @@ class __undefined__(Undefined):
 
     """
     pass
-
-
-undefined = __undefined__()
 
 
 # Constructs for pattern matching.
@@ -328,7 +325,8 @@ class MatchStack(object):
         return undefined if frm.matched else frm.cache.get(name, undefined)
 
 
-class __var_bind__(Syntax):
+@objectify
+class m(Syntax):
     """``m.*`` binds a local variable while pattern matching.
 
     For example usage, see `caseof`:class:.
@@ -347,7 +345,8 @@ class __var_bind__(Syntax):
         return __match_test__(is_match)
 
 
-class __var_access__(Syntax):
+@objectify
+class p(Syntax):
     """``p.*`` accesses a local variable bound during pattern matching.
 
     For example usage, see `caseof`:class:.
@@ -358,10 +357,6 @@ class __var_access__(Syntax):
 
     def __getattr__(self, name):
         return MatchStack.get_name(name)
-
-
-m = __var_bind__()
-p = __var_access__()
 
 
 class __pattern_bind_list__(Syntax, PatternMatchListBind):
@@ -493,7 +488,8 @@ class caseof(__unmatched_case__):
 # "data"/type constructor half of the expression
 
 
-class __data__(Syntax):
+@objectify
+class data(Syntax):
     """`data`:obj: class, syntax for defining Algebraic Data Types.
 
     Example usage:
@@ -578,7 +574,8 @@ class __new_tcon_hkt__(__new_tcon__):
 
 
 # "d"/data constructor half of the expression
-class __d__(Syntax):
+@objectify
+class d(Syntax):
     """`d` is part of hask's special syntax for defining algebraic data types.
 
     See `data`:obj: for more information.
@@ -718,10 +715,6 @@ class __new_dcons__(__new_dcons_deriving__):
             raise SyntaxError(self.invalid_syntax_message)
 
 
-data = __data__()
-d = __d__()
-
-
 class deriving(Syntax):
     """Part of hask's special syntax for defining algebraic data types.
 
@@ -740,7 +733,8 @@ class deriving(Syntax):
             raise TypeError("Cannot derive non-typeclass {}".format(w))
 
 
-class __section__(Syntax):
+@objectify
+class __(Syntax):
     """The class of the ``__`` object.
 
     This is Hask's special syntax for operator sections: a placeholder for
@@ -772,7 +766,7 @@ class __section__(Syntax):
     def __make_section(fn):
         """Create an operator section from a binary operator."""
         def section_wrapper(self, y):
-            if isinstance(y, __section__):
+            if isinstance(y, type(__)):
                 # double section, e.g. (__+__)
                 @sig(H/ "a" >> "b" >> "c")
                 def double_section(a, b):
@@ -834,9 +828,6 @@ class __section__(Syntax):
         __rdiv__ = __wrap(__flip(operator.div))
 
 
-__ = __section__()
-
-
 # Guards! Guards!
 
 # Unlike pattern matching, this approach is completely stateless and
@@ -848,7 +839,7 @@ class NoGuardMatchException(Exception):
     pass
 
 
-class __guard_test__(Syntax):
+class c(Syntax):
     """A case in a guard.
 
     ``c`` creates a new condition that can be used in a guard expression.
@@ -872,12 +863,12 @@ class __guard_test__(Syntax):
     def __init__(self, fn):
         if callable(fn):
             self.__test = fn
-            super(__guard_test__, self).__init__()
+            super(c, self).__init__()
         else:
             raise ValueError("Guard condition must be callable")
 
     def __rshift__(self, value):
-        wrong_types = (__guard_test__, __guard_conditional__, __guard_base__)
+        wrong_types = (type(self), __guard_conditional__, __guard_base__)
         if not isinstance(value, wrong_types):
             return __guard_conditional__(self.__test, value)
         else:
@@ -934,7 +925,7 @@ class __unmatched_guard__(__guard_base__):
     """
     def __or__(self, cond):
         # Consume the next line of the guard expression
-        if isinstance(cond, __guard_test__):
+        if isinstance(cond, type(c)):
             raise SyntaxError("Guard expression is missing return value")
         elif not isinstance(cond, __guard_conditional__):
             raise SyntaxError("Guard condition expected, got %s" % cond)
@@ -1012,7 +1003,7 @@ class guard(__unmatched_guard__):
         raise SyntaxError(self.invalid_syntax_message)
 
 
-c = __guard_test__
+
 otherwise = c(lambda _: True)
 
 
@@ -1055,6 +1046,7 @@ def _t(obj):
         '(Maybe str)'
 
     """
+    from hask.lang.type_system import typeof
     return str(typeof(obj))
 
 
