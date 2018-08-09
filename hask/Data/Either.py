@@ -1,37 +1,47 @@
 from __future__ import division, print_function, absolute_import
 
-from ..lang import Read
-from ..lang import Show
-from ..lang import sig
-from ..lang import H
-from ..lang import t
-from ..lang import d
-from ..lang import caseof
-from ..lang import m
-from ..lang import p
-from ..lang import data
-from ..lang import deriving
-from ..lang import instance
-from ..lang import L
-from ..lang import typify
+from hask.lang.typeclasses import Read
+from hask.lang.typeclasses import Show
 
-from .Eq import Eq
-from .Ord import Ord
-from .Functor import Functor
-from ..Control.Applicative import Applicative
-from ..Control.Monad import Monad
+from hask.lang.syntax import sig
+from hask.lang.syntax import H
+from hask.lang.syntax import t
+
+from hask.lang.syntax import data
+from hask.lang.syntax import d
+from hask.lang.syntax import deriving
+
+from hask.lang.syntax import instance
+from hask.Data.Eq import Eq
+from hask.Data.Ord import Ord
+from hask.Data.Functor import Functor
+from hask.Control.Applicative import Applicative
+from hask.Control.Monad import Monad
 
 
 # data Either a b = Left b | Right a deriving(Read, Show, Eq, Ord)
-Either, Left, Right =\
-        data.Either("a", "b") == d.Left("a") | d.Right("b") & \
-        deriving(Read, Show, Eq, Ord)
+Either, Left, Right = (
+    data.Either("a", "b") == d.Left("a") | d.Right("b") &
+    deriving(Read, Show, Eq, Ord)
+)
+
+
+def _fmap(f, v):
+    from hask.lang.syntax import caseof, m, p
+    return ~(caseof(v)
+                | m(Left(m.e))  >> Left(p.e)
+                | m(Right(m.ra)) >> Right(f(p.ra)))
+
+
+def _bind(v, f):
+    from hask.lang.syntax import caseof, m, p
+    return ~(caseof(v)
+                | m(Left(m.e))  >> Left(p.e)
+                | m(Right(m.a)) >> f(p.a))
 
 
 instance(Functor, Either).where(
-    fmap = lambda f, v: ~(caseof(v)
-                            | m(Left(m.e))  >> Left(p.e)
-                            | m(Right(m.ra)) >> Right(f(p.ra)))
+    fmap = _fmap
 )
 
 instance(Applicative, Either).where(
@@ -39,23 +49,25 @@ instance(Applicative, Either).where(
 )
 
 instance(Monad, Either).where(
-    bind = lambda v, f: ~(caseof(v)
-                            | m(Left(m.e))  >> Left(p.e)
-                            | m(Right(m.a)) >> f(p.a))
+    bind = _bind
 )
 
 
 def in_either(fn):
-    """Decorator for monadic error handling.  If the decorated function raises an
-    exception, return the exception inside Left. Otherwise, take the result
-    and wrap it in Right.
+    """Decorator for monadic error handling.
+
+    If the decorated function raises an exception, return the exception inside
+    Left.  Otherwise, take the result and wrap it in Right.
 
     """
+    from hask.lang.syntax import typify, t
+
     def closure_in_either(*args, **kwargs):
         try:
             return Right(fn(*args, **kwargs))
         except Exception as e:
             return Left(e)
+
     return typify(fn, hkt=lambda x: t(Either, "aa", x))(closure_in_either)
 
 
@@ -63,10 +75,11 @@ def in_either(fn):
 def either(fa, fb, e):
     """``either :: (a -> c) -> (b -> c) -> Either a b -> c``
 
-    Case analysis for the Either type. If the value is Left(a), apply the first
-    function to a; if it is Right(b), apply the second function to b.
+    Case analysis for the Either type.  If the value is Left(a), apply the
+    first function to a; if it is Right(b), apply the second function to b.
 
     """
+    from hask.lang.syntax import caseof, m, p
     return ~(caseof(e)
                 | m(Left(m.a))  >> fa(p.a)
                 | m(Right(m.b)) >> fb(p.b))
@@ -76,10 +89,11 @@ def either(fa, fb, e):
 def lefts(xs):
     """``lefts :: [Either a b] -> [a]``
 
-    Extracts from a List of Either all the Left elements. All the Left elements
-    are extracted in order.
+    Extracts from a List of Either all the Left elements.  All the Left
+    elements are extracted in order.
 
     """
+    from hask.lang.lazylist import L
     return L[(x[0] for x in xs if isLeft(x))]
 
 
@@ -87,10 +101,11 @@ def lefts(xs):
 def rights(xs):
     """``rights :: [Either a b] -> [b]``
 
-    Extracts from a list of Either all the Right elements. All the Right
+    Extracts from a list of Either all the Right elements.  All the Right
     elements are extracted in order.
 
     """
+    from hask.lang.lazylist import L
     return L[(x[0] for x in xs if isRight(x))]
 
 
@@ -101,6 +116,7 @@ def isLeft(x):
     Return True if the given value is a Left-value, False otherwise.
 
     """
+    from hask.lang.syntax import caseof, m, p
     return ~(caseof(x)
                 | m(Right(m.x)) >> False
                 | m(Left(m.x))  >> True)
@@ -120,9 +136,16 @@ def isRight(x):
 def partitionEithers(xs):
     """``partitionEithers :: [Either a b] -> ([a], [b])``
 
-    Partitions a List of Either into two lists. All the Left elements are
-    extracted, in order, to the first component of the output. Similarly the
+    Partitions a List of Either into two lists.  All the Left elements are
+    extracted, in order, to the first component of the output.  Similarly the
     Right elements are extracted to the second component of the output.
 
     """
     return (lefts(xs), rights(xs))
+
+
+del _bind, _fmap
+del Monad, Applicative, Functor, Ord, Eq, instance
+del deriving, d, data
+del t, H, sig
+del Show, Read
