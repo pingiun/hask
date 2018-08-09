@@ -1,5 +1,5 @@
-from ..lang import H
-from ..lang import sig
+from hask.lang import H
+from hask.lang import sig
 
 
 @sig(H/ str >> bool)
@@ -251,39 +251,44 @@ def toTitle(s):
 
     Convert a letter to the corresponding title-case or upper-case letter, if
     any. (Title case differs from upper case only for a small number of
-    ligature letters.) Any other character is returned unchanged.
+    ligature letters.)  Any other character is returned unchanged.
 
     """
-    return toUpper(s)
+    return s.upper()
 
 
 @sig(H/ str >> int)
 def digitToInt(s):
     """``digitToInt :: str -> int``
 
-    Convert a single digit Char to the corresponding Int. This function fails
+    Convert a single digit Char to the corresponding Int.  This function fails
     unless its argument satisfies isHexDigit, but recognises both upper and
     lower-case hexadecimal digits (i.e. '0'..'9', 'a'..'f', 'A'..'F').
 
     """
-    if s not in "0123456789abcdefABCDEF":
+    try:
+        return "0123456789abcdef".index(s.lower())
+    except ValueError:
         raise ValueError("not a digit %s" % s)
-    return "0123456789abcdef".index(s.lower())
 
 
 @sig(H/ int >> str)
 def intToDigit(s):
     """``intToDigit :: int -> str``
 
-    Convert an Int in the range 0..15 to the corresponding single digit Char.
-    This function fails on other inputs, and generates lower-case hexadecimal
-    digits.
+    Convert an Int in the range ``0..15`` to the corresponding single digit
+    ``Char``.  This function fails on other inputs, and generates lower-case
+    hexadecimal digits.
 
     """
-    if s > 15 or s < 0:
+    if 0 <= s <= 15:
+        return str(s) if s < 10 else "abcdef"[s-10]
+    else:
         raise ValueError("not a digit %s" % s)
-    return str(s) if s < 10 else "abcdef"[s-10]
 
 
 chr = chr ** (H/ int >> str)
 ord = ord ** (H/ str >> int)
+
+
+del H, sig
