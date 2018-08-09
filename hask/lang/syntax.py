@@ -1004,7 +1004,7 @@ class guard(__unmatched_guard__):
 
 
 
-otherwise = c(lambda _: True)
+otherwise = c(lambda _: True)    # noqa
 
 
 # REPL tools (:q, :t, :i)
@@ -1019,10 +1019,17 @@ def _q(status=None):
         >>> _q()
 
     """
-    if status is None:
-        exit()
-    else:
-        exit(status)
+    try:
+        sys.exit(*(() if status is None else (status,)))
+    except BaseException as error:
+        ipython = sys.modules.get('IPython.core.interactiveshell', None)
+        if ipython is not None:
+            msg = 'System exit failed "{}({})", trying IPython quit.'
+            print(msg.format(type(error).__name__, error))
+            shell = ipython.InteractiveShell.instance()
+            shell.ns_table['user_global']['exit']()
+        else:
+            raise
 
 
 def _t(obj):
