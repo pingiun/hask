@@ -1,9 +1,8 @@
 from __future__ import division, print_function, absolute_import
 
-from ..lang import build_instance
-from ..lang import List, L
-from ..lang import instance
-from ..Data.Functor import Functor
+from hask.lang import List
+from hask.lang import instance
+from hask.Data.Functor import Functor
 
 
 class Applicative(Functor):
@@ -26,9 +25,18 @@ class Applicative(Functor):
     """
     @classmethod
     def make_instance(self, cls, pure):
+        from hask.lang import build_instance
         build_instance(Applicative, cls, {"pure": pure})
 
 
+def _pure(x):
+    from hask.lang import L
+    return L[[x]]
+
+
 instance(Applicative, List).where(
-    pure = lambda x: L[[x]]
+    pure = _pure
 )
+
+
+del instance, List, Functor, _pure
