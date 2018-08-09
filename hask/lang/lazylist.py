@@ -1,28 +1,16 @@
 from __future__ import division, print_function, absolute_import
 
-import collections
-import sys
-
+from collections import Sequence
 from hask.hack import objectify
-
-from .hindley_milner import TypeVariable
-from .hindley_milner import ListType
-from .hindley_milner import unify
-
-from .type_system import typeof
-from .type_system import Typeclass
-from .type_system import Hask
-from .type_system import build_instance
-
-from .typeclasses import Show
-from .typeclasses import show
-from .typeclasses import Eq
-from .typeclasses import Ord
-
-from .syntax import Syntax
-from .syntax import instance
-from .syntax import sig
-from .syntax import H
+from hask.lang.type_system import Typeclass
+from hask.lang.type_system import Hask
+from hask.lang.typeclasses import Show
+from hask.lang.typeclasses import Eq
+from hask.lang.typeclasses import Ord
+from hask.lang.syntax import Syntax
+from hask.lang.syntax import instance
+from hask.lang.syntax import sig
+from hask.lang.syntax import H
 
 # LT, EQ, GT = -1, 0, 1
 
@@ -71,6 +59,7 @@ class Enum(Typeclass):
     """
     @classmethod
     def make_instance(typeclass, cls, toEnum, fromEnum):
+        from hask.lang.type_system import build_instance
         def succ(a):
             return toEnum(fromEnum(a) + 1)
 
@@ -183,19 +172,24 @@ instance(Enum, int).where(fromEnum=int, toEnum=int)
 instance(Enum, bool).where(fromEnum=int, toEnum=bool)
 instance(Enum, str).where(fromEnum=ord, toEnum=chr)
 
+
+import sys    # noqa
 if sys.version[0] == '2':
     long = long    # noqa
     instance(Enum, long).where(fromEnum=int, toEnum=long)
+del sys
 
 
-class List(collections.Sequence, Hask):
+class List(Sequence, Hask):
     """Statically typed lazy sequence datatype.
 
     See `L`:obj: for more information.
 
     """
     def __init__(self, head=None, tail=None):
-        import itertools
+        from itertools import chain
+        from hask.lang.type_system import typeof
+        from hask.lang.hindley_milner import unify
         if head is not None and len(head) > 0:
             fst = head[0]
             for other in head:
@@ -204,9 +198,11 @@ class List(collections.Sequence, Hask):
         else:
             self.__head = []
         self.__is_evaluated = tail is None
-        self.__tail = itertools.chain([] if self.__is_evaluated else tail)
+        self.__tail = chain([] if self.__is_evaluated else tail)
 
     def __type__(self):
+        from hask.lang.type_system import typeof
+        from hask.lang.hindley_milner import TypeVariable, ListType
         if len(self.__head) == 0:
             if self.__is_evaluated:
                 return ListType(TypeVariable())
@@ -218,6 +214,8 @@ class List(collections.Sequence, Hask):
 
     def __next(self):
         """Evaluate the next element of the tail, and add it to the head."""
+        from hask.lang.type_system import typeof
+        from hask.lang.hindley_milner import unify
         if self.__is_evaluated:
             raise StopIteration
         else:
@@ -236,6 +234,8 @@ class List(collections.Sequence, Hask):
 
     def __rxor__(self, item):
         """``^`` is the ``cons`` operator (equivalent to ``:`` in Haskell)."""
+        from hask.lang.type_system import typeof
+        from hask.lang.hindley_milner import ListType, unify
         unify(self.__type__(), ListType(typeof(item)))
         if self.__is_evaluated:
             return List(head=[item] + self.__head)
@@ -249,17 +249,19 @@ class List(collections.Sequence, Hask):
         Haskell and ``+`` for Python lists.
 
         """
-        import itertools
+        from itertools import chain
+        from hask.lang.type_system import typeof
+        from hask.lang.hindley_milner import unify
         unify(self.__type__(), typeof(other))
         if self.__is_evaluated and other.__is_evaluated:
             return List(head=self.__head + other.__head)
         elif self.__is_evaluated and not other.__is_evaluated:
             return List(head=self.__head + other.__head, tail=other.__tail)
         else:
-            return List(head=self.__head,
-                        tail=itertools.chain(self.__tail, iter(other)))
+            return List(head=self.__head, tail=chain(self.__tail, other))
 
     def __str__(self):
+        from hask.lang.typeclasses import show
         body = ", ".join(map(show, self.__head))
         if len(self.__head) <= 1:
             # XXX: WTF, but there are explicit tests for these cases
@@ -341,17 +343,23 @@ class List(collections.Sequence, Hask):
             yield item
 
     def count(self, x):
+        from hask.lang.type_system import typeof
+        from hask.lang.hindley_milner import ListType, unify
         unify(self.__type__(), ListType(typeof(x)))
         self.__evaluate()
         return self.__head.count(x)
 
     def index(self, x):
+        from hask.lang.type_system import typeof
+        from hask.lang.hindley_milner import ListType, unify
         unify(self.__type__(), ListType(typeof(x)))
         self.__evaluate()
         return self.__head.index(x)
 
     def __contains__(self, x):
         from hask.hack import isin
+        from hask.lang.type_system import typeof
+        from hask.lang.hindley_milner import ListType, unify
         unify(self.__type__(), ListType(typeof(x)))
         return isin(x, iter(self))
 
@@ -450,3 +458,8 @@ class L(Syntax):
             return List(tail=lst)
         else:
             return List(head=lst)
+
+
+del Sequence, objectify
+del Typeclass, Hask, Show, Eq, Ord
+del Syntax, instance, sig, H
