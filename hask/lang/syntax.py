@@ -3,24 +3,13 @@
 
 from __future__ import division, print_function, absolute_import
 
-import operator
 import sys
-
 from hask.hack import objectify
+from hask.lang.type_system import PatternMatchBind
+from hask.lang.type_system import PatternMatchListBind
+from hask.lang.type_system import Undefined
+from hask.lang.type_system import PyFunc as func
 
-from .type_system import Typeclass
-from .type_system import TypedFunc
-from .type_system import TypeSignature
-from .type_system import TypeSignatureHKT
-from .type_system import ADT
-from .type_system import build_ADT
-from .type_system import build_sig
-from .type_system import make_fn_type
-from .type_system import PatternMatchBind
-from .type_system import PatternMatchListBind
-from .type_system import pattern_match
-from .type_system import Undefined
-from .type_system import PyFunc
 
 # Magic Names
 _OPS = {
@@ -88,6 +77,7 @@ class instance(Syntax):
     """
     def __init__(self, typecls, cls):
         from hask.hack import safe_issubclass
+        from hask.lang.type_system import Typeclass
         if safe_issubclass(typecls, Typeclass):
             self.typeclass = typecls
             self.cls = cls
@@ -134,6 +124,7 @@ class H(Syntax):
 
     def __add_constraint(self, con):
         from hask.hack import safe_issubclass
+        from hask.lang.type_system import Typeclass
         if len(con) != 2 or not isinstance(con, tuple):
             raise SyntaxError("Invalid typeclass constraint: %s" % str(con))
         elif not isinstance(con[1], str):
@@ -158,6 +149,7 @@ class __signature__(Syntax):
     invalid_syntax_message = "Syntax error in type signature"
 
     def __init__(self, args, constraints):
+        from hask.lang.type_system import TypeSignature
         self.sig = TypeSignature(args, constraints)
         super(__signature__, self).__init__()
 
@@ -172,9 +164,6 @@ class __signature__(Syntax):
     @staticmethod
     def _inner(arg):
         return arg.sig if isinstance(arg, __signature__) else arg
-
-
-func = PyFunc
 
 
 class sig(Syntax):
@@ -201,7 +190,7 @@ class sig(Syntax):
     invalid_syntax_message = "Syntax error in type signature"
 
     def __init__(self, signature):
-
+        from hask.lang.type_system import build_sig, make_fn_type
         if isinstance(signature, __signature__):
             if len(signature.sig.args) >= 2:
                 super(self.__class__, self).__init__()
@@ -221,6 +210,7 @@ class sig(Syntax):
     __repr__ = __str__
 
     def __call__(self, fn):
+        from hask.lang.type_system import TypedFunc
         return TypedFunc(fn, self.fn_args, self.fn_type)
 
 
@@ -231,6 +221,7 @@ def t(type_constructor, *params):
 
     '''
     from hask.hack import safe_issubclass
+    from hask.lang.type_system import ADT, TypeSignatureHKT
     if (safe_issubclass(type_constructor, ADT) and
         len(type_constructor.__params__) != len(params)):
         _msg = "Incorrect number of type parameters to {}"
@@ -339,6 +330,7 @@ class m(Syntax):
         return __pattern_bind__(name)
 
     def __call__(self, pattern):
+        from hask.lang.type_system import pattern_match
         is_match, env = pattern_match(MatchStack.get_frame().value, pattern)
         if is_match and not MatchStack.get_frame().matched:
             MatchStack.get_frame().cache = env
@@ -523,6 +515,7 @@ class __new_tcon__(Syntax):
         super(__new_tcon__, self).__init__()
 
     def __eq__(self, d):
+        from hask.lang.type_system import build_ADT
         # one data constructor, zero or more derived typeclasses
         if isinstance(d, __new_dcon__):
             return build_ADT(self.name, self.args, [(d.name, d.args)], d.classes)
@@ -725,12 +718,14 @@ class deriving(Syntax):
     invalid_syntax_message = "Syntax error in `deriving`"
 
     def __init__(self, *tclasses):
-        w = next((c for c in tclasses if not issubclass(c, Typeclass)), None)
-        if w is None:
+        from hask.lang.type_system import Typeclass
+        ok = lambda c: not issubclass(c, Typeclass)
+        wrong = next((c for c in tclasses if ok(c)), None)
+        if wrong is None:
             self.classes = tclasses
             super(deriving, self).__init__()
         else:
-            raise TypeError("Cannot derive non-typeclass {}".format(w))
+            raise TypeError("Cannot derive non-typeclass {}".format(wrong))
 
 
 @objectify
@@ -788,6 +783,8 @@ class __(Syntax):
     # right section, e.g. (1+__)
     __flip = lambda f: lambda x, y: f(y, x)
 
+    import operator
+
     __add__ = __wrap(operator.add)
     __sub__ = __wrap(operator.sub)
     __mul__ = __wrap(operator.mul)
@@ -826,6 +823,8 @@ class __(Syntax):
     if sys.version[0] == '2':
         __div__ = __wrap(operator.div)
         __rdiv__ = __wrap(__flip(operator.div))
+
+    del operator
 
 
 # Guards! Guards!
@@ -1019,8 +1018,9 @@ def _q(status=None):
         >>> _q()
 
     """
+    from sys import exit
     try:
-        sys.exit(*(() if status is None else (status,)))
+        exit(*([] if status is None else [status]))
     except BaseException as error:
         ipython = sys.modules.get('IPython.core.interactiveshell', None)
         if ipython is not None:
@@ -1075,3 +1075,5 @@ def _i(obj):
 
     """
     help(obj)
+
+del sys
