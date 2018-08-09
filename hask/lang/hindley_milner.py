@@ -461,3 +461,6 @@ def occursIn(t, types):
 
     '''
     return any(occursInType(t, t2) for t2 in types)
+
+
+del staticproperty, ABC, abstractmethod
