@@ -51,6 +51,7 @@ def bind(m, fn):
     ``bind :: Monad m => m a -> (a -> m b) -> m b``
 
     Monadic bind.
+
     """
     return Monad[m].bind(m, fn)
 

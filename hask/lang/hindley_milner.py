@@ -222,7 +222,11 @@ class TypeOperator(object):
 
     def __str__(self):
         from itertools import chain
-        return ' '.join(map(show_type, chain([self.name], self.types)))
+        if self.types:
+            parts = chain([self.name], self.types)
+            return '({})'.format(' '.join(map(show_type, parts)))
+        else:
+            return show_type(self.name)
 
     def __repr__(self):
         return str(self)
@@ -377,7 +381,7 @@ def unify(t1, t2):
             unify(b, a)
         # Unify concrete higher-kinded type
         elif (a.name != b.name or len(a.types) != len(b.types)):
-            raise TypeError("Type mismatch: {} != {}".format(a, b))
+            raise TypeError("Type mismatch: '{}' != '{}'".format(a, b))
         for p, q in zip(a.types, b.types):
             unify(p, q)
     else:
