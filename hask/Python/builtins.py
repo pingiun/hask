@@ -10,7 +10,7 @@ the corresponding Python builtin with the right signature.
 
 from __future__ import division, print_function, absolute_import
 
-from ..lang import H
+from hask.lang.syntax import H
 
 try:
     from __builtin__ import cmp as pycmp
@@ -45,3 +45,5 @@ except ImportError:
     unicode = str
 
 unichr = pyunichr ** (H/ int >> unicode)
+
+del H
