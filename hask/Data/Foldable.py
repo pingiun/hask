@@ -1,23 +1,21 @@
 from __future__ import division, print_function, absolute_import
 
-from ..lang import sig
-from ..lang import H
-from ..lang import t
-from ..lang import L
-from ..lang import Typeclass
-from ..lang import build_instance
-from ..lang import is_builtin
-from ..lang import List
-from ..lang import instance
+from hask.lang.syntax import sig
+from hask.lang.syntax import H
+from hask.lang.syntax import t
 
-from . import List as DL
-from ..Control.Applicative import Applicative
-from ..Control.Monad import Monad
-from .Eq import Eq
-from .Num import Num
-from .Maybe import Maybe
-from .Ord import Ord
-from .Ord import Ordering
+from hask.lang.type_system import Typeclass
+from hask.lang.lazylist import List
+
+from hask.lang.syntax import instance
+
+from hask.Control.Applicative import Applicative
+from hask.Control.Monad import Monad
+from hask.Data.Eq import Eq
+from hask.Data.Num import Num
+from hask.Data.Maybe import Maybe
+from hask.Data.Ord import Ord
+from hask.Data.Ord import Ordering
 
 
 class Foldable(Typeclass):
@@ -52,6 +50,9 @@ class Foldable(Typeclass):
     def make_instance(typeclass, cls, foldr, foldr1=None, foldl=None,
             foldl_=None, foldl1=None, toList=None, null=None, length=None,
             elem=None, maximum=None, minimum=None, sum=None, product=None):
+        from hask.lang.type_system import build_instance, is_builtin
+        from hask.lang.lazylist import L
+        from hask.Data import List as DL
 
         # attributes that are not supplied are implemented in terms of toList
         if toList is None:
@@ -60,6 +61,7 @@ class Foldable(Typeclass):
             else:
                 toList = lambda t: foldr(lambda x, y: x ^ y, L[[]], t)
 
+        # TODO: Automate this
         foldr1 = (lambda x: DL.foldr1(toList(x))) if foldr1 is None else foldr1
         foldl = (lambda x: DL.foldl(toList(x))) if foldl is None else foldl
         foldl_ = (lambda x: DL.foldl_(toList(x))) if foldl_ is None else foldl_
@@ -120,7 +122,7 @@ def foldl(f, z, t):
 def foldl_(f, z, t):
     """``foldl_ :: Foldable t => (b -> a -> b) -> b -> t a -> b``
 
-    Left-associative fold of a structure. but with strict application of the
+    Left-associative fold of a structure, but with strict application of the
     operator.
 
     """
@@ -330,6 +332,7 @@ def concat(t):
     The concatenation of all the elements of a container of lists.
 
     """
+    from hask.Data import List as DL
     return DL.concat(toList(t))
 
 
@@ -341,6 +344,7 @@ def concatMap(f, t):
     resulting lists.
 
     """
+    from hask.Data import List as DL
     return DL.concatMap(f, toList(t))
 
 
@@ -353,6 +357,7 @@ def and_(t):
     value finitely far from the left end.
 
     """
+    from hask.Data import List as DL
     return DL.and_(toList(t))
 
 
@@ -365,6 +370,7 @@ def or_(t):
     value finitely far from the left end.
 
     """
+    from hask.Data import List as DL
     return DL.or_(toList(t))
 
 
@@ -375,6 +381,7 @@ def any_(f, t):
     Determines whether any element of the structure satisfies the predicate.
 
     """
+    from hask.Data import List as DL
     return DL.any_(toList(t))
 
 
@@ -385,6 +392,7 @@ def all_(f, t):
     Determines whether all elements of the structure satisfy the predicate.
 
     """
+    from hask.Data import List as DL
     return DL.all_(toList(t))
 
 
@@ -396,6 +404,7 @@ def maximumBy_(f, t):
     comparison function.
 
     """
+    from hask.Data import List as DL
     return DL.maximumBy(toList(t))
 
 
@@ -407,6 +416,7 @@ def minimumBy_(f, t):
     comparison function.
 
     """
+    from hask.Data import List as DL
     return DL.minimumBy(toList(t))
 
 
@@ -429,8 +439,11 @@ def find(f, t):
     there is no such element.
 
     """
+    from hask.Data import List as DL
     return DL.find(f, toList(t))
 
+
+from hask.Data import List as DL    # noqa
 
 instance(Foldable, List).where(
     foldr = DL.foldr,
@@ -446,3 +459,11 @@ instance(Foldable, List).where(
     sum = DL.sum,
     product = DL.product
 )
+
+del DL
+
+del Applicative, Monad, Eq, Num, Ordering, Ord, Maybe
+del instance
+del List
+del Typeclass
+del t, H, sig
