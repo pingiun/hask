@@ -438,7 +438,7 @@ class L(Syntax):
     invalid_syntax_message = "Invalid input to list constructor"
 
     def __getitem__(self, lst):
-        from hask.hack import isin
+        from hask.hack import isin, is_iterator
         if isinstance(lst, tuple) and len(lst) < 5 and isin(Ellipsis, lst):
             # L[x, ...]
             if len(lst) == 2 and lst[1] is Ellipsis:
@@ -454,7 +454,7 @@ class L(Syntax):
                 return enumFromThenTo(lst[0], lst[1], lst[3])
             else:
                 raise SyntaxError("Invalid list comprehension: %s" % str(lst))
-        elif hasattr(lst, "next") or hasattr(lst, "__next__"):
+        elif is_iterator(lst) or isinstance(lst, List):
             return List(tail=lst)
         else:
             return List(head=lst)

@@ -31,6 +31,12 @@ def isin(a, b):
     return any(a is item for item in b)
 
 
+def is_iterator(item):
+    import sys
+    name = 'next' if sys.version[0] == '2' else '__next__'
+    return hasattr(item, name)
+
+
 # TODO: Next construction must go in `xoutil.decorator`, and -maybe- deprecate
 # `instantiate`.
 
