@@ -263,10 +263,13 @@ class List(Sequence, Hask):
     def __str__(self):
         from hask.lang.typeclasses import show
         body = ", ".join(map(show, self.__head))
-        if len(self.__head) <= 1:
-            # XXX: WTF, but there are explicit tests for these cases
-            body = '[{}]'.format(body)
-        return "L[{}{}]".format(body, '' if self.__is_evaluated else ' ...')
+        if self.__is_evaluated:
+            if len(self.__head) <= 1:
+                body = '[{}]'.format(body)
+            suffix = ''
+        else:
+            suffix = ' ...'
+        return "L[{}{}]".format(body, suffix)
 
     # TODO: `__cmp__` special method is no longer supported in Python 3
     def __cmp__(self, other):
