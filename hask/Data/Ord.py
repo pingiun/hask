@@ -1,21 +1,25 @@
 from __future__ import division, print_function, absolute_import
 
-from ..lang import Show
-from ..lang import Read
-from ..lang import Bounded
-from ..lang import Ord
-from ..lang import sig
-from ..lang import H
-from ..lang import data
-from ..lang import d
-from ..lang import deriving
+from hask.lang.typeclasses import Show
+from hask.lang.typeclasses import Read
+from hask.lang.typeclasses import Bounded
+from hask.lang.typeclasses import Ord
 
-from .Eq import Eq
+from hask.lang.syntax import H
+from hask.lang.syntax import sig
+
+from hask.lang.syntax import data
+from hask.lang.syntax import d
+from hask.lang.syntax import deriving
+
+from hask.Data.Eq import Eq
 
 
 # data Ordering = LT | EQ | GT deriving(Show, Eq, Ord, Bounded)
-Ordering, LT, EQ, GT =\
-        data.Ordering == d.LT | d.EQ | d.GT & deriving(Read, Show, Eq, Ord, Bounded)
+Ordering, LT, EQ, GT = (
+    data.Ordering == d.LT | d.EQ | d.GT
+                     & deriving(Read, Show, Eq, Ord, Bounded)
+)
 
 
 # TODO: Down?
@@ -64,3 +68,8 @@ def comparing(p, x, y):
 
     """
     return compare(p(x), p(y))
+
+
+del Show, Read, Bounded, Eq
+del H, sig
+del data, d, deriving
