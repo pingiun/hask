@@ -1,13 +1,13 @@
 from __future__ import division, print_function, absolute_import
 
-from ..lang import build_instance
-from ..lang import sig
-from ..lang import H
-from ..lang import t
-from ..Control.Applicative import Applicative
-from ..Control.Monad import Monad
-from .Foldable import Foldable
-from .Functor import Functor
+from hask.lang.syntax import sig
+from hask.lang.syntax import H
+from hask.lang.syntax import t
+
+from hask.Control.Applicative import Applicative
+from hask.Control.Monad import Monad
+from hask.Data.Foldable import Foldable
+from hask.Data.Functor import Functor
 
 
 class Traversable(Foldable, Functor):
@@ -36,6 +36,7 @@ class Traversable(Foldable, Functor):
     @classmethod
     def make_instance(typeclass, cls, traverse, sequenceA=None, mapM=None,
                       sequence=None):
+        from hask.lang.type_system import build_instance
         attrs = {"traverse": traverse, "sequenceA": sequenceA, "mapM": mapM,
                  "sequence": sequence}
         build_instance(Traversable, cls, attrs)
@@ -47,9 +48,8 @@ def traverse(f, t):
     """``traverse :: (Traversable t, Applicative f) => (a -> f b) -> t a -> f (t b)``
 
     Map each element of a structure to an action, evaluate these these actions
-    from left to right, and collect the results. actions from left to right,
-    and collect the results. For a version that ignores the results see
-    ``traverse_``.
+    from left to right, and collect the results.  For a version that ignores
+    the results see `traverse_`:func:.
 
     """
     return Traversable[t].traverse(f, t)
@@ -60,8 +60,8 @@ def traverse(f, t):
 def sequenceA(t):
     """``sequenceA :: (Traversable t, Applicative f) => t (f a) -> f (t a)``
 
-    Evaluate each action in the structure from left to right, and and collect
-    the results. For a version that ignores the results see ``sequenceA_``.
+    Evaluate each action in the structure from left to right, and collect the
+    results.  For a version that ignores the results see `sequenceA_`:func:.
 
     """
     return Traversable[t].sequenceA(t)
@@ -73,8 +73,8 @@ def mapM(f, m):
     """``mapM :: (Traversable t, Monad m) => (a -> m b) -> t a -> m (t b)``
 
     Map each element of a structure to a monadic action, evaluate these
-    actions from left to right, and collect the results. For a version that
-    ignores the results see ``mapM_``.
+    actions from left to right, and collect the results.  For a version that
+    ignores the results see `mapM_`:func:.
 
     """
     return Traversable[t].mapM(f, t)
@@ -86,8 +86,8 @@ def sequence(t):
     """``sequence :: (Traversable t, Monad m) => t (m a) -> m (t a)``
 
     Evaluate each monadic action in the structure from left to right, and
-    collect the results. For a version that ignores the results see
-    ``sequence_``.
+    collect the results.  For a version that ignores the results see
+    `sequence_`:func:.
 
     """
     return Traversable[t].sequence(t)
@@ -98,8 +98,8 @@ def sequence(t):
 def for1(t, f):
     """``for1 :: (Traversable t, Applicative f) => t a -> (a -> f b) -> f (t b)``
 
-    for1 is traverse with its arguments flipped. For a version that ignores the
-    results see ``for1_``.
+    `traverse`:func: with its arguments flipped.  For a version that ignores
+    the results see `for1_`:func:.
 
     """
     return traverse(f, t)
@@ -110,8 +110,8 @@ def for1(t, f):
 def forM(t, f):
     """``forM :: (Traversable t, Monad m) => t a -> (a -> m b) -> m (t b)``
 
-    forM is mapM with its arguments flipped. For a version that ignores the
-    results see ``forM_``.
+    `mapM`:func: with its arguments flipped.  For a version that ignores the
+    results see `forM_`:func:.
 
     """
     return mapM(f, t)
@@ -122,10 +122,11 @@ def forM(t, f):
 def mapAccumL(f, a, tb):
     """``mapAccumL :: Traversable t => (a -> b -> (a, c)) -> a -> t b -> (a, t c)``
 
-    The mapAccumL function behaves like a combination of fmap and foldl; it
-    applies a function to each element of a structure, passing an accumulating
-    parameter from left to right, and returning a final value of this
-    accumulator together with the new structure.
+    Behaves like a combination of `fmap`:func: and `foldl`:func:; it applies a
+    function to each element of a structure, passing an accumulating parameter
+    from left to right, and returning a final value of this accumulator
+    together with the new structure.
+
     """
     raise NotImplementedError()
 
@@ -135,9 +136,14 @@ def mapAccumL(f, a, tb):
 def mapAccumR(f, a, tb):
     """``mapAccumR :: Traversable t => (a -> b -> (a, c)) -> a -> t b -> (a, t c)``
 
-    The mapAccumR function behaves like a combination of fmap and foldr; it
-    applies a function to each element of a structure, passing an accumulating
-    parameter from right to left, and returning a final value of this
-    accumulator together with the new structure.
+    Behaves like a combination of `fmap`:func: and `foldr`:func:; it applies a
+    function to each element of a structure, passing an accumulating parameter
+    from right to left, and returning a final value of this accumulator
+    together with the new structure.
+
     """
     raise NotImplementedError()
+
+
+del sig, H, t
+del Applicative, Monad, Foldable, Functor
