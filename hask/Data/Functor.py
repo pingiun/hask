@@ -1,17 +1,14 @@
 from __future__ import division, print_function, absolute_import
 
-from xoutil.future.itertools import map as imap
+from hask.lang.type_system import TypedFunc
+from hask.lang.type_system import Typeclass
 
-from ..lang import TypedFunc
-from ..lang import Typeclass
-from ..lang import is_builtin
-from ..lang import build_instance
-from ..lang import List
-from ..lang import L
-from ..lang import H
-from ..lang import sig
-from ..lang import t
-from ..lang import instance
+from hask.lang.lazylist import List
+
+from hask.lang import H
+from hask.lang import sig
+from hask.lang import t
+from hask.lang import instance
 
 
 class Functor(Typeclass):
@@ -34,6 +31,9 @@ class Functor(Typeclass):
     """
     @classmethod
     def make_instance(typeclass, cls, fmap):
+        from hask.lang.type_system import is_builtin
+        from hask.lang.type_system import build_instance
+        from hask.lang import H, t
         fmap = fmap ** \
             (H[(Functor, "f")]/ (H/ "a" >> "b") >> t("f", "a") >> t("f", "b"))
         if not is_builtin(cls):
@@ -46,10 +46,21 @@ def fmap(f, x):
     return Functor[x].fmap(f, x)
 
 
+def _fmap(fn, lst):
+    from xoutil.future.itertools import map as imap
+    from hask.lang.lazylist import L
+    return L[imap(fn, iter(lst))]
+
+
 instance(Functor, List).where(
-    fmap = lambda fn, lst: L[imap(fn, iter(lst))]
+    fmap = _fmap
 )
 
 instance(Functor, TypedFunc).where(
     fmap = TypedFunc.__mul__
 )
+
+
+del _fmap
+del instance, t, sig, H
+del List, Typeclass, TypedFunc
