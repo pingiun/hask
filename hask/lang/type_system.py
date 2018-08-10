@@ -370,7 +370,7 @@ class TypedFunc(Hask):
     def __call__(self, *args, **kwargs):
         # the environment contains the type of the function and the types
         # of the arguments
-        import functools
+        from functools import partial
         from hask.lang.hindley_milner import Var, App
         from hask.lang.hindley_milner import unify, analyze
         env = {id(self): self.fn_type}
@@ -386,8 +386,9 @@ class TypedFunc(Hask):
             result = self.func(*args)
             unify(result_type, typeof(result))
             return result
-        return TypedFunc(functools.partial(self.func, *args, **kwargs),
-                         self.fn_args[len(args):], result_type)
+        else:
+            return type(self)(partial(self.func, *args, **kwargs),
+                              self.fn_args[len(args):], result_type)
 
     def __mod__(self, arg):
         """(%) :: (a -> b) -> a -> b

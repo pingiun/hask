@@ -8,7 +8,8 @@ from hask.hack import objectify
 from hask.lang.type_system import PatternMatchBind
 from hask.lang.type_system import PatternMatchListBind
 from hask.lang.type_system import Undefined
-from hask.lang.type_system import PyFunc as func
+
+from hask.lang.type_system import PyFunc as func    # noqa
 
 
 # Magic Names
@@ -28,7 +29,7 @@ _OPS = {
     'arithmetic-binary': {'add', 'sub', 'mul', 'matmul', 'truediv',
                           'floordiv', 'mod', 'divmod', 'pow', 'lshift',
                           'rshift', 'and', 'xor', 'or'},
-    }
+}
 
 _PYTHON2 = {'div', 'rdiv', 'idiv', 'nonzero'}
 _MAGICS = set.union(
@@ -112,13 +113,10 @@ class H(Syntax):
         from collections import defaultdict
         self.constraints = defaultdict(lambda: [])
         if constraints:
-            # XXX: Next block is not clear
-            # multiple typeclass constraints
-            if isinstance(constraints[0], tuple):
+            if isinstance(constraints[0], tuple):    # multiple constraints
                 for con in constraints:
                     self.__add_constraint(con)
-            # only one typeclass constraint
-            else:
+            else:    # only one constraint
                 self.__add_constraint(constraints)
         Syntax.__init__(self)    # TODO: super().__init__()
 
@@ -155,7 +153,6 @@ class __signature__(Syntax):
 
     def __rshift__(self, arg):
         arg = __signature__._inner(arg)
-        # TODO: `__signature__` or `type(self)`?
         return __signature__(self.sig.args + (arg,), self.sig.constraints)
 
     def __rpow__(self, fn):
@@ -166,6 +163,10 @@ class __signature__(Syntax):
         return arg.sig if isinstance(arg, __signature__) else arg
 
 
+# TODO: Improve function signatures logic.
+#
+# For example, when a predicate is applied to a lazy-list, first element of
+# the list is gotten to test the compatibility of the types
 class sig(Syntax):
     """Convert a Python function into a Statically Typed Function.
 
@@ -211,24 +212,28 @@ class sig(Syntax):
 
     def __call__(self, fn):
         from hask.lang.type_system import TypedFunc
-        return TypedFunc(fn, self.fn_args, self.fn_type)
+        res = TypedFunc(fn, self.fn_args, self.fn_type)
+        res.haskell_sig = self
+        return res
 
 
-def t(type_constructor, *params):
+def t(tcon, *params):
     '''Helper to instantiate a higher-kinded type.
+
+    :param tcon: type constructor.
+
+    :param params: type parameter names.
 
     See `~hask.lang.type_system.TypeSignatureHKT`:class: class.
 
     '''
     from hask.hack import safe_issubclass
     from hask.lang.type_system import ADT, TypeSignatureHKT
-    if (safe_issubclass(type_constructor, ADT) and
-        len(type_constructor.__params__) != len(params)):
-        _msg = "Incorrect number of type parameters to {}"
-        raise TypeError(_msg.format(type_constructor.__name__))
+    if not safe_issubclass(tcon, ADT) or len(tcon.__params__) == len(params):
+        return TypeSignatureHKT(tcon, list(map(__signature__._inner, params)))
     else:
-        params = [__signature__._inner(p) for p in params]
-        return TypeSignatureHKT(type_constructor, params)
+        _msg = "Incorrect number of type parameters to {}"
+        raise TypeError(_msg.format(tcon.__name__))
 
 
 def typify(fn, hkt=None):
