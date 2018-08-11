@@ -91,7 +91,7 @@ class instance(Syntax):
 
 @objectify
 class H(Syntax):
-    """H/ creates a new function type signature.
+    """``H/`` creates a new function type signature.
 
     Examples::
 
@@ -185,6 +185,8 @@ class sig(Syntax):
         @sig(H[(Show, "a")]/ >> "a" >> str)
         def to_str(x):
             return str(x)
+
+    See `H`:obj: special object, and `t`:func: function for more information.
 
     """
 
@@ -474,6 +476,8 @@ class caseof(__unmatched_case__):
                         | m(1)   >> 1
                         | m(m.n) >> fib(p.n - 1) + fib(p.n - 2))
 
+    See `m`:obj: and `p`:obj: special pattern matching constructions.
+
     """
     def __init__(self, value):
         if isinstance(value, Undefined):
@@ -487,9 +491,9 @@ class caseof(__unmatched_case__):
 
 @objectify
 class data(Syntax):
-    """`data`:obj: class, syntax for defining Algebraic Data Types.
+    """Syntax for defining Algebraic Data Types.
 
-    Example usage:
+    Example usage::
 
         >>> from hask import data, d, deriving, Read, Show, Eq, Ord
 
@@ -574,7 +578,7 @@ class __new_tcon_hkt__(__new_tcon__):
 # "d"/data constructor half of the expression
 @objectify
 class d(Syntax):
-    """`d` is part of hask's special syntax for defining algebraic data types.
+    """Part of hask's special syntax for defining Algebraic Data Types.
 
     See `data`:obj: for more information.
 
@@ -714,9 +718,9 @@ class __new_dcons__(__new_dcons_deriving__):
 
 
 class deriving(Syntax):
-    """Part of hask's special syntax for defining algebraic data types.
+    """Part of hask's special syntax for defining Algebraic Data Types.
 
-    See `data`:class: for more information.
+    See `data`:obj: for more information.
 
     """
 
@@ -733,14 +737,14 @@ class deriving(Syntax):
             raise TypeError("Cannot derive non-typeclass {}".format(wrong))
 
 
+#: This is a test
 @objectify
 class __(Syntax):
-    """The class of the ``__`` object.
+    """This is Hask's special syntax for operator sections.
 
-    This is Hask's special syntax for operator sections: a placeholder for
-    arguments (operands).
+    It is a placeholder for arguments (operands).
 
-    Example usage:
+    Example usage::
 
         >>> from __future__ import division
         >>> from hask.lang import __
@@ -846,9 +850,10 @@ class NoGuardMatchException(Exception):
 class c(Syntax):
     """A case in a guard.
 
-    ``c`` creates a new condition that can be used in a guard expression.
+    Creates a new condition that can be used in a guard expression.
 
-    ``otherwise`` is a guard condition that always evaluates to True.
+    `otherwise`:obj: is a `guard`:class: condition that always evaluates to
+    True.
 
     Usage::
 
@@ -857,8 +862,6 @@ class c(Syntax):
             | c(<test_fn_2>) >> <return_value_2>
             | otherwise      >> <return_value_3>
         )
-
-    See `guard`:class: for more details.
 
     """
 
@@ -1002,12 +1005,15 @@ class guard(__unmatched_guard__):
 
     :raises: NoGuardMatchException (if no match is found).
 
+    See `otherwise`:obj:, and `c`:class: special guards.
+
     """
     def __invert__(self):
         raise SyntaxError(self.invalid_syntax_message)
 
 
-
+#: A special `c`:class: instance, used in a `guard`:class:, that evaluates to
+#: True.
 otherwise = c(lambda _: True)    # noqa
 
 
@@ -1047,7 +1053,7 @@ def _t(obj):
 
     :returns: A string representation of the type.
 
-    Usage:
+    Usage::
 
         >>> from hask import _t
 
