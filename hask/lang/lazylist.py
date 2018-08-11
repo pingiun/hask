@@ -132,7 +132,7 @@ def pred(a):
 def enumFromThen(start, second):
     """``enumFromThen :: a -> a -> [a]``
 
-    Used in translation of [n, n_, ...]
+    Used in translation of ``[n, n_, ...]``.
 
     """
     return L[Enum[start].enumFromThen(start, second)]
