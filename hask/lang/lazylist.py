@@ -190,10 +190,14 @@ class List(Sequence, Hask):
         from itertools import chain
         from hask.lang.type_system import typeof
         from hask.lang.hindley_milner import unify
-        if head is not None and len(head) > 0:
-            fst = head[0]
-            for other in head:
-                unify(typeof(fst), typeof(other))
+        if head is not None:
+            count = len(head)
+            if count > 0:
+                fst = head[0]
+                i = 1
+                while i < count:
+                    unify(typeof(fst), typeof(head[i]))
+                    i += 1
             self.__head = list(head)
         else:
             self.__head = []

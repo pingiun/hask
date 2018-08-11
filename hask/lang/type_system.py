@@ -46,7 +46,7 @@ del types, sys
 def is_collection(m):
     '''True if `m` is a collection.
 
-    strings are not collections.
+    Strings are not collections.
 
     '''
     return hasattr(m, '__iter__') and not isinstance(m, str)
@@ -107,12 +107,13 @@ class TypeMeta(type):
 
 
 class Typeclass(metaclass(TypeMeta)):
-    """Base class for Hask typeclasses.
+    """Base class for Hask type-classes.
 
-    All subclasses should implement make_instance, which controls what happens
-    when a new instance is added.  This method should set up whatever
-    attributes/functions belong to the typeclass, and then call
-    build_instance.  See typeclasses.py for examples.
+    All subclasses should implement `make_instance` method, which controls
+    what happens when a new instance is added.  It should set up whatever
+    attributes/functions belong to the type-class, and then call
+    `build_instance`:func:.  See `~hask.lang.typeclasses`:mod: module for
+    examples.
 
     """
     @classmethod
@@ -125,22 +126,20 @@ class Typeclass(metaclass(TypeMeta)):
 
 
 def build_instance(typeclass, cls, attrs):
-    """Add a new instance to a typeclass.
+    """Add a new instance to a `typeclass`.
 
-    i.e. modify the typeclass's instance dictionary to include the new
+    i.e. modify the type-class's instance dictionary to include the new
     instance.
 
     :param typeclass: The typeclass for which we are adding an instance.
 
     :param cls: The class or type to be added.
 
-    :param attrs: A dict of {str:function}, mapping function names to
-           functions for the typeclass instance
+    :param attrs: A dict of ``{str: function}``, mapping function names to
+           functions for the `typeclass` instance.
 
-    :returns: None
-
-    :raises TypeError: if cls is not a member of all superclasses of
-            typeclass.
+    :raises TypeError: if `cls` is not a member of all `typeclass`
+            super-classes.
 
     """
     from collections import namedtuple
@@ -155,12 +154,12 @@ def build_instance(typeclass, cls, attrs):
 
 
 def has_instance(cls, typeclass):
-    """Test whether a class is a member of a particular typeclass.
+    """Test whether a class is a member of a particular type-class.
 
     :param cls: The class or type to test for membership.
 
-    :param typeclass: The typeclass to check. Must be a subclass of
-           Typeclass.
+    :param typeclass: The typeclass to check.  Must be a subclass of
+           `Typeclass`:class:.
 
     :returns: True if cls is a member of typeclass, and False otherwise.
 
@@ -176,8 +175,8 @@ class Hask(object):
     `~hask.lang.lazylist.List`:class:, `Undefined`:class:, and other
     hask-related types are all subclasses of Hask.
 
-    All subclasses must define ``__type__``, which returns a representation of
-    the object in the internal type system language.
+    All sub-classes must redefine `__type__`, which returns a representation
+    of the object in the internal type system language.
 
     """
     def __type__(self):
@@ -208,11 +207,11 @@ class PyFunc(object):
 def typeof(obj):
     """Returns the type of an object within the internal type system.
 
-    :param obj: the object to inspect
+    :param obj: the object to inspect.
 
     :returns: An object representing the type in the internal type system
               language (i.e., a
-              `~hask.lang.hindley_milner.TypeOperator`:class: or
+              `~hask.lang.hindley_milner.TypeOperator`:class:, or a
               `~hask.lang.hindley_milner.TypeVariable`:class:).
 
     """
@@ -264,28 +263,27 @@ def build_sig_arg(arg, cons, var_dict):
 
     :param arg: The argument (a string, a Python type, etc) to convert.
 
-    :param cons: a dictionary of typeclass constraints for the type
+    :param cons: A dictionary of typeclass constraints for the type
            signature.
 
      :param var_dict: a dictionary of bound type variables.
 
-    :returns: A TypeVariable or TypeOperator representing the arg.
+    :returns: A TypeVariable or TypeOperator representing the `arg`.
 
     :raises TypeSignatureError: if the argument cannot be converted.
 
     """
     from hask.lang.hindley_milner import TypeVariable, TypeOperator
     from hask.lang.hindley_milner import Tuple, ListType
-    res = None
     if isinstance(arg, str):
         if arg.islower():
             if arg not in var_dict:
-                if arg in cons:
-                    var_dict[arg] = TypeVariable(constraints=cons[arg])
-                else:
-                    var_dict[arg] = TypeVariable()
+                kw = {'constraints': cons[arg]} if arg in cons else {}
+                var_dict[arg] = TypeVariable(**kw)
             res = var_dict[arg]
-    # subsignature, e.g. H/ (H/ int >> int) >> int >> int
+        else:
+            res = None
+    # sub-signature, e.g. H/ (H/ int >> int) >> int >> int
     elif isinstance(arg, TypeSignature):
         res = make_fn_type(build_sig(arg, var_dict))
     # HKT, e.g. t(Maybe "a") or t("m", "a", "b")
@@ -307,9 +305,13 @@ def build_sig_arg(arg, cons, var_dict):
     elif isinstance(arg, list):
         if len(arg) == 1:
             res = ListType(build_sig_arg(arg[0], cons, var_dict))
+        else:
+            res = None
     # any other type, builtin or user-defined
     elif isinstance(arg, type):
         res = TypeOperator(arg, [])
+    else:
+        res = None
     if res is not None:
         return res
     else:

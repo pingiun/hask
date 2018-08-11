@@ -41,7 +41,7 @@ class AST(ABC):
         '''Computes the type of the expression given by node.
 
         The type of the node is computed in the context of the supplied type
-        environment, ``env``.  Data types can be introduced into the language
+        environment, `env`.  Data types can be introduced into the language
         simply by having a predefined set of identifiers in the initial
         environment.  This way there is no need to change the syntax or, more
         importantly, the type-checking program when extending the language.
@@ -56,15 +56,15 @@ class AST(ABC):
         :returns: The computed type of the expression.
 
         :raises TypeError: The type of the expression could not be inferred,
-             for example if it is not possible to unify two types such as
-             Integer and Bool or if the Abstract Syntax Tree rooted at node
-             (self) could not be parsed,
+                for example if it is not possible to unify two types such as
+                Integer and Bool or if the Abstract Syntax Tree rooted at node
+                (self) could not be parsed,
 
         '''
 
 
 class Lam(AST):
-    '''Lambda abstraction'''
+    '''Lambda abstraction.'''
 
     def __init__(self, v, body):
         self.v = v
@@ -74,12 +74,10 @@ class Lam(AST):
         return "(\{v} -> {body})".format(v=self.v, body=self.body)
 
     def analyze(self, env, non_generic=None):
-        if non_generic is None:
-            non_generic = set()
         arg_type = TypeVariable()
         new_env = env.copy()
         new_env[self.v] = arg_type
-        new_non_generic = non_generic.copy()
+        new_non_generic = set() if non_generic is None else non_generic.copy()
         new_non_generic.add(arg_type)
         result_type = self.body.analyze(new_env, new_non_generic)
         return Function(arg_type, result_type)
@@ -103,7 +101,7 @@ class Var(AST):
 class App(AST):
     '''Function application.
 
-    An App node represents the application of a **single** argument.
+    Each `App` node represents the application of a **single** argument.
     Functions over several arguments are curried.
 
     '''
@@ -125,7 +123,7 @@ class App(AST):
 
 
 class Let(AST):
-    '''Let binding (always recursive)'''
+    '''Let binding (always recursive).'''
 
     def __init__(self, v, defn, body):
         self.v = v
@@ -137,12 +135,10 @@ class Let(AST):
         return exp.format(v=self.v, defn=self.defn, body=self.body)
 
     def analyze(self, env, non_generic=None):
-        if non_generic is None:
-            non_generic = set()
         new_type = TypeVariable()
         new_env = env.copy()
         new_env[self.v] = new_type
-        new_non_generic = non_generic.copy()
+        new_non_generic = set() if non_generic is None else non_generic.copy()
         new_non_generic.add(new_type)
         defn_type = self.defn.analyze(new_env, new_non_generic)
         unify(new_type, defn_type)
@@ -168,7 +164,7 @@ def show_type(type_name):
 class TypeVariable(object):
     '''A type variable standing for an arbitrary type.
 
-    All type variables have a unique id, but names are only assigned lazily,
+    All type variables have a unique `id`, but names are only assigned lazily,
     when required.
 
     Note that this approach is *not* thread-safe.
@@ -202,8 +198,8 @@ class TypeVariable(object):
     @staticproperty
     def _next_id():
         # Reduce thread-safe risks
-        res, TypeVariable.__next_id = (TypeVariable.__next_id,
-                                       TypeVariable.__next_id + 1)
+        cls = TypeVariable
+        res, cls.__next_id = (cls.__next_id, cls.__next_id + 1)
         return res
 
     def __str__(self):
@@ -214,7 +210,7 @@ class TypeVariable(object):
 
 
 class TypeOperator(object):
-    '''An n-ary type constructor which builds a new type from old'''
+    '''An n-ary type constructor which builds a new type from old.'''
 
     def __init__(self, name, types):
         self.name = name
@@ -254,7 +250,7 @@ class Tuple(TypeOperator):
 
 
 class ListType(TypeOperator):
-    '''Unary constructor which builds list types'''
+    '''Unary constructor which builds list types.'''
 
     def __init__(self, list_type):
         super(self.__class__, self).__init__("[]", [list_type])
@@ -269,13 +265,13 @@ def analyze(node, env, non_generic=None):
 
 
 def getType(name, env, non_generic):
-    '''Get the type of identifier name from the type environment env.
+    '''Get the type of identifier name from the type environment `env`.
 
-    :param name: The identifier name
+    :param name: The identifier name.
 
-    :param env: The type environment mapping from identifier names to types
+    :param env: The type environment mapping from identifier names to types.
 
-    :param non_generic: A set of non-generic TypeVariables
+    :param non_generic: A set of non-generic TypeVariables.
 
     :raises ParseError: Raised if name is an undefined symbol in the type
             environment.
@@ -289,17 +285,17 @@ def getType(name, env, non_generic):
 
 
 def fresh(t, non_generic):
-    '''Makes a copy of a type expression.
+    '''Makes a fresh copy of a type expression `t`.
 
-    The type ``t`` is copied.  The the generic variables are duplicated and
-    the ``non_generic`` variables are shared.
+    The the generic variables are duplicated and the `non_generic` variables
+    are shared.
 
     :param t: A type to be copied.
 
-    :param non_generic: A set of non-generic TypeVariables
+    :param non_generic: A TypeVariable set of non-generic.
 
     '''
-    mappings = {}  # A mapping of TypeVariables to TypeVariables
+    mappings = {}    # TypeVariable to TypeVariable mapping
 
     def freshrec(tp):
         p = prune(tp)
@@ -311,7 +307,9 @@ def fresh(t, non_generic):
             else:
                 return p
         elif isinstance(p, TypeOperator):
-            return TypeOperator(p.name, [freshrec(x) for x in p.types])
+            return TypeOperator(p.name, list(map(freshrec, p.types)))
+        else:
+            pass    # XXX: WTF?
 
     return freshrec(t)
 
@@ -380,44 +378,43 @@ def unify(t1, t2):
         elif isinstance(b.name, TypeVariable):
             unify(b, a)
         # Unify concrete higher-kinded type
-        elif (a.name != b.name or len(a.types) != len(b.types)):
-            raise TypeError("Type mismatch: '{}' != '{}'".format(a, b))
-        for p, q in zip(a.types, b.types):
-            unify(p, q)
+        elif (a.name == b.name and len(a.types) == len(b.types)):
+            for p, q in zip(a.types, b.types):
+                unify(p, q)
+        else:
+            raise TypeError("Type '{}' mismatch with '{}'".format(a, b))
     else:
-        raise TypeError("Not unified")
+        raise TypeError("Not unified.")
 
 
 def prune(t):
-    '''Returns the currently defining instance of t.
+    '''Returns the currently defining instance of `t`.
 
     As a side effect, collapses the list of type instances.  The function
     prune is used whenever a type expression has to be inspected: it will
-    always return a type expression which is either an uninstantiated type
+    always return a type expression which is either a not instantiated type
     variable or a type operator; i.e. it will skip instantiated variables, and
     will actually prune them from expressions to remove long chains of
     instantiated variables.
 
-    :param t: The type to be pruned
+    :param t: The type to be pruned.
 
     :returns: An uninstantiated TypeVariable or a TypeOperator
 
     '''
-    if isinstance(t, TypeVariable):
-        if t.instance is not None:
-            t.instance = prune(t.instance)
-            return t.instance
-    return t
+    if isinstance(t, TypeVariable) and t.instance is not None:
+        t.instance = prune(t.instance)
+        return t.instance
+    else:
+        return t
 
 
 def isGeneric(v, non_generic):
     '''Checks whether a given variable occurs in non-generic variables.
 
-    Note that a variable in such a list may be instantiated to a type term, in
-    which case the variables contained in the type term are considered
-    non-generic.
-
-    .. note:: Must be called with `v` pre-pruned
+    Must be called with `v` pre-pruned.  Note that a variable in such a list
+    may be instantiated to a type term, in which case the variables contained
+    in the type term are considered non-generic.
 
     :param v: The TypeVariable to be tested for genericity.
 
@@ -429,25 +426,20 @@ def isGeneric(v, non_generic):
     return not occursIn(v, non_generic)
 
 
-def occursInType(v, type2):
+def occursInType(v, t):
     '''Checks whether a type variable occurs in a type expression.
 
-    .. note:: Must be called with v pre-pruned
+    Must be called with v pre-pruned
 
     :param v:  The TypeVariable to be tested for.
 
-    :param type2: The type in which to search.
+    :param t: The type in which to search.
 
-    :returns: True if v occurs in type2, otherwise False.
+    :returns: True if `v` occurs in `t`, otherwise False.
 
     '''
-    pruned_type2 = prune(type2)
-    if pruned_type2 == v:
-        return True
-    elif isinstance(pruned_type2, TypeOperator):
-        return occursIn(v, pruned_type2.types)
-    else:
-        return False
+    t = prune(t)
+    return v == t or isinstance(t, TypeOperator) and occursIn(v, t.types)
 
 
 def occursIn(t, types):
@@ -457,7 +449,7 @@ def occursIn(t, types):
 
     :param types: The sequence of types in which to search.
 
-    :returns: True if t occurs in any of types, otherwise False.
+    :returns: True if `t` occurs in any of `types`, otherwise False.
 
     '''
     return any(occursInType(t, t2) for t2 in types)

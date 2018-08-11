@@ -32,14 +32,16 @@ class Show(Typeclass):
     def derive_instance(typeclass, cls):
         def show(self):
             from hask.lang.type_system import nt_to_tuple
-            if len(self.__class__._fields) == 0:
-                return self.__class__.__name__
-            nt_tup = nt_to_tuple(self)
-            if len(nt_tup) == 1:
-                tuple_str = "({})".format(Show[nt_tup[0]].show(nt_tup[0]))
+            klass = type(self)
+            if len(klass._fields) == 0:
+                return klass.__name__
             else:
-                tuple_str = Show[nt_tup].show(nt_tup)
-            return "{0}{1}".format(self.__class__.__name__, tuple_str)
+                nt_tup = nt_to_tuple(self)
+                if len(nt_tup) == 1:
+                    tuple_str = "({})".format(Show[nt_tup[0]].show(nt_tup[0]))
+                else:
+                    tuple_str = Show[nt_tup].show(nt_tup)
+                return "{}{}".format(type(self).__name__, tuple_str)
         Show.make_instance(cls, show=show)
 
 
@@ -88,12 +90,11 @@ class Eq(Typeclass):
         from hask.lang.type_system import nt_to_tuple
 
         def __eq__(self, other):
-            return (self.__class__ == other.__class__ and
+            return (type(self) == type(other) and
                     nt_to_tuple(self) == nt_to_tuple(other))
 
         def __ne__(self, other):
-            return (self.__class__ != other.__class__ or
-                    nt_to_tuple(self) != nt_to_tuple(other))
+            return not __eq__(self, other)
 
         Eq.make_instance(cls, eq=__eq__, ne=__ne__)
 
