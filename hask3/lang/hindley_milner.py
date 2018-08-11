@@ -82,6 +82,13 @@ class Lam(AST):
         return Function(arg_type, result_type)
 
 
+# NOTE: Var v. TypeVariable.  The Var is a syntactic concept in which the
+# 'name' is key; whereas the TypeVariable is an automatically-named (for
+# representation purposes) of the variables while being manipulated by the
+# type system.  In a signature like 'a -> a' there two instances of Var but a
+# single instance of TypeVariable.
+
+
 class Var(AST):
     '''Variable/Identifier'''
 
