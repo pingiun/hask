@@ -20,8 +20,9 @@ from hask.Control.Monad import Monad
 
 
 # data Maybe a = Nothing | Just a deriving(Show, Eq, Ord)
-Maybe, Nothing, Just =\
+Maybe, Nothing, Just = (
     data.Maybe("a") == d.Nothing | d.Just("a") & deriving(Read, Show, Eq, Ord)
+)
 
 
 def _fmap(f, x):

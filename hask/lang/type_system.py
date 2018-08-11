@@ -436,7 +436,7 @@ def make_type_const(name, typeargs):
     from hask.lang.hindley_milner import TypeVariable, TypeOperator
 
     def raise_fn(err):
-        raise err()
+        raise err
 
     default_attrs = {"__params__": tuple(typeargs), "__constructors__": ()}
     cls = type(name, (ADT,), default_attrs)

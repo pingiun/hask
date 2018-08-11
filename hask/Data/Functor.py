@@ -34,8 +34,8 @@ class Functor(Typeclass):
         from hask.lang.type_system import is_builtin
         from hask.lang.type_system import build_instance
         from hask.lang import H, t
-        fmap = fmap ** \
-            (H[(Functor, "f")]/ (H/ "a" >> "b") >> t("f", "a") >> t("f", "b"))
+        fmap = fmap ** (
+            H[(Functor, "f")]/ (H/ "a" >> "b") >> t("f", "a") >> t("f", "b"))
         if not is_builtin(cls):
             cls.__rmul__ = lambda x, f: fmap(f, x)
         build_instance(Functor, cls, {"fmap": fmap})

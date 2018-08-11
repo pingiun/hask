@@ -170,8 +170,10 @@ class Fractional(Num):
         build_instance(Fractional, cls, attrs)
 
 
-Ratio, R =\
+Ratio, R = (
         data.Ratio("a") == d.R("a", "a") & deriving(Eq)
+)
+
 
 Rational = t(Ratio, int)
 
