@@ -197,8 +197,9 @@ class Undefined(Hask):
 
 
 class PyFunc(object):
-    """Singleton that represents (any of the) Python function types in
-    the type system and in type signatures.
+    """Singleton that represents (any of the) Python function types.
+
+    This is in the type system and in type signatures.
 
     """
     pass
@@ -259,8 +260,7 @@ class TypeSignatureError(Exception):
 
 
 def build_sig_arg(arg, cons, var_dict):
-    """Covert an argument of a type signature into its internal type system
-    representation.
+    """Covert a type signature argument into its internal representation.
 
     :param arg: The argument (a string, a Python type, etc) to convert.
 
