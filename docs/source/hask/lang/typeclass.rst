@@ -3,4 +3,6 @@
 ===========================================================
 
 .. automodule:: hask.lang.typeclasses
-   :members: Show, Eq, Bounded, Ord, Read, show
+   :members: Show, Eq, Bounded, Ord, Read
+
+.. autodata:: show
