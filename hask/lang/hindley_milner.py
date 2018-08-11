@@ -142,7 +142,7 @@ class Let(AST):
         new_non_generic.add(new_type)
         defn_type = self.defn.analyze(new_env, new_non_generic)
         unify(new_type, defn_type)
-        return analyze(self.body, new_env, non_generic)
+        return self.body.analyze(new_env, non_generic)
 
 
 def show_type(type_name):
@@ -208,6 +208,34 @@ class TypeVariable(object):
     def __repr__(self):
         return "TypeVariable(id = {})".format(self.id)
 
+    def unify_with(self, other):
+        '''Unify the type variable with the `other` type.
+
+        i.e. makes their types the same and unifies typeclass constraints.
+
+        Instead of returning, modify `self` and `other` to add the unification
+        as a constraint.
+
+        :param self: The type variable to be made equivalent.
+
+        :param other: The second type to be be equivalent.
+
+        :raises TypeError: Raised if the types cannot be unified.
+
+        .. note:: Must be called with `self` and `other` pre-pruned.
+
+        '''
+        if self != other:
+            if isinstance(other, TypeVariable):
+                # unify typeclass constraints
+                union = tuple(set(self.constraints + other.constraints))
+                self.constraints = union
+                other.constraints = union
+            if not occursInType(self, other):
+                self.instance = other
+            else:
+                raise TypeError("recursive unification")
+
 
 class TypeOperator(object):
     '''An n-ary type constructor which builds a new type from old.'''
@@ -257,11 +285,6 @@ class ListType(TypeOperator):
 
     def __str__(self):
         return "[{}]".format(show_type(self.types[0]))
-
-
-def analyze(node, env, non_generic=None):
-    '''Use ``node.analyze(env, non_generic)``.'''
-    return node.analyze(env, non_generic)
 
 
 def getType(name, env, non_generic):
@@ -314,35 +337,6 @@ def fresh(t, non_generic):
     return freshrec(t)
 
 
-def unify_var(v1, t2):
-    '''Unify the type variable `v1` and the type `t2`.
-
-    i.e. makes their types the same and unifies typeclass constraints.
-
-    Note: Must be called with v1 and t2 pre-pruned
-
-    :param v1: The type variable to be made equivalent
-
-    :param t2: The second type to be be equivalent
-
-    Instead of returning, modify `v1` and `t2` to add the unification as a
-    constraint.
-
-    :raises TypeError: Raised if the types cannot be unified.
-
-    '''
-    if v1 != t2:
-        if isinstance(t2, TypeVariable):
-            # unify typeclass constraints
-            union = tuple(set(v1.constraints + t2.constraints))
-            v1.constraints = union
-            t2.constraints = union
-        if not occursInType(v1, t2):
-            v1.instance = t2
-        else:
-            raise TypeError("recursive unification")
-
-
 def unify(t1, t2):
     '''Unify the two types t1 and t2.
 
@@ -366,9 +360,9 @@ def unify(t1, t2):
     a = prune(t1)
     b = prune(t2)
     if isinstance(a, TypeVariable):
-        unify_var(a, b)
+        a.unify_with(b)
     elif isinstance(a, TypeOperator) and isinstance(b, TypeVariable):
-        unify_var(b, a)
+        b.unify_with(a)
     elif isinstance(a, TypeOperator) and isinstance(b, TypeOperator):
         # Unify polymorphic higher-kinded type
         if isinstance(a.name, TypeVariable) and len(a.types) > 0:

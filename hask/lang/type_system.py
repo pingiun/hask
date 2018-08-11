@@ -374,7 +374,7 @@ class TypedFunc(Hask):
         # of the arguments
         from functools import partial
         from hask.lang.hindley_milner import Var, App
-        from hask.lang.hindley_milner import unify, analyze
+        from hask.lang.hindley_milner import unify
         env = {id(self): self.fn_type}
         env.update({id(arg): typeof(arg) for arg in args})
         ap = Var(id(self))
@@ -382,7 +382,7 @@ class TypedFunc(Hask):
             if isinstance(arg, Undefined):
                 return arg
             ap = App(ap, Var(id(arg)))
-        result_type = analyze(ap, env)
+        result_type = ap.analyze(env)
 
         if len(self.fn_args) - 1 == len(args):
             result = self.func(*args)
@@ -407,14 +407,13 @@ class TypedFunc(Hask):
 
         """
         from hask.lang.hindley_milner import Var, App, Lam
-        from hask.lang.hindley_milner import analyze
         if not isinstance(fn, TypedFunc):
             return fn.__rmul__(self)
         else:
             env = {id(self): self.fn_type, id(fn): fn.fn_type}
             app = App(Var(id(self)), App(Var(id(fn)), Var("arg")))
             compose = Lam("arg", app)
-            newtype = analyze(compose, env)
+            newtype = compose.analyze(env)
             composed_fn = lambda x: self.func(fn.func(x))
             newargs = [fn.fn_args[0]] + self.fn_args[1:]
             return TypedFunc(composed_fn, fn_args=newargs, fn_type=newtype)

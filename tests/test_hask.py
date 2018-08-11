@@ -37,7 +37,6 @@ from hask.lang.hindley_milner import TypeVariable
 from hask.lang.hindley_milner import TypeOperator
 from hask.lang.hindley_milner import Function
 from hask.lang.hindley_milner import Tuple
-from hask.lang.hindley_milner import analyze
 from hask.lang.hindley_milner import unify
 
 from hask.lang.lazylist import List
