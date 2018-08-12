@@ -4,7 +4,7 @@
 from __future__ import division, print_function, absolute_import
 
 import sys
-from hask.hack import objectify
+from hask.hack import objectify, settle_magic_methods
 from hask.lang.type_system import PatternMatchBind
 from hask.lang.type_system import PatternMatchListBind
 from hask.lang.type_system import Undefined
@@ -12,43 +12,9 @@ from hask.lang.type_system import Undefined
 from hask.lang.type_system import PyFunc as func    # noqa
 
 
-# Magic Names
-_OPS = {
-    # < <= == != > >=
-    'comparison': {'lt', 'le', 'eq', 'ne', 'gt', 'ge'},
-    'object-base': {'call', 'delattr', 'bool'},
-    'context-manager': {'enter', 'exit'},
-    # `obj[key]` `obj[key] = value` `del obj[key]` `key in obj` ...
-    # length_hint?
-    'container': {'getitem', 'setitem', 'delitem', 'contains', 'len', 'iter',
-                   'reversed', 'missing'},
-    'math': {'round', 'trunc', 'floor', 'ceil'},
-    # - + abs() ~
-    'arithmetic-unary': {'neg', 'pos', 'abs', 'invert'},
-    # + - * @ / // % divmod() ** << >> & ^ |
-    'arithmetic-binary': {'add', 'sub', 'mul', 'matmul', 'truediv',
-                          'floordiv', 'mod', 'divmod', 'pow', 'lshift',
-                          'rshift', 'and', 'xor', 'or'},
-}
-
-_PYTHON2 = {'div', 'rdiv', 'idiv', 'nonzero'}
-_MAGICS = set.union(
-    # TODO: After Python 3.6 `f'{p}{o}'`
-    {'{}{}'.format(p, o) for p in 'ri' for o in _OPS['arithmetic-binary']},
-    _PYTHON2 if sys.version[0] == '2' else (),
-    *_OPS.values())
-
-
-def settle_magic_methods(function, names=_MAGICS):
-    '''Decorator to settle all magic methods to `fn`.'''
-    from xoutil.decorator import settle
-    return settle(**{'__{}__'.format(name): function for name in names})
-
-
 # Main
 
-# TODO: Try to convert `Syntax` in a meta-class
-
+# TODO: Try to use a metaclass in `Syntax`
 @settle_magic_methods(lambda self, *args: self.__syntaxerr__())
 class Syntax(object):
     """Base class for new syntactic constructs.
@@ -707,12 +673,11 @@ class __new_dcons__(__new_dcons_deriving__):
 
     def __or__(self, new_dcon):
         if isinstance(new_dcon, __new_dcon__):
-            constructor = ((new_dcon.name, new_dcon.args), )
+            constructor = self.dcons + ((new_dcon.name, new_dcon.args), )
             if isinstance(new_dcon, __new_dcon_deriving__):
-                cls =  __new_dcons_deriving__
-                return cls(self.dcons + constructor, new_dcon.classes)
+                return __new_dcons_deriving__(constructor, new_dcon.classes)
             else:
-                return __new_dcons__(self.dcons + constructor)
+                return __new_dcons__(constructor)
         else:
             raise SyntaxError(self.invalid_syntax_message)
 
@@ -737,7 +702,6 @@ class deriving(Syntax):
             raise TypeError("Cannot derive non-typeclass {}".format(wrong))
 
 
-#: This is a test
 @objectify
 class __(Syntax):
     """This is Hask's special syntax for operator sections.
@@ -1087,4 +1051,4 @@ def _i(obj):
     """
     help(obj)
 
-del sys
+    del sys, settle_magic_methods, objectify

@@ -56,7 +56,39 @@ else:
         types.FunctionType, types.LambdaType, types.MethodType,
         types.BuiltinFunctionType, types.BuiltinMethodType})
 
-del types, sys
+
+# Magic Names
+
+_OPS = {
+    # < <= == != > >=
+    'comparison': {'lt', 'le', 'eq', 'ne', 'gt', 'ge'},
+    'object-base': {'call', 'delattr', 'bool'},
+    'context-manager': {'enter', 'exit'},
+    # `obj[key]` `obj[key] = value` `del obj[key]` `key in obj` ...
+    # length_hint?
+    'container': {'getitem', 'setitem', 'delitem', 'contains', 'len', 'iter',
+                   'reversed', 'missing'},
+    'math': {'round', 'trunc', 'floor', 'ceil'},
+    # - + abs() ~
+    'arithmetic-unary': {'neg', 'pos', 'abs', 'invert'},
+    # + - * @ / // % divmod() ** << >> & ^ |
+    'arithmetic-binary': {'add', 'sub', 'mul', 'matmul', 'truediv',
+                          'floordiv', 'mod', 'divmod', 'pow', 'lshift',
+                          'rshift', 'and', 'xor', 'or'},
+}
+
+_PYTHON2 = {'div', 'rdiv', 'idiv', 'nonzero'}
+_MAGICS = set.union(
+    # TODO: After Python 3.6 `f'{p}{o}'`
+    {'{}{}'.format(p, o) for p in 'ri' for o in _OPS['arithmetic-binary']},
+    _PYTHON2 if sys.version[0] == '2' else (),
+    *_OPS.values())
+
+
+def settle_magic_methods(fn, names=_MAGICS):
+    '''Decorator to settle all magic methods to function `fn`.'''
+    from xoutil.decorator import settle
+    return settle(**{'__{}__'.format(name): fn for name in names})
 
 
 # Utilities
@@ -152,3 +184,6 @@ def objectify(target, *args, **kwargs):
 
     '''
     return target(*args, **kwargs)
+
+
+del types, sys

@@ -1,5 +1,5 @@
 ============================================================================
- :mod:`hask.lang.syntax` -- The "syntactic" elements to build Hask programs
+ `hask.lang.syntax`:mod: -- The "syntactic" elements to build Hask programs
 ============================================================================
 
 .. automodule:: hask.lang.syntax
