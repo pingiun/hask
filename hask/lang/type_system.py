@@ -111,12 +111,12 @@ class TypeMeta(type):
     def __init__(self, *args):
         super(TypeMeta, self).__init__(*args)
         self.__instances__ = {}
-        self.__dependencies__ = self.mro()[1:-2]  # excl self, Typeclass, object
+        # excl self, Typeclass, object
+        self.__dependencies__ = self.mro()[1:-2]
 
     def __getitem__(self, item):
         from hask.lang.hindley_milner import ListType
         try:
-            # TODO: Add ``elif isinstance(item, type): key = item``?
             if isinstance(item, ADT):
                 key = item.__type_constructor__
             elif isinstance(typeof(item), ListType):
@@ -125,7 +125,7 @@ class TypeMeta(type):
                 key = typeof(item)
             else:
                 key = type(item)
-            return self.__instances__[id(key)]
+            return self.__instances__[self.get_id(key)]
         except KeyError:
             raise TypeError("No instance for {}".format(item))
 
@@ -140,6 +140,9 @@ class Typeclass(metaclass(TypeMeta)):
     examples.
 
     """
+    __next_id__ = 1
+    __readonly_types__ = {}
+
     @classmethod
     def make_instance(typeclass, type_, *args):
         raise NotImplementedError("Typeclasses must implement make_instance")
@@ -147,6 +150,33 @@ class Typeclass(metaclass(TypeMeta)):
     @classmethod
     def derive_instance(typeclass, type_):
         raise NotImplementedError("Typeclasses must implement derive_instance")
+
+    @staticmethod
+    def get_id(key):
+        '''Get the unique ID to obtain 'instance' member functions.'''
+        UNSET = 'unset'
+        magic = '__unique_typeclass_id__'
+        res = getattr(key, magic, UNSET)
+        if res is UNSET:
+            cls = Typeclass
+            res = cls.__readonly_types__.get(key, UNSET)
+            if res is UNSET:
+                # XXX: Note that this approach is *not* thread-safe
+                res, cls.__next_id__ = cls.__next_id__, cls.__next_id__ + 1
+                try:
+                    setattr(key, magic, res)
+                except TypeError:
+                    try:
+                        cls.__readonly_types__[key] = res
+                    except TypeError:    # unhashable key
+                        # likely never happening
+                        try:
+                            head = key.__name__
+                        except AttributeError:
+                            head = type(key).__name__
+                        tail = str(id(key) % 1048576)
+                        res = '.'.join((head, tail))
+        return res
 
 
 def build_instance(typeclass, cls, attrs):
@@ -168,7 +198,7 @@ def build_instance(typeclass, cls, attrs):
     """
     from collections import namedtuple
     deps = typeclass.__dependencies__
-    key = id(cls)
+    key = Typeclass.get_id(cls)
     bad = next((dep for dep in deps if key not in dep.__instances__), None)
     if bad is None:
         name = '__{}_{}__'.format(typeclass.__name__, cls.__name__)
@@ -189,7 +219,7 @@ def has_instance(cls, typeclass):
 
     """
     ok = issubclass(typeclass, Typeclass)
-    return ok and id(cls) in typeclass.__instances__
+    return ok and Typeclass.get_id(cls) in typeclass.__instances__
 
 
 class Hask(object):
@@ -399,6 +429,7 @@ class TypedFunc(Hask):
         from functools import partial
         from hask.lang.hindley_milner import Var, App
         from hask.lang.hindley_milner import unify
+        # Using 'id' is an issue could produce errors.
         env = {id(self): self.fn_type}
         env.update({id(arg): typeof(arg) for arg in args})
         ap = Var(id(self))
