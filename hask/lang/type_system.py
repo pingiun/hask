@@ -66,15 +66,6 @@ else:
 del types, sys
 
 
-def is_collection(m):
-    '''True if `m` is a collection.
-
-    Strings are not collections.
-
-    '''
-    return hasattr(m, '__iter__') and not isinstance(m, str)
-
-
 def is_builtin(cls):
     """Test whether a class or type is a Python builtin.
 
@@ -640,6 +631,7 @@ def pattern_match(value, pattern, env=None):
         pattern
 
     """
+    from hask.hack import is_collection
     env = {} if env is None else env
     if isinstance(pattern, PatternMatchBind):
         if pattern.name in env:

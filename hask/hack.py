@@ -37,6 +37,16 @@ def is_iterator(item):
     return hasattr(item, name)
 
 
+def is_collection(m):
+    '''True if `m` is a collection.
+
+    Strings are not collections.
+
+    '''
+    return hasattr(m, '__iter__') and not isinstance(m, str)
+
+
+
 # TODO: Next construction must go in `xoutil.decorator`, and -maybe- deprecate
 # `instantiate`.
 
