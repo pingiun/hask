@@ -19,7 +19,8 @@ class Show(Typeclass):
     """
     @classmethod
     def make_instance(typeclass, cls, show):
-        from hask.lang.type_system import is_builtin, build_instance
+        from hask.hack import is_builtin
+        from hask.lang.type_system import build_instance
         __show__ = show ** (H/ "a" >> str)
         show = lambda self: __show__(self)
 
@@ -70,7 +71,8 @@ class Eq(Typeclass):
     """
     @classmethod
     def make_instance(typeclass, cls, eq, ne=None):
-        from hask.lang.type_system import is_builtin, build_instance
+        from hask.hack import is_builtin
+        from hask.lang.type_system import build_instance
 
         def default_ne(self, other):
             return not eq(self, other)
@@ -119,7 +121,8 @@ class Ord(Eq):
     """
     @classmethod
     def make_instance(typeclass, cls, lt, le=None, gt=None, ge=None):
-        from hask.lang.type_system import is_builtin, build_instance
+        from hask.hack import is_builtin
+        from hask.lang.type_system import build_instance
         if le is None:
             le = lambda s, o: s.__lt__(o) or s.__eq__(o)
         if gt is None:

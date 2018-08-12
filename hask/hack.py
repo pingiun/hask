@@ -19,6 +19,38 @@ from __future__ import division, print_function, absolute_import
 from xoutil.decorator.meta import decorator
 
 
+import sys
+import types
+
+if sys.version[0] == '2':
+    __python_builtins__ = {
+        types.BooleanType, types.BufferType, types.BuiltinFunctionType,
+        types.BuiltinMethodType, types.ClassType, types.CodeType,
+        types.ComplexType, types.DictProxyType, types.DictType,
+        types.DictionaryType, types.EllipsisType, types.FileType,
+        types.FloatType, types.FrameType, types.FunctionType,
+        types.GeneratorType, types.GetSetDescriptorType, types.InstanceType,
+        types.IntType, types.LambdaType, types.ListType, types.LongType,
+        types.MemberDescriptorType, types.MethodType, types.ModuleType,
+        types.NoneType, types.NotImplementedType, types.ObjectType,
+        types.SliceType, types.StringType, types.StringTypes,
+        types.TracebackType, types.TupleType, types.TypeType,
+        types.UnboundMethodType, types.UnicodeType, types.XRangeType, set,
+        frozenset}
+
+else:
+    __python_builtins__ = {
+        bool, dict, type(Ellipsis), float, int, type(None), str, tuple,
+        complex, list, set, frozenset, slice,
+        type, types.BuiltinFunctionType, types.BuiltinMethodType,
+        types.CodeType, types.DynamicClassAttribute, types.FrameType,
+        types.FunctionType, types.GeneratorType, types.GetSetDescriptorType,
+        types.LambdaType, types.MappingProxyType, types.MemberDescriptorType,
+        types.MethodType, types.ModuleType, types.TracebackType}
+
+del types, sys
+
+
 # Utilities
 
 def safe_issubclass(cls, class_or_tuple):
@@ -45,6 +77,16 @@ def is_collection(m):
     '''
     return hasattr(m, '__iter__') and not isinstance(m, str)
 
+
+def is_builtin(cls):
+    """Test whether a class or type is a Python builtin.
+
+    :param cls: The class or type to examine.
+
+    :returns: True if a type is a Python builtin type, and False otherwise.
+
+    """
+    return cls in __python_builtins__
 
 
 # TODO: Next construction must go in `xoutil.decorator`, and -maybe- deprecate

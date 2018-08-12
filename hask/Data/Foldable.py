@@ -50,7 +50,8 @@ class Foldable(Typeclass):
     def make_instance(typeclass, cls, foldr, foldr1=None, foldl=None,
             foldl_=None, foldl1=None, toList=None, null=None, length=None,
             elem=None, maximum=None, minimum=None, sum=None, product=None):
-        from hask.lang.type_system import build_instance, is_builtin
+        from hask.hack import is_builtin
+        from hask.lang.type_system import build_instance
         from hask.lang.lazylist import L
         from hask.Data import List as DL
 

@@ -32,7 +32,8 @@ class Monad(Applicative):
     """
     @classmethod
     def make_instance(typeclass, cls, bind):
-        from hask.lang.type_system import build_instance, is_builtin
+        from hask.hack import is_builtin
+        from hask.lang.type_system import build_instance
         from hask.lang.syntax import H, t
         bind = bind ** (H[Monad, "m"]/
                         t("m", "a") >> (H/ "a" >> t("m", "b")) >> t("m", "b"))

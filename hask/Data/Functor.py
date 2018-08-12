@@ -31,7 +31,7 @@ class Functor(Typeclass):
     """
     @classmethod
     def make_instance(typeclass, cls, fmap):
-        from hask.lang.type_system import is_builtin
+        from hask.hack import is_builtin
         from hask.lang.type_system import build_instance
         from hask.lang import H, t
         fmap = fmap ** (
