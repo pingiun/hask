@@ -26,20 +26,6 @@ implementing the member function `eq`::
 from xoutil.eight.meta import metaclass
 
 
-def nt_to_tuple(nt):
-    """Convert a namedtuple instance to a tuple.
-
-    Even if the instance's __iter__ method has been changed.  Useful for
-    writing derived instances of typeclasses.
-
-    :param nt: namedtuple instance.
-
-    :returns: A tuple containing each of the items in nt
-
-    """
-    return tuple(getattr(nt, f) for f in type(nt)._fields)
-
-
 class TypeMeta(type):
     """Metaclass for Typeclass type.
 
@@ -195,7 +181,6 @@ class PyFunc(object):
     This is in the type system and in type signatures.
 
     """
-    pass
 
 
 def typeof(obj):
@@ -581,7 +566,7 @@ def pattern_match(value, pattern, env=None):
         pattern
 
     """
-    from hask.hack import is_collection
+    from hask.hack import is_collection, nt_to_tuple
     env = {} if env is None else env
     if isinstance(pattern, PatternMatchBind):
         if pattern.name in env:

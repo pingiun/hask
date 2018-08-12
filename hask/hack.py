@@ -102,6 +102,20 @@ def is_python_function(fn):
     return isinstance(fn, __python_function_types__)
 
 
+def nt_to_tuple(nt):
+    """Convert a namedtuple instance to a tuple.
+
+    Even if the instance's __iter__ method has been changed.  Useful for
+    writing derived instances of typeclasses.
+
+    :param nt: namedtuple instance.
+
+    :returns: A tuple containing each of the items in nt
+
+    """
+    return tuple(getattr(nt, f) for f in type(nt)._fields)
+
+
 # TODO: Next construction must go in `xoutil.decorator`, and -maybe- deprecate
 # `instantiate`.
 

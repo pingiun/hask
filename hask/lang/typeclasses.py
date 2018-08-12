@@ -32,7 +32,7 @@ class Show(Typeclass):
     @classmethod
     def derive_instance(typeclass, cls):
         def show(self):
-            from hask.lang.type_system import nt_to_tuple
+            from hask.hack import nt_to_tuple
             klass = type(self)
             if len(klass._fields) == 0:
                 return klass.__name__
@@ -89,7 +89,7 @@ class Eq(Typeclass):
 
     @classmethod
     def derive_instance(typeclass, cls):
-        from hask.lang.type_system import nt_to_tuple
+        from hask.hack import nt_to_tuple
 
         def __eq__(self, other):
             return (type(self) == type(other) and
@@ -154,7 +154,7 @@ class Ord(Eq):
 
         def zip_cmp(self, other, fn):
             """Compare data constructor and all fields of two ADTs."""
-            from hask.lang.type_system import nt_to_tuple
+            from hask.hack import nt_to_tuple
             if self.__ADT_slot__ == other.__ADT_slot__:
                 one = nt_to_tuple(self)
                 if len(one) == 0:

@@ -23,13 +23,15 @@ from hask.lang.lazylist import L
 
 from hask.lang.type_system import typeof
 from hask.lang.type_system import has_instance
-from hask.lang.type_system import nt_to_tuple
 from hask.lang.type_system import build_instance
 from hask.lang.type_system import Typeclass
 from hask.lang.type_system import Hask
 from hask.lang.type_system import TypedFunc
 from hask.lang.type_system import TypeSignatureError
-from hask.hack import is_builtin    # XXX: Why is needed?
+
+# XXX: Why are these two needed here?
+from hask.hack import is_builtin
+from hask.hack import nt_to_tuple
 
 from hask.lang.syntax import undefined
 from hask.lang.syntax import caseof
