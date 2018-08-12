@@ -38,6 +38,10 @@ if sys.version[0] == '2':
         types.UnboundMethodType, types.UnicodeType, types.XRangeType, set,
         frozenset}
 
+    __python_function_types__ = tuple({
+        types.FunctionType, types.LambdaType, types.MethodType,
+        types.UnboundMethodType, types.BuiltinFunctionType,
+        types.BuiltinMethodType})
 else:
     __python_builtins__ = {
         bool, dict, type(Ellipsis), float, int, type(None), str, tuple,
@@ -47,6 +51,10 @@ else:
         types.FunctionType, types.GeneratorType, types.GetSetDescriptorType,
         types.LambdaType, types.MappingProxyType, types.MemberDescriptorType,
         types.MethodType, types.ModuleType, types.TracebackType}
+
+    __python_function_types__ = tuple({
+        types.FunctionType, types.LambdaType, types.MethodType,
+        types.BuiltinFunctionType, types.BuiltinMethodType})
 
 del types, sys
 
@@ -87,6 +95,11 @@ def is_builtin(cls):
 
     """
     return cls in __python_builtins__
+
+
+def is_python_function(fn):
+    '''Test whether an object is a Python function.'''
+    return isinstance(fn, __python_function_types__)
 
 
 # TODO: Next construction must go in `xoutil.decorator`, and -maybe- deprecate

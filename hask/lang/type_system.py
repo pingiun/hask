@@ -25,21 +25,6 @@ implementing the member function `eq`::
 
 from xoutil.eight.meta import metaclass
 
-import sys
-import types
-
-if sys.version[0] == '2':
-    __python_function_types__ = {
-        types.FunctionType, types.LambdaType, types.MethodType,
-        types.UnboundMethodType, types.BuiltinFunctionType,
-        types.BuiltinMethodType}
-else:
-    __python_function_types__ = {
-        types.FunctionType, types.LambdaType, types.MethodType,
-        types.BuiltinFunctionType, types.BuiltinMethodType}
-
-del types, sys
-
 
 def nt_to_tuple(nt):
     """Convert a namedtuple instance to a tuple.
@@ -224,6 +209,7 @@ def typeof(obj):
               `~hask.lang.hindley_milner.TypeVariable`:class:).
 
     """
+    from hask.hack import is_python_function
     from hask.lang.hindley_milner import TypeVariable, TypeOperator, Tuple
     # XXX: WTF?
     TypeVariable.next_var_name = 'a'
@@ -233,7 +219,7 @@ def typeof(obj):
         return Tuple([typeof(o) for o in obj])
     elif obj is None:
         return TypeOperator(None, [])
-    elif type(obj) in __python_function_types__:
+    elif is_python_function(obj):
         return TypeOperator(PyFunc, [])
     else:
         return TypeOperator(type(obj), [])
