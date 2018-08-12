@@ -205,7 +205,7 @@ def t(tcon, *params):
 
 
 def typify(fn, hkt=None):
-    """Convert an untyped Python function to a TypeFunc.
+    """Convert an untyped Python function to a `TypedFunc`.
 
     :param fn: The function to wrap
 

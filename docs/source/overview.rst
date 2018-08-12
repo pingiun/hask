@@ -46,7 +46,7 @@ Hask provides the `~hask.lang.lazylist.List`:class: type, a lazy and
 statically-typed list, similar to Haskell's standard list type.
 
 To create a new List, just put the elements inside ``L[`` and ``]`` brackets,
-or wrap an existing iterable inside ``L[ ]``:
+or wrap an existing iterable inside ``L[ ]``::
 
     >>> from hask import L
     >>> L[1, 2, 3]
@@ -61,7 +61,7 @@ or wrap an existing iterable inside ``L[ ]``:
 
 
 To add elements to the front of a List, use ``^``, the cons operator.  To
-combine two lists, use ``+``, the concatenation operator:
+combine two lists, use ``+``, the concatenation operator::
 
     >>> 1 ^ L[2, 3]
     L[1, 2, 3]
@@ -88,19 +88,19 @@ One way to create infinite lists is via list comprehensions.  As in Haskell,
 there are four basic type of list comprehensions::
 
 
-       >>> # list from 1 to infinity, counting by ones
-       >>> L[1 ...]
+    >>> # list from 1 to infinity, counting by ones
+    >>> L[1 ...]
 
 
-       >>> # list from 1 to infinity, counting by twos
-       >>> L[1, 3, ...]
+    >>> # list from 1 to infinity, counting by twos
+    >>> L[1, 3, ...]
 
-       >>> # list from 1 to 20 (inclusive), counting by ones
-       >>> L[1, ..., 20]
+    >>> # list from 1 to 20 (inclusive), counting by ones
+    >>> L[1, ..., 20]
 
 
-       >>> # list from 1 to 20 (inclusive), counting by fours
-       >>> L[1, 5, ..., 20]
+    >>> # list from 1 to 20 (inclusive), counting by fours
+    >>> L[1, 5, ..., 20]
 
 
 List comprehensions can be used on ints, longs, floats, one-character strings,
@@ -110,21 +110,18 @@ on this later).
 Hask provides all of the Haskell functions for List manipulation
 (`~hask.Data.List.take`:func:, `~hask.Data.List.drop`:func:,
 `~hask.Data.List.takeWhile`:func:, etc.), or you can also use Python-style
-indexing:
+indexing::
 
     >>> from hask import L
     >>> L[1, ...]
     L[1 ...]
 
-
     >>> from hask.Data.List import take
     >>> take(5, L["a", "b", ...])
     L['a', 'b', 'c', 'd', 'e']
 
-
     >>> L[1,...][5:10]
     L[6, 7, 8, 9, 10]
-
 
     >>> from hask.Data.List import map
     >>> from hask.Data.Char import chr
@@ -132,11 +129,10 @@ indexing:
     >>> letters[:9]
     L['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']
 
-
     >>> # DON'T do this: len(L[1, 3, ...])
 
 Otherwise, you can use `~hask.lang.lazylist.List`:class: just like you would
-use a regular Python list:
+use a regular Python list::
 
     >>> from hask import L
     >>> for i in L[0, ..., 3]:
@@ -145,7 +141,6 @@ use a regular Python list:
     1
     2
     3
-
 
     >>> 55 in L[1, 3, ...]
     True
@@ -159,19 +154,18 @@ with a fixed number of typed, unnamed fields.
 
 .. _algebraic datatypes: https://wiki.haskell.org/Algebraic_data_type
 
-Here is the definition for the infamous `~hask.Data.Maybe.Maybe`:class: type:
+Here is the definition for the infamous `~hask.Data.Maybe.Maybe`:class: type::
 
     >>> from hask import data, d, deriving
     >>> from hask import Read, Show, Eq, Ord
 
-    >>> Maybe, Nothing, Just =\
-    ...     data.Maybe("a") == d.Nothing | d.Just("a") & \
+    >>> Maybe, Nothing, Just = (
+    ...     data.Maybe("a") == d.Nothing | d.Just("a") &
     ...                        deriving(Read, Show, Eq, Ord)
+    ... )
 
-
-Let's break this down a bit. The syntax for defining a new `type constructor
+Let's break this down a bit.  The syntax for defining a new `type constructor
 <https://wiki.haskell.org/Constructor#Type_constructor__>`__ is::
-
 
     >>> data.TypeName("type param", "type param 2" ... "type param n")
 
@@ -180,11 +174,12 @@ This defines a new algebraic datatype with type parameters.
 To define `data constructors
 <https://wiki.haskell.org/Constructor#Data_constructor__>`__ for this type,
 use ``d``.  The name of the data constructor goes first, followed by its
-fields. Multiple data constructors should be separated by ``|``. If your data
-constructor has no fields, you can omit the parens. For example:
+fields.  Multiple data constructors should be separated by ``|``.  If your
+data constructor has no fields, you can omit the parens.  For example::
 
-    >>> FooBar, Foo, Bar =\
+    >>> FooBar, Foo, Bar = (
     ...    data.FooBar("a", "b") == d.Foo("a", "b", str) | d.Bar
+    ... )
 
 
 To automagically derive typeclass instances for the type, add ``&
@@ -195,20 +190,25 @@ Currently, the only typeclasses that can be derived are
 `~hask.lang.typeclasses.Bounded`:class:.
 
 Putting it all together, here are the definitions of
-`~hask.Data.Either.Either`:class: and `~hask.Data.Ordering.Ordering`:class:\ :
+`~hask.Data.Either.Either`:class: and `~hask.Data.Ordering.Ordering`:class:.
+
+::
 
     >>> from hask import Read, Show, Eq, Ord, Bounded
 
-    >>> Either, Left, Right =\
-    ...    data.Either("a", "b") == d.Left("a") | d.Right("b") & deriving(Read, Show, Eq)
+    >>> Either, Left, Right = (
+    ...    data.Either("a", "b") == d.Left("a") | d.Right("b") &
+    ...                             deriving(Read, Show, Eq)
+    ... )
 
-
-    >>> Ordering, LT, EQ, GT =\
-    ...     data.Ordering == d.LT | d.EQ | d.GT & deriving(Read, Show, Eq, Ord, Bounded)
+    >>> Ordering, LT, EQ, GT = (
+    ...     data.Ordering == d.LT | d.EQ | d.GT &
+    ...                      deriving(Read, Show, Eq, Ord, Bounded)
+    ... )
 
 You can now use the data constructors defined in a `data` statement to create
-instances of these new types. If the data constructor takes no arguments, you
-can use it just like a variable:
+instances of these new types.  If the data constructor takes no arguments, you
+can use it just like a variable::
 
     >>> Just(10)
     Just(10)
@@ -226,7 +226,7 @@ can use it just like a variable:
     Foo(1, 2, 'hello')
 
 You can view the type of an object with `~hask.lang.syntax._t`:func:
-(equivalent to `:t` in ghci).
+(equivalent to `:t` in ghci)::
 
     >>> from hask import _t, L
 
@@ -255,7 +255,7 @@ shows the Hask type of a particular object.
 
 In Hask, typed functions take the form of
 `~hask.lang.type_system.TypedFunc`:func: objects, which are typed wrappers
-around Python functions. There are two ways to create TypedFunc objects:
+around Python functions.  There are two ways to create TypedFunc objects:
 
 - Use the `sig` decorator to decorate the function with the type signature::
 
@@ -275,8 +275,8 @@ around Python functions. There are two ways to create TypedFunc objects:
 
 TypedFunc objects have several special properties.  First, they are type
 checked -- when arguments are supplied, the type inference engine will check
-whether their types match the type signature, and raise a TypeError if there
-is a discrepancy.
+whether their types match the type signature, and raise a `TypeError`:class:
+if there is a discrepancy::
 
     >>> from hask import H
     >>> f = (lambda x, y: x + y) ** (H/ int >> int >> int)
@@ -289,9 +289,8 @@ is a discrepancy.
        ...
     TypeError: ...
 
-
-
-Second, TypedFunc objects can be partially applied:
+Second, `~hask.lang.type_system.TypedFunc`:class: objects can be partially
+applied::
 
    >>> from hask import H
    >>> g = (lambda a, b, c: a // (b + c)) ** (H/ int >> int >> int >> int)
@@ -306,14 +305,13 @@ Second, TypedFunc objects can be partially applied:
    >>> g(20, 1)(4)
    4
 
-
-TypedFunc objects also have two special infix operators, the ``*`` and ``%``
-operators. ``*`` is the compose operator (equivalent to ``.`` in Haskell), so
-``f * g`` is equivalent to ``lambda x: f(g(x))``. ``%`` is just the apply
-operator, which applies a TypedFunc to one argument (equivalent to ``$`` in
-Haskell).  The convinience of this notation (when combined with partial
-application) cannot be overstated -- you can get rid of a ton of nested
-parenthesis this way:
+`~hask.lang.type_system.TypedFunc`:class: objects also have two special infix
+operators, the ``*`` and ``%`` operators.  ``*`` is the compose operator
+(equivalent to ``.`` in Haskell), so ``f * g`` is equivalent to ``lambda x:
+f(g(x))``.  ``%`` is just the apply operator, which applies a TypedFunc to one
+argument (equivalent to ``$`` in Haskell).  The convinience of this notation
+(when combined with partial application) cannot be overstated -- you can get
+rid of a ton of nested parenthesis this way:
 
 
    >>> from hask.Prelude import flip
@@ -399,7 +397,7 @@ Some examples::
       return not any((x == y for x in xs))
 
 
-  # type signature with a type constructor (Maybe) that has type arguments
+  # signature with a type constructor (Maybe) that has type arguments
   @sig(H/ int >> int >> t(Maybe, int))
   def safe_div(x, y):
       return Nothing if y == 0 else Just(x/y)
@@ -408,18 +406,13 @@ Some examples::
   # type signature for a function that returns nothing
   @sig(H/ int >> None)
   def launch_missiles(num_missiles):
-      print("Launching {0} missiles! Bombs away!" % num_missiles)
+      print("Launching {} missiles! Bombs away!".format(num_missiles))
 
 
-It is also possible to create type synonyms using
-`~hask.lang.syntax.t`:func:. For example, check out the definition of
-:obj:`~hask.Data.Num.Rational`:
+It is also possible to create type synonyms using `~hask.lang.syntax.t`:func:.
+For example, check out the definition of :obj:`~hask.Data.Num.Rational`::
 
-::
-
-    Ratio, R =\
-            data.Ratio("a") == d.R("a", "a") & deriving(Eq)
-
+    Ratio, R = data.Ratio("a") == d.R("a", "a") & deriving(Eq)
 
     Rational = t(Ratio, int)
 
@@ -448,49 +441,49 @@ Pattern matching expressions follow this syntax::
 
 Here is a function that uses pattern matching to compute the fibonacci
 sequence.  Note that within a pattern match expression, ``m.*`` is used to
-bind variables, and ``p.*`` is used to access them:
+bind variables, and ``p.*`` is used to access them::
 
-  >>> from hask import caseof, m, p, sig, H
-  >>> @sig(H/ int >> int)
-  ... def fib(x):
-  ...     return ~(caseof(x)
-  ...                 | m(0)   >> 1
-  ...                 | m(1)   >> 1
-  ...                 | m(m.n) >> fib(p.n - 2) + fib(p.n - 1))
+    >>> from hask import caseof, m, p, sig, H
+    >>> @sig(H/ int >> int)
+    ... def fib(x):
+    ...     return ~(caseof(x)
+    ...                 | m(0)   >> 1
+    ...                 | m(1)   >> 1
+    ...                 | m(m.n) >> fib(p.n - 2) + fib(p.n - 1))
 
-  >>> fib(1)
-  1
+    >>> fib(1)
+    1
 
-  >>> fib(6)
-  13
+    >>> fib(6)
+    13
 
 
 As the above example shows, you can combine pattern matching and recursive
 functions without a hitch.
 
-You can also deconstruct an iterable using ``^`` (the cons operator). The
+You can also deconstruct an iterable using ``^`` (the cons operator).  The
 variable before the ``^`` is bound to the first element of the iterable, and
-the variable after the ``^`` is bound to the rest of the iterable. Here is a
+the variable after the ``^`` is bound to the rest of the iterable.  Here is a
 function that adds the first two elements of any iterable, returning
-``Nothing`` if there are less than two elements:
+``Nothing`` if there are less than two elements::
 
-  >>> from hask import sig, t, caseof, m, p, H
-  >>> from hask import Num, Maybe, Just, Nothing
+    >>> from hask import sig, t, caseof, m, p, H
+    >>> from hask import Num, Maybe, Just, Nothing
 
-  >>> @sig(H[(Num, "a")]/ ["a"] >> t(Maybe, "a"))
-  ... def add_first_two(xs):
-  ...     return ~(caseof(xs)
-  ...                 | m(m.x ^ (m.y ^ m.z)) >> Just(p.x + p.y)
-  ...                 | m(m.x)               >> Nothing)
+    >>> @sig(H[(Num, "a")]/ ["a"] >> t(Maybe, "a"))
+    ... def add_first_two(xs):
+    ...     return ~(caseof(xs)
+    ...                 | m(m.x ^ (m.y ^ m.z)) >> Just(p.x + p.y)
+    ...                 | m(m.x)               >> Nothing)
 
-  >>> add_first_two(L[1, 2, 3, 4, 5])
-  Just(3)
+    >>> add_first_two(L[1, 2, 3, 4, 5])
+    Just(3)
 
-  >>> add_first_two(L[9.0])
-  Nothing
+    >>> add_first_two(L[9.0])
+    Nothing
 
 Pattern matching is also very useful for deconstructing ADTs and assigning
-their fields to temporary variables.
+their fields to temporary variables::
 
     >>> from hask import caseof, m, p
     >>> from hask import Num, Maybe, Just, Nothing
@@ -503,14 +496,13 @@ their fields to temporary variables.
     >>> default_to_zero(Just(27))
     27
 
-
     >>> default_to_zero(Nothing)
     0
 
 
 If you find pattern matching on ADTs too cumbersome, you can also use numeric
 indexing on ADT fields.  An `IndexError` will be thrown if you mess something
-up.
+up::
 
    >>> Just(20.0)[0]
    20.0
@@ -525,16 +517,14 @@ Typeclasses and typeclass instances
 -----------------------------------
 
 `Typeclasses <https://en.wikipedia.org/wiki/Type_class_>`__ allow you to add
-additional functionality to your ADTs. Hask implements all of the major
+additional functionality to your ADTs.  Hask implements all of the major
 typeclasses from Haskell (see the Appendix for a full list) and provides
 syntax for creating new typeclass instances.
 
 As an example, let's add a `Monad <https://wiki.haskell.org/Monad_>`__
 instance for the Maybe type.  First, however, Maybe needs `Functor
 <https://wiki.haskell.org/Functor_>`__ and `Applicative
-<https://wiki.haskell.org/Applicative_functor_>`__ instances.
-
-::
+<https://wiki.haskell.org/Applicative_functor_>`__ instances::
 
     def maybe_fmap(fn, x):
         """Apply a function to the value inside of a (Maybe a) value"""
@@ -547,8 +537,8 @@ instance for the Maybe type.  First, however, Maybe needs `Functor
         fmap = maybe_fmap
     )
 
-Maybe is now an instance of Functor. This allows us to call ``fmap`` and map
-any function of type ``a -> b`` into a value of type ``Maybe a``.
+Maybe is now an instance of Functor.  This allows us to call ``fmap`` and map
+any function of type ``a -> b`` into a value of type ``Maybe a``::
 
     >>> from hask.Data.Maybe import Just, Nothing
     >>> from hask.Data.Functor import fmap
@@ -561,9 +551,9 @@ any function of type ``a -> b`` into a value of type ``Maybe a``.
     >>> fmap(toFloat, fmap(times2, Just(25)))
     Just(50.0)
 
-Lots of nested calls to fmap get unwieldy very fast. Fortunately, any instance
-of Functor can be used with the infix fmap operator, ``*``. This is equivalent
-to ``<$>`` in Haskell. Rewriting our example from above:
+Lots of nested calls to fmap get unwieldy very fast.  Fortunately, any
+instance of Functor can be used with the infix fmap operator, ``*``.  This is
+equivalent to ``<$>`` in Haskell.  Rewriting our example from above::
 
     >>> (toFloat * times2) * Just(25)
     Just(50.0)
@@ -572,14 +562,13 @@ to ``<$>`` in Haskell. Rewriting our example from above:
     Nothing
 
 Note that this example uses ``*`` as both the function compose operator and as
-``fmap``, to lift functions into a Maybe value. If this seems confusing,
+``fmap``, to lift functions into a Maybe value.  If this seems confusing,
 remember that ``fmap`` for functions is just function composition!
 
 Now that Maybe is an instance of Functor, we can make it an instance of
 Applicative and then an instance of Monad by defining the appropriate function
-implementations. To implement Applicative, we just need to provide
-``pure``. To implement Monad, we need to provide ``bind``.
-
+implementations.  To implement Applicative, we just need to provide ``pure``.
+To implement Monad, we need to provide ``bind``::
 
     >>> from hask import instance, m, caseof, p
     >>> from hask import Applicative, Monad
@@ -594,7 +583,7 @@ implementations. To implement Applicative, we just need to provide
     ...                             | m(Nothing)   >> Nothing)
     ... )
 
-The ``bind`` function also has an infix form, which is ``>>`` in Hask.
+The ``bind`` function also has an infix form, which is ``>>`` in Hask::
 
     >>> from hask import sig, t
     >>> from hask.Data.Maybe import Maybe, Just, Nothing
@@ -612,12 +601,11 @@ The ``bind`` function also has an infix form, which is ``>>`` in Hask.
     >>> Just(12) >> divBy(2) >> divBy(2) >> divBy(3)
     Just(1)
 
-
     >>> Just(12) >> divBy(0) >> divBy(6)
     Nothing
 
 As in Haskell, List is also a monad, and ``bind`` for the List type is just
-``concatMap``.
+``concatMap``::
 
     >>> from hask import L
     >>> from hask.Data.List import replicate
@@ -652,9 +640,9 @@ in `hask.Data.Functor`:mod: and `hask.Data.Num`:mod: to see how it's done.
 Operator sections
 -----------------
 
-Hask also supports operator sections (e.g. ``(1+)`` in Haskell). Sections are
+Hask also supports operator sections (e.g. ``(1+)`` in Haskell).  Sections are
 just `~hask.lang.type_system.TypedFunc`:class: objects, so they are
-automagically curried and typechecked.
+automatically curried and type-checked::
 
     >>> from hask import __
     >>> f = (__ - 20) * (2 ** __) * (__ + 3)
@@ -694,9 +682,7 @@ Guards
 
 If you don't need the full power of pattern matching and just want a neater
 switch statement, you can use guards.  The syntax for guards is almost
-identical to the syntax for pattern matching.
-
-::
+identical to the syntax for pattern matching::
 
     ~(guard(expr_to_test)
         | c(test_1) >> return_value_1
@@ -706,10 +692,11 @@ identical to the syntax for pattern matching.
 
 
 As in Haskell, `~hask.lang.syntax.otherwise`:obj: will always evaluate to True
-and can be used as a catch-all in guard expressions. If no match is found (and
-an otherwise clause is not present), a `NoGuardMatchException` will be raised.
+and can be used as a catch-all in guard expressions.  If no match is found
+(and an otherwise clause is not present), a `NoGuardMatchException` will be
+raised.
 
-Guards will also play nicely with sections:
+Guards will also play nicely with sections::
 
     >>> from hask import guard, c, otherwise
     >>> porridge_tempurature = 80
@@ -722,7 +709,7 @@ Guards will also play nicely with sections:
     'Porridge is just right!'
 
 If you need a more complex conditional, you can always use lambdas, regular
-Python functions, or any other callable in your guard condition.
+Python functions, or any other callable in your guard condition::
 
     >>> def examine_password_security(password):
     ...     analysis = ~(guard(password)
@@ -748,15 +735,16 @@ defined outside Hask, you can use the decorators ``in_maybe`` and
 the result wrapped inside a Maybe or Either value.
 
 If a function wrapped in ``in_maybe`` raises an exception, the wrapped
-function will return Nothing. Otherwise, the result will be returned wrapped
-in a Just.
+function will return Nothing.  Otherwise, the result will be returned wrapped
+in a ``Just``::
 
     >>> from hask.Data.Maybe import in_maybe
 
     >>> def eat_cheese(cheese):
-    ...     if cheese <= 0:
+    ...     if cheese > 0:
+    ...         return cheese - 1
+    ...     else:
     ...         raise ValueError("Out of cheese error")
-    ...     return cheese - 1
 
     >>> maybe_eat = in_maybe(eat_cheese)
     >>> maybe_eat(1)
@@ -766,31 +754,29 @@ in a Just.
     Nothing
 
 Note that this is equivalent to lifting the original function into the Maybe
-monad. That is, its type has changed from `func` to ``a -> Maybe b``.  This
+monad.  That is, its type has changed from `func` to ``a -> Maybe b``.  This
 makes it easier to use the convineient monad error handling style commonly
 seen in Haskell with existing Python functions.
 
 Continuing with this silly example, let's try to eat three pieces of cheese,
-returning Nothing if the attempt was unsuccessful:
+returning Nothing if the attempt was unsuccessful::
 
     >>> from hask.Data.Maybe import Just
 
     >>> cheese = 10
-    >>> cheese_left = Just(cheese) >> maybe_eat >> maybe_eat >> maybe_eat
-    >>> cheese_left
+    >>> Just(cheese) >> maybe_eat >> maybe_eat >> maybe_eat
     Just(7)
 
     >>> cheese = 1
-    >>> cheese_left = Just(cheese) >> maybe_eat >> maybe_eat >> maybe_eat
-    >>> cheese_left
+    >>> Just(cheese) >> maybe_eat >> maybe_eat >> maybe_eat
     Nothing
 
 Notice that we have taken a regular Python function that throws Exceptions,
 and are now handling it in a type-safe, monadic way.
 
-The ``in_either`` function works just like ``in_maybe``. If an Exception is
-thrown, the wrapped function will return the exception wrapped in
-Left. Otherwise, the result will be returned wrapped in Right.
+The ``in_either`` function works just like ``in_maybe``.  If an exception is
+thrown, the wrapped function will return the exception wrapped in ``Left``.
+Otherwise, the result will be returned wrapped in ``Right``::
 
     >>> from hask.Data.Either import in_either, Right, Left
 
