@@ -74,7 +74,7 @@ def nt_to_tuple(nt):
     :returns: A tuple containing each of the items in nt
 
     """
-    return tuple((getattr(nt, f) for f in nt.__class__._fields))
+    return tuple(getattr(nt, f) for f in type(nt)._fields)
 
 
 class TypeMeta(type):
@@ -147,10 +147,10 @@ def build_instance(typeclass, cls, attrs):
     key = id(cls)
     bad = next((dep for dep in deps if key not in dep.__instances__), None)
     if bad is None:
-        __methods__ = namedtuple("__{}__".format(key), attrs.keys())(**attrs)
-        typeclass.__instances__[key] = __methods__
+        name = '__{}_{}__'.format(typeclass.__name__, cls.__name__)
+        typeclass.__instances__[key] = namedtuple(name, attrs.keys())(**attrs)
     else:
-        raise TypeError("Missing dependency: %s" % bad.__name__)
+        raise TypeError("Missing dependency: '{}'".format(bad.__name__))
 
 
 def has_instance(cls, typeclass):
