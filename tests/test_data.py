@@ -8,9 +8,6 @@ from hask import LT, GT
 
 from hask import Nothing, Just, Maybe
 
-te = TypeError
-ve = ValueError
-
 
 class TestDataString(unittest.TestCase):
 
@@ -32,11 +29,11 @@ class TestDataChar(unittest.TestCase):
         from hask.Data.Char import ord, chr
 
         self.assertEqual("a", chr(97))
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             ord(97)
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             chr("a")
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             chr * chr
         for i in range(256):
             self.assertEqual(i, ord * chr % i)
@@ -203,11 +200,11 @@ class TestDataList(unittest.TestCase):
         self.assertEqual(1, product(L[[]]))
 
         self.assertEqual(10, maximum(L[0, ..., 10]))
-        with self.assertRaises(ve):
+        with self.assertRaises(ValueError):
             maximum(L[[]])
 
         self.assertEqual(0, minimum(L[0, ..., 10]))
-        with self.assertRaises(ve):
+        with self.assertRaises(ValueError):
             minimum(L[[]])
 
     def test_building_lists(self):

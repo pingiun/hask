@@ -10,10 +10,6 @@ from hask import Just, Nothing, Maybe, Either
 from hask import GT, EQ, LT, Ordering, Eq, L
 
 
-te = TypeError
-ve = ValueError
-
-
 class TestSyntax(unittest.TestCase):
 
     def test_syntax(self):
@@ -203,7 +199,7 @@ class TestSyntax(unittest.TestCase):
             | c(lambda x: x == 1) >> "foo"
             | otherwise           >> "Err"))
 
-        with self.assertRaises(ve):
+        with self.assertRaises(ValueError):
             ~(guard(2) | c(1) >> 1)
         with self.assertRaises(me):
             ~(guard(1) | c(lambda x: x == 2) >> 1)
@@ -388,11 +384,11 @@ class TestSyntax(unittest.TestCase):
         with self.assertRaises(tse):
             x ** (H/ int >> "AAA")
 
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             t(Maybe, "a", "b")
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             t(Either, "a")
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             t(Ordering, "a")
 
         with self.assertRaises(SyntaxError):

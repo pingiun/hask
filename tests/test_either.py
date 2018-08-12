@@ -7,9 +7,6 @@ from hask import __, H, sig, t
 from hask import L
 
 
-te = TypeError
-
-
 class TestEither(unittest.TestCase):
 
     def test_instances(self):
@@ -101,7 +98,7 @@ class TestEither(unittest.TestCase):
         self.assertEqual(Left(7), fmap(__+1, Left(7)))
         self.assertEqual(Left("a"), fmap(__+1, Left("a")))
         self.assertEqual(Right(8), fmap(__+1, Right(7)))
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             fmap(__+1, Right("a"))
         self.assertEqual(Right(Left(1)), fmap(const(Left(1)), Right("a")))
         self.assertEqual(Left("a"), fmap(const(Left(1)), Left("a")))

@@ -10,10 +10,6 @@ from hask import Left, Right
 from hask.lang.type_system import pattern_match
 from hask.lang.type_system import PatternMatchBind
 
-te = TypeError
-se = SyntaxError
-ve = ValueError
-
 
 class TestTypeSystem(unittest.TestCase):
 
@@ -34,11 +30,11 @@ class TestTypeSystem(unittest.TestCase):
         self.assertEqual(f(h(g(5))), (f * h * g)(5))
         self.assertEqual((i * h * f)(9), "22")
         self.assertEqual(1., j % [1., 2.])
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             f(4.0)
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             f("4")
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             f(1, 2)
 
     def test_TypedFunc_var(self):
@@ -48,7 +44,7 @@ class TestTypeSystem(unittest.TestCase):
 
         self.assertEqual(1, superconst([], 1, [1, 2]))
         self.assertEqual(None, superconst([], None, [1, 2]))
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             superconst(1, "a", 1.)
 
     def test_TypedFunc_tuple(self):
@@ -58,13 +54,13 @@ class TestTypeSystem(unittest.TestCase):
 
         self.assertEqual("1a", pprint((1, 9., "a")))
         self.assertEqual("1a", pprint((1, object(), "a")))
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             pprint((1, 2, 3))
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             pprint(("1", 2, "3"))
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             pprint((1, 2, 3, 4))
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             pprint((1, 2))
 
         @sig(H/ ("a", "b") >> ("b", "a"))
@@ -73,7 +69,7 @@ class TestTypeSystem(unittest.TestCase):
 
         self.assertEqual(swap((1, 2)), (2, 1))
         self.assertEqual(swap((1.0, 2)), (2, 1.))
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             swap((1, 2, 3))
 
     def test_TypedFunc_list(self):
@@ -82,7 +78,7 @@ class TestTypeSystem(unittest.TestCase):
             return sum(l)
 
         self.assertEqual(sum1 % L[1, 2, 3], 6)
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             sum1 % L[1., 2., 3.]
 
         @sig(H/ [["a"]] >> ["a"])
@@ -91,7 +87,7 @@ class TestTypeSystem(unittest.TestCase):
 
         self.assertEqual(flatten(L[L["a", "b"], L["c", "d"]]),
                          L["a", "b", "c", "d"])
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             flatten(L["a", "b"])
 
     def test_TypedFunc_None(self):
@@ -101,7 +97,7 @@ class TestTypeSystem(unittest.TestCase):
 
         self.assertIsNone(None, n_to_n % None)
         self.assertIsNone(None, n_to_n * n_to_n % None)
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             n_to_n(1)
 
     def test_TypedFunc_func(self):
@@ -130,7 +126,7 @@ class TestTypeSystem(unittest.TestCase):
         self.assertEqual(id_wrap(example.stat_test)(2), [2])
 
         self.assertEqual((id_wrap * id_wrap % (lambda x: x+1))(9), 10)
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             id_wrap(1)
 
         @sig(H/ func >> func >> int >> int)
@@ -187,7 +183,7 @@ class TestTypeSystem(unittest.TestCase):
             pattern_match((1, "a", 2), (pb("a"), pb("_"), pb("b")))
         )
 
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             pattern_match((1, 2), (pb("c"), pb("a")), {"c": 1})
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             pattern_match((1, 2), (pb("c"), pb("a")), {"a": 1})

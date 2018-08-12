@@ -21,8 +21,6 @@ from hask.lang.hindley_milner import Function
 from hask.lang.hindley_milner import Tuple
 from hask.lang.hindley_milner import unify
 
-te = TypeError
-
 
 class TestHindleyMilner(unittest.TestCase):
     """Test the internals of the Hindley-Milner type inference engine"""
@@ -34,7 +32,7 @@ class TestHindleyMilner(unittest.TestCase):
 
     def not_inference(self, expr):
         """Type inference failed using our toy environment"""
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             expr.analyze(self.env)
         return
 
@@ -52,7 +50,7 @@ class TestHindleyMilner(unittest.TestCase):
         """Typecheck failed, but inference succeeded using our toy environment
         """
         self.inference(expr)
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             self.typecheck(expr, expr_type)
         return
 

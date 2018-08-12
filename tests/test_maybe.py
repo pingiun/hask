@@ -11,10 +11,6 @@ from hask import Typeclass, L
 from hask import H, sig, __, t
 
 
-te = TypeError
-ve = ValueError
-
-
 class TestMaybe(unittest.TestCase):
 
     def test_instances(self):
@@ -54,15 +50,15 @@ class TestMaybe(unittest.TestCase):
         self.assertTrue(Just(1) == Just(1) or Just(1) != Just(1))
         self.assertFalse(Nothing == Nothing and Nothing != Nothing)
         self.assertFalse(Just(1) == Just(1) and Just(1) != Just(1))
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             Just(1) == Just("1")
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             Just(1) == Just(1.0)
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             Nothing == None  # noqa
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             Nothing == 1
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             Just(1) == 1
 
     def test_ord(self):
@@ -113,21 +109,21 @@ class TestMaybe(unittest.TestCase):
         self.assertFalse(Just(Just(Nothing)) <= Just(Nothing))
         self.assertTrue(Just(Just(Nothing)) <= Just(Just(Nothing)))
 
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             Just(1) > Just(1.0)
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             Just(1) >= Just(1.0)
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             Just(1) < Just(1.0)
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             Just(1) <= Just(1.0)
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             Just(1) > Just(Just(1))
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             Just(1) >= Just(Just(1))
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             Just(1) < Just(Just(1))
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             Just(1) <= Just(Just(1))
 
     def test_functor(self):
@@ -197,7 +193,7 @@ class TestMaybe(unittest.TestCase):
         self.assertTrue(isNothing(Nothing))
         self.assertEqual(fromJust(Just("bird")), "bird")
         self.assertEqual(fromJust(Just(Nothing)), Nothing)
-        with self.assertRaises(ve):
+        with self.assertRaises(ValueError):
             fromJust(Nothing)
 
         self.assertEqual(2, maybe(0, (__+1), Just(1)))
