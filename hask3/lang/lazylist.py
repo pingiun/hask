@@ -262,11 +262,11 @@ class List(Sequence, Hask):
         body = ", ".join(map(show, self.__head))
         if self.__is_evaluated:
             if len(self.__head) <= 1:
-                body = '[{}]'.format(body)
+                body = f'[{body}]'
             suffix = ''
         else:
             suffix = ' ...'
-        return "L[{}{}]".format(body, suffix)
+        return f"L[{body}{suffix}]"
 
     def __cmp__(self, other):
         if self.__is_evaluated and other.__is_evaluated:

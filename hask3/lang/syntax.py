@@ -44,7 +44,7 @@ class instance(Syntax):
             self.typeclass = typecls
             self.cls = cls
         else:
-            raise TypeError("{} is not a type-class".format(typecls))
+            raise TypeError(f"{typecls} is not a type-class")
 
     def where(self, **kwargs):
         self.typeclass.make_instance(self.cls, **kwargs)
@@ -164,7 +164,7 @@ class sig(Syntax):
             else:
                 raise SyntaxError("Not enough type arguments in signature")
         else:
-            msg = "Signature expected in sig(); found {}".format(signature)
+            msg = f"Signature expected in sig(); found {signature}"
             raise SyntaxError(msg)
 
     def __str__(self):
@@ -195,8 +195,8 @@ def t(tcon, *params):
     if not safe_issubclass(tcon, ADT) or len(tcon.__params__) == len(params):
         return TypeSignatureHKT(tcon, list(map(__signature__._inner, params)))
     else:
-        _msg = "Incorrect number of type parameters to {}"
-        raise TypeError(_msg.format(tcon.__name__))
+        _msg = f"Incorrect number of type parameters to {tcon.__name__}"
+        raise TypeError(_msg)
 
 
 def typify(fn, hkt=None):
@@ -511,8 +511,8 @@ class __new_tcon_enum__(__new_tcon__):
     def __call__(self, *typeargs):
         count = len(typeargs)
         if count == 0:
-            msg = "Missing type arguments in statement: `data.{}()`"
-            raise SyntaxError(msg.format(self.name))
+            msg = f"Missing type arguments in statement: `data.{self.name}()`"
+            raise SyntaxError(msg)
         elif count != len(set(typeargs)):
             raise SyntaxError("Type parameters are not unique")
         elif not all(type(arg) == str and arg.islower() for arg in typeargs):
@@ -694,7 +694,7 @@ class deriving(Syntax):
             self.classes = tclasses
             super(deriving, self).__init__()
         else:
-            raise TypeError("Cannot derive non-typeclass {}".format(wrong))
+            raise TypeError(f"Cannot derive non-typeclass {wrong}")
 
 
 @objectify
@@ -899,7 +899,7 @@ class __unmatched_guard__(__guard_base__):
             return __unmatched_guard__(self.value)
 
     def __invert__(self):
-        msg = "No match found in guard({})".format(self.value)
+        msg = f"No match found in guard({self.value})"
         raise NoGuardMatchException(msg)
 
 
@@ -987,8 +987,7 @@ def _q(status=None):
     except BaseException as error:
         ipython = sys.modules.get('IPython.core.interactiveshell', None)
         if ipython is not None:
-            msg = 'System exit failed "{}({})", trying IPython quit.'
-            print(msg.format(type(error).__name__, error))
+            print('System exit failed, trying IPython quit.')
             shell = ipython.InteractiveShell.instance()
             shell.ns_table['user_global']['exit']()
         else:

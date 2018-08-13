@@ -57,14 +57,14 @@ _OPS = {
 
 _MAGICS = set.union(
     # TODO: After Python 3.6 `f'{p}{o}'`
-    {'{}{}'.format(p, o) for p in 'ri' for o in _OPS['arithmetic-binary']},
+    {f'{p}{o}' for p in 'ri' for o in _OPS['arithmetic-binary']},
     *_OPS.values())
 
 
 def settle_magic_methods(fn, names=_MAGICS):
     '''Decorator to settle all magic methods to function `fn`.'''
     from xoutil.decorator import settle
-    return settle(**{'__{}__'.format(name): fn for name in names})
+    return settle(**{f'__{name}__': fn for name in names})
 
 
 # Utilities
@@ -141,13 +141,13 @@ def objectify(target, *args, **kwargs):
       ...         self.name = name
       ...
       ...     def __str__(self):
-      ...         res = '"{}" instance named "{}"'
-      ...         return res.format(type(self).__name__, self.name)
+      ...         res = f'{type(self).__name__}({self.name})'
+      ...         return res
       ...
       ...     __repr__ = __str__
 
       >>> foo
-      '"foo" instance named "bar"'
+      'foo(bar)'
 
       >>> isinstance(foo, type)
       False

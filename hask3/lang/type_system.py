@@ -49,7 +49,7 @@ class TypeMeta(type):
                 key = type(item)
             return self.__instances__[self.get_id(key)]
         except KeyError:
-            raise TypeError("No instance for {}".format(item))
+            raise TypeError(f"No instance for {item}")
 
 
 class Typeclass(metaclass=TypeMeta):
@@ -123,10 +123,10 @@ def build_instance(typeclass, cls, attrs):
     key = Typeclass.get_id(cls)
     bad = next((dep for dep in deps if key not in dep.__instances__), None)
     if bad is None:
-        name = '__{}_{}__'.format(typeclass.__name__, cls.__name__)
+        name = f'__{typeclass.__name__}_{cls.__name__}__'
         typeclass.__instances__[key] = namedtuple(name, attrs.keys())(**attrs)
     else:
-        raise TypeError("Missing dependency: '{}'".format(bad.__name__))
+        raise TypeError(f"Missing dependency: '{bad.__name__}'")
 
 
 def has_instance(cls, typeclass):
@@ -291,8 +291,7 @@ def build_sig_arg(arg, cons, var_dict):
     if res is not None:
         return res
     else:
-        msg = "Invalid item in type signature: {}".format(arg)
-        raise TypeSignatureError(msg)
+        raise TypeSignatureError(f"Invalid item in type signature: {arg}")
 
 
 def make_fn_type(params):
@@ -426,7 +425,7 @@ def make_type_const(name, typeargs):
     # any of these attributes, and trying to use one is a TypeError
     magic = {'iter', 'contains', 'add', 'radd', 'rmul', 'mul', 'lt', 'gt',
              'le', 'ge', 'eq', 'ne'}
-    magic = {'__{}__'.format(op) for op in magic} | {'count', 'index'}
+    magic = {f'__{op}__' for op in magic} | {'count', 'index'}
     for attr in magic:
         setattr(cls, attr, lambda self: raise_fn(TypeError))
 
@@ -461,7 +460,7 @@ def make_data_const(name, fields, type_constructor, slot_num):
     from hask3.lang.hindley_milner import TypeVariable, TypeOperator
     # create the data constructor
     field_count = len(fields)
-    base = namedtuple(name, ["i{}".format(i) for i in range(field_count)])
+    base = namedtuple(name, [f"i{i}" for i in range(field_count)])
     cls = type(name, (type_constructor, base), {})
     cls.__type_constructor__ = type_constructor
     cls.__ADT_slot__ = slot_num
@@ -566,8 +565,7 @@ def pattern_match(value, pattern, env=None):
     env = {} if env is None else env
     if isinstance(pattern, PatternMatchBind):
         if pattern.name in env:
-            msg = "Conflicting definitions for {}".format(pattern.name)
-            raise SyntaxError(msg)
+            raise SyntaxError(f"Conflicting definitions for {pattern.name}")
         else:
             env[pattern.name] = value
             return True, env

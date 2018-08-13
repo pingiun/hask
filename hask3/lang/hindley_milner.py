@@ -70,7 +70,7 @@ class Lam(AST):
         self.body = body
 
     def __str__(self):
-        return "(\{v} -> {body})".format(v=self.v, body=self.body)
+        return f"(\{self.v} -> {self.body})"
 
     def analyze(self, env, non_generic=None):
         arg_type = TypeVariable()
@@ -109,7 +109,7 @@ class App(AST):
         self.arg = arg
 
     def __str__(self):
-        return "({fn} {arg})".format(fn=self.fn, arg=self.arg)
+        return f"({self.fn} {self.arg})"
 
     def analyze(self, env, non_generic=None):
         if non_generic is None:
@@ -130,8 +130,7 @@ class Let(AST):
         self.body = body
 
     def __str__(self):
-        exp = "(let {v} = {defn} in {body})"
-        return exp.format(v=self.v, defn=self.defn, body=self.body)
+        return f"(let {self.v} = {self.defn} in {self.body})"
 
     def analyze(self, env, non_generic=None):
         new_type = TypeVariable()
@@ -205,7 +204,7 @@ class TypeVariable(object):
         return str(self.instance) if self.instance is not None else self.name
 
     def __repr__(self):
-        return "TypeVariable(id = {})".format(self.id)
+        return f"TypeVariable(id = {self.id})"
 
     def unify_with(self, other):
         '''Unify the type variable with the `other` type.
@@ -247,7 +246,7 @@ class TypeOperator(object):
         from itertools import chain
         if self.types:
             parts = chain([self.name], self.types)
-            return '({})'.format(' '.join(map(show_type, parts)))
+            return f"({' '.join(map(show_type, parts))})"
         else:
             return show_type(self.name)
 
@@ -273,7 +272,7 @@ class Tuple(TypeOperator):
         super(self.__class__, self).__init__(tuple, types)
 
     def __str__(self):
-        return "({})".format(", ".join(map(show_type, self.types)))
+        return f'({", ".join(map(show_type, self.types))})'
 
 
 class ListType(TypeOperator):
@@ -283,7 +282,7 @@ class ListType(TypeOperator):
         super(self.__class__, self).__init__("[]", [list_type])
 
     def __str__(self):
-        return "[{}]".format(show_type(self.types[0]))
+        return f"[{show_type(self.types[0])}]"
 
 
 def getType(name, env, non_generic):
@@ -303,7 +302,7 @@ def getType(name, env, non_generic):
         return fresh(env[name], non_generic)
     except KeyError:
         # XXX: Use ``from ...`` in Python 3
-        raise TypeError("Undefined symbol {}".format(name))
+        raise TypeError(f"Undefined symbol {name}")
 
 
 def fresh(t, non_generic):
@@ -375,7 +374,7 @@ def unify(t1, t2):
             for p, q in zip(a.types, b.types):
                 unify(p, q)
         else:
-            raise TypeError("Type '{}' mismatch with '{}'".format(a, b))
+            raise TypeError(f"Type '{a}' mismatch with '{b}'")
     else:
         raise TypeError("Not unified.")
 

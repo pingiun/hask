@@ -37,10 +37,10 @@ class Show(Typeclass):
             else:
                 nt_tup = nt_to_tuple(self)
                 if len(nt_tup) == 1:
-                    tuple_str = "({})".format(Show[nt_tup[0]].show(nt_tup[0]))
+                    tuple_str = f"({Show[nt_tup[0]].show(nt_tup[0])})"
                 else:
                     tuple_str = Show[nt_tup].show(nt_tup)
-                return "{}{}".format(type(self).__name__, tuple_str)
+                return f"{type(self).__name__}{tuple_str}"
         Show.make_instance(cls, show=show)
 
 
@@ -207,8 +207,8 @@ class Bounded(Typeclass):
             minBound = lambda s: constructors[-1]
             Bounded.make_instance(cls, minBound=minBound, maxBound=maxBound)
         else:
-            msg = "Cannot derive Bounded; {} is not an enum"
-            raise TypeError(msg.format(bad.__name__))
+            msg = f"Cannot derive Bounded; {bad.__name__} is not an enum"
+            raise TypeError(msg)
 
 
 class Read(Typeclass):
