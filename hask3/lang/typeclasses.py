@@ -278,17 +278,3 @@ instance(Ord, dict).where(lt=dict.__lt__, le=dict.__le__,
                           gt=dict.__gt__, ge=dict.__ge__)
 instance(Ord, frozenset).where(lt=frozenset.__lt__, le=frozenset.__le__,
                                gt=frozenset.__gt__, ge=frozenset.__ge__)
-
-import sys    # noqa
-if sys.version[0] == '2':
-    instance(Show, long).where(show=long.__str__)
-    instance(Show, unicode).where(show=unicode.__str__)
-
-    instance(Eq, long).where(eq=long.__eq__, ne=long.__ne__)
-    instance(Eq, unicode).where(eq=unicode.__eq__, ne=unicode.__ne__)
-
-    instance(Ord, long).where(lt=long.__lt__, le=long.__le__,
-                              gt=long.__gt__, ge=long.__ge__)
-    instance(Ord, unicode).where(lt=unicode.__lt__, le=unicode.__le__,
-                                gt=unicode.__gt__, ge=unicode.__ge__)
-del sys

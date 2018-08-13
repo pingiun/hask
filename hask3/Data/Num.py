@@ -104,21 +104,6 @@ instance(Num, int).where(
     sub = int.__sub__
 )
 
-try:
-    long = long    # noqa
-    _l_1, _l0, _l1 = long(-1), long(0), long(1)
-    instance(Num, long).where(
-        add = long.__add__,
-        mul = long.__mul__,
-        abs = long.__abs__,
-        signum = lambda x: _l_1 if x < _l0 else (_l1 if x > _l0 else _l0),
-        fromInteger = long,
-        negate = long.__neg__,
-        sub = long.__sub__
-    )
-except NameError:
-    pass
-
 instance(Num, float).where(
     add = float.__add__,
     mul = float.__mul__,
@@ -505,13 +490,6 @@ instance(Real, int).where(
     toRational = lambda x: toRatio(x, 1)
 )
 
-try:
-    instance(Real, long).where(
-        toRational = lambda x: toRatio(x, 1)
-    )
-except NameError:
-    pass
-
 instance(Real, float).where(
     toRational = lambda x: toRatio(round(x), 1)  # obviously incorrect
 )
@@ -525,19 +503,6 @@ instance(Integral, int).where(
     mod = int.__mod__,
     divMod = divmod
 )
-
-try:
-    instance(Integral, long).where(
-        quotRem = lambda x, y: (x / y, x % y),
-        toInteger = int,
-        quot = long.__div__,
-        rem = long.__mod__,
-        div = long.__div__,
-        mod = long.__mod__,
-        divMod = divmod
-    )
-except NameError:
-    pass
 
 
 class RealFrac(Real, Fractional):

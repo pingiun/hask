@@ -172,13 +172,6 @@ instance(Enum, bool).where(fromEnum=int, toEnum=bool)
 instance(Enum, str).where(fromEnum=ord, toEnum=chr)
 
 
-import sys    # noqa
-if sys.version[0] == '2':
-    long = long   # noqa
-    instance(Enum, long).where(fromEnum=int, toEnum=long)
-del sys
-
-
 class List(Sequence, Hask):
     """Statically typed lazy sequence datatype.
 
@@ -421,7 +414,7 @@ class L(Syntax):
     To create a new List, just wrap an interable in ``L[ ]``.
 
     List comprehensions can be used with any instance of Enum, including the
-    built-in types int, long, float, and char.
+    built-in types int, float, and char.
     There are four basic list comprehension patterns:
 
     >>> L[1, ...]
