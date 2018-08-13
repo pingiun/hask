@@ -21,8 +21,6 @@ implementing the member function `eq`::
 
 '''
 
-from xoutil.eight.meta import metaclass
-
 
 class TypeMeta(type):
     """Metaclass for Typeclass type.
@@ -54,7 +52,7 @@ class TypeMeta(type):
             raise TypeError("No instance for {}".format(item))
 
 
-class Typeclass(metaclass(TypeMeta)):
+class Typeclass(metaclass=TypeMeta):
     """Base class for Hask type-classes.
 
     All subclasses should implement `make_instance` method, which controls
@@ -598,6 +596,3 @@ def pattern_match(value, pattern, env=None):
             return False, env
     else:
         return False, env
-
-
-del metaclass
