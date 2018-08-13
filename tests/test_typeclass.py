@@ -6,25 +6,37 @@ from hask3.Prelude import Show, Eq, Ord
 class TestTypeclass(unittest.TestCase):
 
     def test_typeclasses(self):
-        A, B =\
-                data.A == d.B & deriving(Show, Eq)
+        A, B = data.A == d.B & deriving(Show, Eq)
         self.assertTrue(has_instance(A, Show))
         self.assertTrue(has_instance(A, Eq))
-        self.assertFalse(has_instance(A, Ord))
+        if has_instance(A, Ord):
+            import ipdb; ipdb.set_trace()    # TODO: Remove this
+            has_instance(A, Ord)
+        self.assertFalse(has_instance(A, Ord))     # Failed here
         with self.assertRaises(TypeError):
             Ord[B]
         with self.assertRaises(TypeError):
             '''Notes:
 
-            >>> a = data.A    # __new_tcon_enum__('A')
-            >>> b = d.B    # __new_dcon_enum__('B')
-            >>> d = d.B & deriving(Show, Ord) \
-            ... # __new_dcon_deriving__('B', (), (Show, Ord))
-            >>> adt = (a == d) \
-            ... # build_ADT('A', (), [('B', ())], (Show, Ord))
+            >>> x = data.X    # __new_tcon_enum__('X')
+            >>> y = d.Y    # __new_dcon_enum__('Y')
+            >>> z = d.Y & deriving(Show, Ord) \
+            ... # __new_dcon_deriving__('Y', (), (Show, Ord))
+            >>> adt = (x == z) \
+            ... # build_ADT('X', (), [('Y', ())], (Show, Ord))
 
             '''
-            A, B = data.A == d.B & deriving(Show, Ord)
+            try:
+                X, Y = data.X == d.Y & deriving(Show, Ord)
+                # Eq_Person
+                import ipdb; ipdb.set_trace()    # TODO: Remove this
+                has_instance(X, Eq)
+            except TypeError:
+                raise
+            except Exception as error:
+                import ipdb; ipdb.set_trace()    # TODO: Remove this
+                print(error)
+
 
         class example(object):
             def __str__(self):

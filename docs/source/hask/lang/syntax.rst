@@ -1,61 +1,28 @@
 ============================================================================
- :mod:`hask3.lang.syntax` -- The "syntactic" elements to build Hask programs
+ `hask.lang.syntax`:mod: -- The "syntactic" elements to build Hask programs
 ============================================================================
 
-.. automodule:: hask3.lang.syntax
-
-.. autoclass:: sig
-
-.. object:: H
-.. autoclass:: __constraints__
-
-.. autoclass:: Syntax
-
-.. autoclass:: instance
-
-.. autoclass:: caseof
-
-.. object:: data
-.. autoclass:: __data__
-
-.. object:: d
-.. autoclass:: __d__
-
-.. autoclass:: deriving
-
-.. autofunction:: t
-
-.. autofunction:: typify
-
-.. object:: undefined
-.. autoclass:: __undefined__
-
-.. autoclass:: guard
-
-.. object:: c
-.. autoclass:: __guard_test__
-
-.. object:: otherwise
-
-   A `c`:obj: object that evaluates to True.
-
-.. object:: p
-.. autoclass:: __var_access__
+.. automodule:: hask.lang.syntax
+   :members: sig, Syntax, instance, caseof, deriving, t, typify,
+	     guard, c, _t, _i,
+	     IncompletePatternError, MatchStackFrame, MatchStack
 
 
-.. object:: m
-.. autoclass:: __var_bind__
+Special objects
+===============
 
+.. autodata:: H
 
-.. autofunction:: _t
+.. autodata:: data
 
-.. autofunction:: _i
+.. autodata:: d
 
-.. object:: __
-.. autoclass:: __section__
+.. autodata:: undefined
 
-.. autoexception:: IncompletePatternError
+.. autodata:: m
 
-.. autoclass:: MatchStackFrame
+.. autodata:: p
 
-.. autoclass:: MatchStack
+.. autodata:: otherwise
+
+.. autodata:: __

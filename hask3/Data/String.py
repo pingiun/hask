@@ -1,16 +1,16 @@
-from ..lang import H
-from ..lang import sig
-from ..lang import L
+from hask3.lang.syntax import H
+from hask3.lang.syntax import sig
 
 
 @sig(H/ str >> [str])
 def lines(string):
     """``lines :: String -> [String]``
 
-    lines breaks a string up into a list of strings at newline characters.
-    The resulting strings do not contain newlines.
+    Breaks a string up into a list of strings at newline characters.  The
+    resulting strings do not contain newlines.
 
     """
+    from hask3.lang.lazylist import L
     return L[[]] if not string else L[string.split("\n")]
 
 
@@ -18,10 +18,11 @@ def lines(string):
 def words(string):
     """``words :: String -> [String]``
 
-    words breaks a string up into a list of words, which were delimited by
-    white space.
+    Breaks a string up into a list of words, which were delimited by white
+    space.
 
     """
+    from hask3.lang.lazylist import L
     return L[[]] if string == "" else L[string.split(" ")]
 
 
@@ -29,7 +30,7 @@ def words(string):
 def unlines(strings):
     """``lines :: [String] -> String``
 
-    unlines is an inverse operation to lines. It joins lines, after appending a
+    An inverse operation to lines.  It joins lines, after appending a
     terminating newline to each.
 
     """
@@ -40,8 +41,10 @@ def unlines(strings):
 def unwords(strings):
     """``unwords :: [String] -> String``
 
-    unwords is an inverse operation to words. It joins words with separating
-    spaces.
+    An inverse operation to words.  It joins words with separating spaces.
 
     """
     return " ".join(strings)
+
+
+del H, sig

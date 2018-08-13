@@ -35,14 +35,9 @@ from hask3.lang.hindley_milner import TypeVariable
 from hask3.lang.hindley_milner import TypeOperator
 from hask3.lang.hindley_milner import Function
 from hask3.lang.hindley_milner import Tuple
-from hask3.lang.hindley_milner import analyze
 from hask3.lang.hindley_milner import unify
 
 from hask3.lang.lazylist import List
-
-te = TypeError
-se = SyntaxError
-ve = ValueError
 
 
 class TestADTInternals_Enum(unittest.TestCase):
@@ -64,8 +59,10 @@ class TestADTInternals_Enum(unittest.TestCase):
         self.assertTrue(isinstance(self.E3, self.Type_Const))
 
     def test_derive_eq_data(self):
-        with self.assertRaises(te): self.E1 == self.E1
-        with self.assertRaises(te): self.E1 != self.E1
+        with self.assertRaises(TypeError):
+            self.E1 == self.E1
+        with self.assertRaises(TypeError):
+            self.E1 != self.E1
 
         Eq.derive_instance(self.Type_Const)
 
@@ -83,10 +80,14 @@ class TestADTInternals_Enum(unittest.TestCase):
         self.assertEqual("E3", str(self.E3))
 
     def test_derive_ord_data(self):
-        with self.assertRaises(te): self.E1 > self.E1
-        with self.assertRaises(te): self.E1 >= self.E1
-        with self.assertRaises(te): self.E1 < self.E1
-        with self.assertRaises(te): self.E1 <= self.E1
+        with self.assertRaises(TypeError):
+            self.E1 > self.E1
+        with self.assertRaises(TypeError):
+            self.E1 >= self.E1
+        with self.assertRaises(TypeError):
+            self.E1 < self.E1
+        with self.assertRaises(TypeError):
+            self.E1 <= self.E1
 
         Eq.derive_instance(self.Type_Const)
         Ord.derive_instance(self.Type_Const)
@@ -118,12 +119,16 @@ class TestADTInternals_Builtin(unittest.TestCase):
         self.assertTrue(isinstance(self.M3(1, 2, 3), self.Type_Const))
         self.assertTrue(isinstance(self.M3(1)(2, 3), self.Type_Const))
 
-        with self.assertRaises(te): self.M1(1.0)
-        with self.assertRaises(te): self.M3(1, 2, "3")
+        with self.assertRaises(TypeError):
+            self.M1(1.0)
+        with self.assertRaises(TypeError):
+            self.M3(1, 2, "3")
 
     def test_derive_eq_data(self):
-        with self.assertRaises(te): self.M1(1) == self.M1(1)
-        with self.assertRaises(te): self.M1(1) != self.M1(1)
+        with self.assertRaises(TypeError):
+            self.M1(1) == self.M1(1)
+        with self.assertRaises(TypeError):
+            self.M1(1) != self.M1(1)
 
         Eq.derive_instance(self.Type_Const)
 
@@ -147,10 +152,14 @@ class TestADTInternals_Builtin(unittest.TestCase):
         self.assertEqual("M3(1, 2, 3)", str(self.M3(1, 2, 3)))
 
     def test_derive_ord_data(self):
-        with self.assertRaises(te): self.M1(1) > self.M1(1)
-        with self.assertRaises(te): self.M1(1) >= self.M1(1)
-        with self.assertRaises(te): self.M1(1) < self.M1(1)
-        with self.assertRaises(te): self.M1(1) <= self.M1(1)
+        with self.assertRaises(TypeError):
+            self.M1(1) > self.M1(1)
+        with self.assertRaises(TypeError):
+            self.M1(1) >= self.M1(1)
+        with self.assertRaises(TypeError):
+            self.M1(1) < self.M1(1)
+        with self.assertRaises(TypeError):
+            self.M1(1) <= self.M1(1)
 
         Eq.derive_instance(self.Type_Const)
         Ord.derive_instance(self.Type_Const)
@@ -167,7 +176,7 @@ class TestADTInternals_Builtin(unittest.TestCase):
         self.assertFalse(self.M1(1) >= self.M1(2))
 
     def test_derive_bounded_data(self):
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             Bounded.derive_instance(self.Type_Const)
 
 
@@ -187,13 +196,18 @@ class TestADTInternals_Poly(unittest.TestCase):
         self.assertTrue(isinstance(self.M2(1)("abc"), self.Type_Const))
         self.assertTrue(isinstance(self.M3(1, 2, 3), self.Type_Const))
         self.assertTrue(isinstance(self.M3(1)(2, 3), self.Type_Const))
-        with self.assertRaises(te): self.M3(1, "a", 2)
+        with self.assertRaises(TypeError):
+            self.M3(1, "a", 2)
 
     def test_derive_eq_data(self):
-        with self.assertRaises(te): self.M1(1) == self.M1(1)
-        with self.assertRaises(te): self.M1(1) == self.M2(1, "b")
-        with self.assertRaises(te): self.M1(1) != self.M1(1)
-        with self.assertRaises(te): self.M1(1) != self.M2(1, "b")
+        with self.assertRaises(TypeError):
+            self.M1(1) == self.M1(1)
+        with self.assertRaises(TypeError):
+            self.M1(1) == self.M2(1, "b")
+        with self.assertRaises(TypeError):
+            self.M1(1) != self.M1(1)
+        with self.assertRaises(TypeError):
+            self.M1(1) != self.M2(1, "b")
 
         Eq.derive_instance(self.Type_Const)
 
@@ -202,8 +216,10 @@ class TestADTInternals_Poly(unittest.TestCase):
         self.assertNotEqual(self.M1("a"), self.M1("b"))
         self.assertNotEqual(self.M1("a"), self.M2("a", "b"))
         self.assertEqual(self.M3(1, "b", "b"), self.M3(1, "b", "b"))
-        with self.assertRaises(te): self.M1(1) == self.M1("a")
-        with self.assertRaises(te): self.M3(1, 2, 2) == self.M3(1, "a", "b")
+        with self.assertRaises(TypeError):
+            self.M1(1) == self.M1("a")
+        with self.assertRaises(TypeError):
+            self.M3(1, 2, 2) == self.M3(1, "a", "b")
 
     def test_derive_show_data(self):
         self.assertNotEqual("M1(1)", str(self.M1(1)))
@@ -215,10 +231,14 @@ class TestADTInternals_Poly(unittest.TestCase):
         self.assertEqual("M2(1, 2)", str(self.M2(1, 2)))
 
     def test_derive_ord_data(self):
-        with self.assertRaises(te): self.M1(1) > self.M1(1)
-        with self.assertRaises(te): self.M1(1) < self.M2(1, "b")
-        with self.assertRaises(te): self.M1(1) >= self.M1(1)
-        with self.assertRaises(te): self.M1(1) <= self.M2(1, "b")
+        with self.assertRaises(TypeError):
+            self.M1(1) > self.M1(1)
+        with self.assertRaises(TypeError):
+            self.M1(1) < self.M2(1, "b")
+        with self.assertRaises(TypeError):
+            self.M1(1) >= self.M1(1)
+        with self.assertRaises(TypeError):
+            self.M1(1) <= self.M2(1, "b")
 
         Eq.derive_instance(self.Type_Const)
         Ord.derive_instance(self.Type_Const)
@@ -231,24 +251,36 @@ class TestADTInternals_Poly(unittest.TestCase):
         self.assertTrue(self.M3(1, "a", "b") <= self.M3(1, "a", "c"))
         self.assertFalse(self.M1(1) > self.M2(100, "a"))
         self.assertFalse(self.M1(1) >= self.M2(100, "a"))
-        with self.assertRaises(te): self.M1(1) > self.M1("a")
-        with self.assertRaises(te): self.M3(1, 2, 2) > self.M3(1, "a", "b")
+        with self.assertRaises(TypeError):
+            self.M1(1) > self.M1("a")
+        with self.assertRaises(TypeError):
+            self.M3(1, 2, 2) > self.M3(1, "a", "b")
 
 
 class TestADTSyntax(unittest.TestCase):
 
     def test_data(self):
         # these are not syntactically valid
-        with self.assertRaises(se): data.n
-        with self.assertRaises(se): data.n("a")
-        with self.assertRaises(se): data.N("!")
-        with self.assertRaises(se): data.N("A")
-        with self.assertRaises(se): data.N("a", "a")
-        with self.assertRaises(se): data.N(1, "b")
-        with self.assertRaises(se): data.N("a")("b")
-        with self.assertRaises(se): data.N()
-        with self.assertRaises(se): data.N == d
-        with self.assertRaises(se): data.N == 1
+        with self.assertRaises(SyntaxError):
+            data.n
+        with self.assertRaises(SyntaxError):
+            data.n("a")
+        with self.assertRaises(SyntaxError):
+            data.N("!")
+        with self.assertRaises(SyntaxError):
+            data.N("A")
+        with self.assertRaises(SyntaxError):
+            data.N("a", "a")
+        with self.assertRaises(SyntaxError):
+            data.N(1, "b")
+        with self.assertRaises(SyntaxError):
+            data.N("a")("b")
+        with self.assertRaises(SyntaxError):
+            data.N()
+        with self.assertRaises(SyntaxError):
+            data.N == d
+        with self.assertRaises(SyntaxError):
+            data.N == 1
 
         # these should all work fine
         self.assertIsNotNone(data.N)
@@ -259,17 +291,28 @@ class TestADTSyntax(unittest.TestCase):
 
     def test_d(self):
         # these are not syntactically valid
-        with self.assertRaises(se): d.a
-        with self.assertRaises(se): d.A | deriving(Eq)
-        with self.assertRaises(se): d.A | d
-        with self.assertRaises(se): d.A | d.B | d
-        with self.assertRaises(se): d.A | "a"
-        with self.assertRaises(te): deriving("a")
-        with self.assertRaises(se): deriving(Eq, Show) | d.B
-        with self.assertRaises(se): deriving(Eq, Show) & d.B
-        with self.assertRaises(se): d.A("a", "b") & deriving
-        with self.assertRaises(se): d.A("a", "b") & Show
-        with self.assertRaises(te): deriving(1, 2)
+        with self.assertRaises(SyntaxError):
+            d.a
+        with self.assertRaises(SyntaxError):
+            d.A | deriving(Eq)
+        with self.assertRaises(SyntaxError):
+            d.A | d
+        with self.assertRaises(SyntaxError):
+            d.A | d.B | d
+        with self.assertRaises(SyntaxError):
+            d.A | "a"
+        with self.assertRaises(TypeError):
+            deriving("a")
+        with self.assertRaises(SyntaxError):
+            deriving(Eq, Show) | d.B
+        with self.assertRaises(SyntaxError):
+            deriving(Eq, Show) & d.B
+        with self.assertRaises(SyntaxError):
+            d.A("a", "b") & deriving
+        with self.assertRaises(SyntaxError):
+            d.A("a", "b") & Show
+        with self.assertRaises(TypeError):
+            deriving(1, 2)
 
         # these should all work fine
         self.assertIsNotNone(d.A)
@@ -297,7 +340,8 @@ class TestADTSyntax(unittest.TestCase):
         self.assertNotEqual(M1(2), M3)
         self.assertEqual(M3, M3)
         self.assertFalse(M3 != M3)
-        with self.assertRaises(te): M1("a") == M1(3.0)
+        with self.assertRaises(TypeError):
+            M1("a") == M1(3.0)
 
         A, B, C =\
         data.A == d.B(str, str) | d.C(str) & deriving(Show, Eq)
@@ -310,7 +354,8 @@ class TestADTSyntax(unittest.TestCase):
         self.assertNotEqual(B("a", "b"), B("a", "c"))
         self.assertNotEqual(C("b"), C("c"))
         self.assertNotEqual(C("b"), B("b", "c"))
-        with self.assertRaises(te): M1("a") == C("a")
+        with self.assertRaises(TypeError):
+            M1("a") == C("a")
 
         # make sure everything works with only 1 constructor
         A, B =\
@@ -327,8 +372,10 @@ class TestADTSyntax(unittest.TestCase):
         self.assertTrue(X1 != X2 and X2 != X3 and X3 != X4 and X4 != X5 and \
                 X4 != X5 and X5 != X6)
         self.assertTrue(X1 < X2 < X3 < X4 < X5 < X6)
-        with self.assertRaises(te): X1 < A("a", "a")
-        with self.assertRaises(te): data.X == d.A | d.B & deriving(Show, 1)
+        with self.assertRaises(TypeError):
+            X1 < A("a", "a")
+        with self.assertRaises(TypeError):
+            data.X == d.A | d.B & deriving(Show, 1)
 
 
 class TestBuiltins(unittest.TestCase):
@@ -374,7 +421,8 @@ class Test_README_Examples(unittest.TestCase):
         self.assertEqual(L[1, 2, 3], 1 ^ L[2, 3])
         self.assertEqual("goodnight" ^ ("sweet" ^ ("prince" ^ L[[]])),
             L["goodnight", "sweet", "prince"])
-        with self.assertRaises(te): "a" ^ L[1.0, 10.3]
+        with self.assertRaises(TypeError):
+            "a" ^ L[1.0, 10.3]
         self.assertEqual(L[1, 2] + L[3, 4], L[1, 2, 3, 4])
 
         from hask3.Data.List import take
@@ -410,7 +458,8 @@ class Test_README_Examples(unittest.TestCase):
 
         f = (lambda x, y: x + y) ** (H/ int >> int >> int)
         self.assertEqual(5, f(2, 3))
-        with self.assertRaises(te): f(9, 1.0)
+        with self.assertRaises(TypeError):
+            f(9, 1.0)
 
         g = (lambda a, b, c: a // (b + c)) ** (H/ int >> int >> int >> int)
         self.assertEqual(g(10, 2, 3), 2)
@@ -502,8 +551,10 @@ class Test_README_Examples(unittest.TestCase):
         self.assertEqual(default_to_zero(Just(27)), 27)
         self.assertEqual(default_to_zero(Nothing), 0)
         self.assertEqual(Just(20.0)[0], 20.0)
-        self.assertEqual(Left("words words words words")[0], "words words words words")
-        with self.assertRaises(IndexError): Nothing[0]
+        self.assertEqual(Left("words words words words")[0],
+                         "words words words words")
+        with self.assertRaises(IndexError):
+            Nothing[0]
 
     def test_typeclasses(self):
         from hask3.Prelude import fmap

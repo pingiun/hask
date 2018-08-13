@@ -2,8 +2,6 @@ import unittest
 
 from hask3 import __
 
-te = TypeError
-
 
 class TestPython(unittest.TestCase):
 
@@ -20,18 +18,18 @@ class TestPython(unittest.TestCase):
         self.assertEqual(1, cmp(10) % 9)
         self.assertEqual(divmod(5)(2), (2, 1))
 
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             cmp(1, "a")
 
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             oct(1.0)
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             hex(1.0)
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             hasattr(list)(len)
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             getattr(list)(len)
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             setattr(list)(len)
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             delattr(list)(len)

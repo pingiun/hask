@@ -1,19 +1,23 @@
-from ..lang import Show
-from ..lang import Read
-from ..lang import Bounded
-from ..lang import Ord
-from ..lang import sig
-from ..lang import H
-from ..lang import data
-from ..lang import d
-from ..lang import deriving
+from hask3.lang.typeclasses import Show
+from hask3.lang.typeclasses import Read
+from hask3.lang.typeclasses import Bounded
+from hask3.lang.typeclasses import Ord
 
-from .Eq import Eq
+from hask3.lang.syntax import H
+from hask3.lang.syntax import sig
+
+from hask3.lang.syntax import data
+from hask3.lang.syntax import d
+from hask3.lang.syntax import deriving
+
+from hask3.Data.Eq import Eq
 
 
 # data Ordering = LT | EQ | GT deriving(Show, Eq, Ord, Bounded)
-Ordering, LT, EQ, GT =\
-        data.Ordering == d.LT | d.EQ | d.GT & deriving(Read, Show, Eq, Ord, Bounded)
+Ordering, LT, EQ, GT = (
+    data.Ordering == d.LT | d.EQ | d.GT
+                     & deriving(Read, Show, Eq, Ord, Bounded)
+)
 
 
 # TODO: Down?
@@ -62,3 +66,8 @@ def comparing(p, x, y):
 
     """
     return compare(p(x), p(y))
+
+
+del Show, Read, Bounded, Eq
+del H, sig
+del data, d, deriving

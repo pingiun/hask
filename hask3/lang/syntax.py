@@ -1,58 +1,15 @@
-import operator
 import sys
+from hask3.hack import objectify, settle_magic_methods
+from hask3.lang.type_system import PatternMatchBind
+from hask3.lang.type_system import PatternMatchListBind
+from hask3.lang.type_system import Undefined
 
-from .type_system import typeof
-from .type_system import Typeclass
-from .type_system import TypedFunc
-from .type_system import TypeSignature
-from .type_system import TypeSignatureHKT
-from .type_system import ADT
-from .type_system import build_ADT
-from .type_system import build_sig
-from .type_system import make_fn_type
-from .type_system import PatternMatchBind
-from .type_system import PatternMatchListBind
-from .type_system import pattern_match
-from .type_system import Undefined
-from .type_system import PyFunc
-
-# Magic Names
-_OPS = {
-    # < <= == != > >=
-    'comparison': {'lt', 'le', 'eq', 'ne', 'gt', 'ge'},
-    'object-base': {'call', 'delattr', 'bool'},
-    'context-manager': {'enter', 'exit'},
-    # `obj[key]` `obj[key] = value` `del obj[key]` `key in obj` ...
-    # length_hint?
-    'container': {'getitem', 'setitem', 'delitem', 'contains', 'len', 'iter',
-                   'reversed', 'missing'},
-    'math': {'round', 'trunc', 'floor', 'ceil'},
-    # - + abs() ~
-    'arithmetic-unary': {'neg', 'pos', 'abs', 'invert'},
-    # + - * @ / // % divmod() ** << >> & ^ |
-    'arithmetic-binary': {'add', 'sub', 'mul', 'matmul', 'truediv',
-                          'floordiv', 'mod', 'divmod', 'pow', 'lshift',
-                          'rshift', 'and', 'xor', 'or'},
-    }
-
-_PYTHON2 = {'div', 'rdiv', 'idiv', 'nonzero'}
-_MAGICS = set.union(
-    # TODO: After Python 3.6 `f'{p}{o}'`
-    {'{}{}'.format(p, o) for p in 'ri' for o in _OPS['arithmetic-binary']},
-    _PYTHON2 if sys.version[0] == '2' else (),
-    *_OPS.values())
-
-
-def settle_magic_methods(function, names=_MAGICS):
-    '''Decorator to settle all magic methods to `fn`.'''
-    from xoutil.decorator import settle
-    return settle(**{'__{}__'.format(name): function for name in names})
+from hask3.lang.type_system import PyFunc as func    # noqa
 
 
 # Main
 
-# TODO: Try to convert `Syntax` in a meta-class
-
+# TODO: Try to use a metaclass in `Syntax`
 @settle_magic_methods(lambda self, *args: self.__syntaxerr__())
 class Syntax(object):
     """Base class for new syntactic constructs.
@@ -66,15 +23,8 @@ class Syntax(object):
     those objects.
 
     """
-    # TODO: Convert `__syntax_err_msg` in a class attribute.
-    # XXX: Having a common instance for an error, could produce problems with
-    # "Exception Chaining and Embedded Tracebacks" (see PEP 3134)
-    def __init__(self, err_msg):
-        self.__syntax_err_msg = err_msg
-        self.invalid_syntax = SyntaxError(self.__syntax_err_msg)
-
     def __syntaxerr__(self):
-        raise self.invalid_syntax
+        raise SyntaxError(self.invalid_syntax_message)
 
 
 class instance(Syntax):
@@ -89,6 +39,7 @@ class instance(Syntax):
     """
     def __init__(self, typecls, cls):
         from hask3.hack import safe_issubclass
+        from hask3.lang.type_system import Typeclass
         if safe_issubclass(typecls, Typeclass):
             self.typeclass = typecls
             self.cls = cls
@@ -99,8 +50,9 @@ class instance(Syntax):
         self.typeclass.make_instance(self.cls, **kwargs)
 
 
-class __constraints__(Syntax):
-    """H/ creates a new function type signature.
+@objectify
+class H(Syntax):
+    """``H/`` creates a new function type signature.
 
     Examples::
 
@@ -115,23 +67,23 @@ class __constraints__(Syntax):
     See `sig`:class: for more information on type signature decorators.
 
     """
+
+    invalid_syntax_message = "Syntax error in type signature"
+
     def __init__(self, constraints=None):
         from collections import defaultdict
         self.constraints = defaultdict(lambda: [])
         if constraints:
-            # XXX: Next block is not clear
-            # multiple typeclass constraints
-            if isinstance(constraints[0], tuple):
+            if isinstance(constraints[0], tuple):    # multiple constraints
                 for con in constraints:
                     self.__add_constraint(con)
-            # only one typeclass constraint
-            else:
+            else:    # only one constraint
                 self.__add_constraint(constraints)
-        _msg = "Syntax error in type signature"
-        super(__constraints__, self).__init__(_msg)
+        Syntax.__init__(self)    # TODO: super().__init__()
 
     def __add_constraint(self, con):
         from hask3.hack import safe_issubclass
+        from hask3.lang.type_system import Typeclass
         if len(con) != 2 or not isinstance(con, tuple):
             raise SyntaxError("Invalid typeclass constraint: %s" % str(con))
         elif not isinstance(con[1], str):
@@ -142,8 +94,7 @@ class __constraints__(Syntax):
             self.constraints[con[1]].append(con[0])
 
     def __getitem__(self, constraints):
-        # TODO: `__constraints__` or `type(self)`?
-        return __constraints__(constraints)
+        return type(self)(constraints)
 
     def __truediv__(self, arg):
         return __signature__((), self.constraints) >> arg
@@ -153,13 +104,16 @@ class __constraints__(Syntax):
 
 class __signature__(Syntax):
     """A (complete or incomplete) type signature."""
+
+    invalid_syntax_message = "Syntax error in type signature"
+
     def __init__(self, args, constraints):
+        from hask3.lang.type_system import TypeSignature
         self.sig = TypeSignature(args, constraints)
-        super(__signature__, self).__init__("Syntax error in type signature")
+        super(__signature__, self).__init__()
 
     def __rshift__(self, arg):
         arg = __signature__._inner(arg)
-        # TODO: `__signature__` or `type(self)`?
         return __signature__(self.sig.args + (arg,), self.sig.constraints)
 
     def __rpow__(self, fn):
@@ -170,10 +124,10 @@ class __signature__(Syntax):
         return arg.sig if isinstance(arg, __signature__) else arg
 
 
-H = __constraints__()
-func = PyFunc
-
-
+# TODO: Improve function signatures logic.
+#
+# For example, when a predicate is applied to a lazy-list, first element of
+# the list is gotten to test the compatibility of the types
 class sig(Syntax):
     """Convert a Python function into a Statically Typed Function.
 
@@ -193,18 +147,25 @@ class sig(Syntax):
         def to_str(x):
             return str(x)
 
+    See `H`:obj: special object, and `t`:func: function for more information.
+
     """
+
+    invalid_syntax_message = "Syntax error in type signature"
+
     def __init__(self, signature):
-        super(self.__class__, self).__init__("Syntax error in type signature")
-        if not isinstance(signature, __signature__):
+        from hask3.lang.type_system import build_sig, make_fn_type
+        if isinstance(signature, __signature__):
+            if len(signature.sig.args) >= 2:
+                super(self.__class__, self).__init__()
+                self.sig = signature.sig
+                self.fn_args = fn_args = build_sig(self.sig)
+                self.fn_type = make_fn_type(fn_args)
+            else:
+                raise SyntaxError("Not enough type arguments in signature")
+        else:
             msg = "Signature expected in sig(); found {}".format(signature)
             raise SyntaxError(msg)
-        elif len(signature.sig.args) < 2:
-            raise SyntaxError("Not enough type arguments in signature")
-        else:
-            self.sig = signature.sig
-            self.fn_args = fn_args = build_sig(self.sig)
-            self.fn_type = make_fn_type(fn_args)
 
     def __str__(self):
         # TODO: f'sig({self.sig})'
@@ -213,27 +174,33 @@ class sig(Syntax):
     __repr__ = __str__
 
     def __call__(self, fn):
-        return TypedFunc(fn, self.fn_args, self.fn_type)
+        from hask3.lang.type_system import TypedFunc
+        res = TypedFunc(fn, self.fn_args, self.fn_type)
+        res.haskell_sig = self
+        return res
 
 
-def t(type_constructor, *params):
+def t(tcon, *params):
     '''Helper to instantiate a higher-kinded type.
+
+    :param tcon: type constructor.
+
+    :param params: type parameter names.
 
     See `~hask3.lang.type_system.TypeSignatureHKT`:class: class.
 
     '''
     from hask3.hack import safe_issubclass
-    if (safe_issubclass(type_constructor, ADT) and
-        len(type_constructor.__params__) != len(params)):
-        _msg = "Incorrect number of type parameters to {}"
-        raise TypeError(_msg.format(type_constructor.__name__))
+    from hask3.lang.type_system import ADT, TypeSignatureHKT
+    if not safe_issubclass(tcon, ADT) or len(tcon.__params__) == len(params):
+        return TypeSignatureHKT(tcon, list(map(__signature__._inner, params)))
     else:
-        params = [__signature__._inner(p) for p in params]
-        return TypeSignatureHKT(type_constructor, params)
+        _msg = "Incorrect number of type parameters to {}"
+        raise TypeError(_msg.format(tcon.__name__))
 
 
 def typify(fn, hkt=None):
-    """Convert an untyped Python function to a TypeFunc.
+    """Convert an untyped Python function to a `TypedFunc`.
 
     :param fn: The function to wrap
 
@@ -259,9 +226,9 @@ def typify(fn, hkt=None):
     return sig(__signature__(args, []))
 
 
-# TODO: `undefined` was `__undefined__()`
+@objectify
 @settle_magic_methods(lambda self, *args: undefined)
-class __undefined__(Undefined):
+class undefined(Undefined):
     """Undefined value with special syntactic powers.
 
     Whenever you try to use one if its magic methods, it returns
@@ -271,9 +238,6 @@ class __undefined__(Undefined):
 
     """
     pass
-
-
-undefined = __undefined__()
 
 
 # Constructs for pattern matching.
@@ -320,34 +284,39 @@ class MatchStack(object):
         return undefined if frm.matched else frm.cache.get(name, undefined)
 
 
-class __var_bind__(Syntax):
+@objectify
+class m(Syntax):
     """``m.*`` binds a local variable while pattern matching.
 
     For example usage, see `caseof`:class:.
 
     """
+
+    invalid_syntax_message = "Syntax error in pattern match"
+
     def __getattr__(self, name):
         return __pattern_bind__(name)
 
     def __call__(self, pattern):
+        from hask3.lang.type_system import pattern_match
         is_match, env = pattern_match(MatchStack.get_frame().value, pattern)
         if is_match and not MatchStack.get_frame().matched:
             MatchStack.get_frame().cache = env
         return __match_test__(is_match)
 
 
-class __var_access__(Syntax):
+@objectify
+class p(Syntax):
     """``p.*`` accesses a local variable bound during pattern matching.
 
     For example usage, see `caseof`:class:.
 
     """
+
+    invalid_syntax_message = "Syntax error in pattern match"
+
     def __getattr__(self, name):
         return MatchStack.get_name(name)
-
-
-m = __var_bind__("Syntax error in pattern match")
-p = __var_access__("Syntax error in pattern match")
 
 
 class __pattern_bind_list__(Syntax, PatternMatchListBind):
@@ -357,10 +326,11 @@ class __pattern_bind_list__(Syntax, PatternMatchListBind):
     (zero to many elements).
 
     """
+
+    invalid_syntax_message = "Syntax error in match"
+
     def __init__(self, head, tail):
-        self.head = [head]
-        self.tail = tail
-        super(__pattern_bind_list__, self).__init__("Syntax error in match")
+        super(__pattern_bind_list__, self).__init__([head], tail)
 
     def __rxor__(self, head):
         self.head.insert(0, head)
@@ -369,9 +339,8 @@ class __pattern_bind_list__(Syntax, PatternMatchListBind):
 
 class __pattern_bind__(Syntax, PatternMatchBind):
     """A pattern designed to match any value and bind it to a name."""
-    def __init__(self, name):
-        self.name = name
-        super(__pattern_bind__, self).__init__("Syntax error in match")
+
+    invalid_syntax_message = "Syntax error in match"
 
     def __rxor__(self, cell):
         return __pattern_bind_list__(cell, self)
@@ -382,7 +351,7 @@ class __pattern_bind__(Syntax, PatternMatchBind):
         elif isinstance(other, __pattern_bind__):
             return __pattern_bind_list__(self, other)
         else:
-            raise self.invalid_syntax
+            raise SyntaxError(self.invalid_syntax_message)
 
 
 class __match_line__(Syntax):
@@ -468,6 +437,8 @@ class caseof(__unmatched_case__):
                         | m(1)   >> 1
                         | m(m.n) >> fib(p.n - 1) + fib(p.n - 2))
 
+    See `m`:obj: and `p`:obj: special pattern matching constructions.
+
     """
     def __init__(self, value):
         if isinstance(value, Undefined):
@@ -479,10 +450,11 @@ class caseof(__unmatched_case__):
 # "data"/type constructor half of the expression
 
 
-class __data__(Syntax):
-    """`data`:obj: class, syntax for defining Algebraic Data Types.
+@objectify
+class data(Syntax):
+    """Syntax for defining Algebraic Data Types.
 
-    Example usage:
+    Example usage::
 
         >>> from hask3 import data, d, deriving, Read, Show, Eq, Ord
 
@@ -492,8 +464,8 @@ class __data__(Syntax):
         ...     )
 
     """
-    def __init__(self):
-        super(__data__, self).__init__("Syntax error in `data`")
+
+    invalid_syntax_message = "Syntax error in `data`"
 
     def __getattr__(self, value):
         if value[0].isupper():
@@ -504,12 +476,16 @@ class __data__(Syntax):
 
 class __new_tcon__(Syntax):
     """Base for Syntax classes related to creating new type constructors."""
+
+    invalid_syntax_message = "Syntax error in `data`"
+
     def __init__(self, name, args=()):
         self.name = name
         self.args = args
-        super(__new_tcon__, self).__init__("Syntax error in `data`")
+        super(__new_tcon__, self).__init__()
 
     def __eq__(self, d):
+        from hask3.lang.type_system import build_ADT
         # one data constructor, zero or more derived typeclasses
         if isinstance(d, __new_dcon__):
             return build_ADT(self.name, self.args, [(d.name, d.args)], d.classes)
@@ -517,7 +493,7 @@ class __new_tcon__(Syntax):
         elif isinstance(d, __new_dcons_deriving__):
             return build_ADT(self.name, self.args, d.dcons, d.classes)
         else:
-            raise self.invalid_syntax
+            raise SyntaxError(self.invalid_syntax_message)
 
 
 class __new_tcon_enum__(__new_tcon__):
@@ -561,14 +537,15 @@ class __new_tcon_hkt__(__new_tcon__):
 
 
 # "d"/data constructor half of the expression
-class __d__(Syntax):
-    """`d` is part of hask's special syntax for defining algebraic data types.
+@objectify
+class d(Syntax):
+    """Part of hask's special syntax for defining Algebraic Data Types.
 
     See `data`:obj: for more information.
 
     """
-    def __init__(self):
-        super(__d__, self).__init__("Syntax error in `d`")
+
+    invalid_syntax_message = "Syntax error in `d`"
 
     def __getattr__(self, value):
         if value[0].isupper():
@@ -583,11 +560,14 @@ class __new_dcon__(Syntax):
     That is within a `data` statment (`d.*`).
 
     """
+
+    invalid_syntax_message = "Syntax error in `d`"
+
     def __init__(self, dcon_name, args=(), classes=()):
         self.name = dcon_name
         self.args = args
         self.classes = classes
-        super(__new_dcon__, self).__init__("Syntax error in `d`")
+        super(__new_dcon__, self).__init__()
 
 
 class __new_dcon_params__(__new_dcon__):
@@ -607,7 +587,7 @@ class __new_dcon_params__(__new_dcon__):
             cls = __new_dcon_deriving__
             return cls(self.name, self.args, derive_exp.classes)
         else:
-            raise self.invalid_syntax
+            raise SyntaxError(self.invalid_syntax_message)
 
     def __or__(self, dcon):
         if isinstance(dcon, __new_dcon__):
@@ -617,7 +597,7 @@ class __new_dcon_params__(__new_dcon__):
             else:
                 return __new_dcons__(constructors)
         else:
-            raise self.invalid_syntax
+            raise SyntaxError(self.invalid_syntax_message)
 
 
 class __new_dcon_deriving__(__new_dcon__):
@@ -663,10 +643,13 @@ class __new_dcons_deriving__(Syntax):
         d.Foo(int, "a", "b", str) | d.Bar & deriving(Eq)
 
     """
+
+    invalid_syntax_message = "Syntax error in `d`"
+
     def __init__(self, data_consts, classes=()):
         self.dcons = data_consts
         self.classes = classes
-        super(__new_dcons_deriving__, self).__init__("Syntax error in `d`")
+        super(__new_dcons_deriving__, self).__init__()
 
 
 class __new_dcons__(__new_dcons_deriving__):
@@ -685,42 +668,42 @@ class __new_dcons__(__new_dcons_deriving__):
 
     def __or__(self, new_dcon):
         if isinstance(new_dcon, __new_dcon__):
-            constructor = ((new_dcon.name, new_dcon.args), )
+            constructor = self.dcons + ((new_dcon.name, new_dcon.args), )
             if isinstance(new_dcon, __new_dcon_deriving__):
-                cls =  __new_dcons_deriving__
-                return cls(self.dcons + constructor, new_dcon.classes)
+                return __new_dcons_deriving__(constructor, new_dcon.classes)
             else:
-                return __new_dcons__(self.dcons + constructor)
+                return __new_dcons__(constructor)
         else:
-            raise self.invalid_syntax
-
-
-data = __data__()
-d = __d__()
+            raise SyntaxError(self.invalid_syntax_message)
 
 
 class deriving(Syntax):
-    """Part of hask's special syntax for defining algebraic data types.
+    """Part of hask's special syntax for defining Algebraic Data Types.
 
-    See `data`:class: for more information.
+    See `data`:obj: for more information.
 
     """
+
+    invalid_syntax_message = "Syntax error in `deriving`"
+
     def __init__(self, *tclasses):
-        w = next((c for c in tclasses if not issubclass(c, Typeclass)), None)
-        if w is None:
+        from hask3.lang.type_system import Typeclass
+        ok = lambda c: not issubclass(c, Typeclass)
+        wrong = next((c for c in tclasses if ok(c)), None)
+        if wrong is None:
             self.classes = tclasses
-            super(deriving, self).__init__("Syntax error in `deriving`")
+            super(deriving, self).__init__()
         else:
-            raise TypeError("Cannot derive non-typeclass {}".format(w))
+            raise TypeError("Cannot derive non-typeclass {}".format(wrong))
 
 
-class __section__(Syntax):
-    """The class of the ``__`` object.
+@objectify
+class __(Syntax):
+    """This is Hask's special syntax for operator sections.
 
-    This is Hask's special syntax for operator sections: a placeholder for
-    arguments (operands).
+    It is a placeholder for arguments (operands).
 
-    Example usage:
+    Example usage::
 
         >>> (__+1)(5)
         6
@@ -736,14 +719,14 @@ class __section__(Syntax):
         + - * / // ** >> << | & ^ == != > >= < <=
 
     """
-    def __init__(self, syntax_err_msg):
-        super(__section__, self).__init__(syntax_err_msg)
+
+    invalid_syntax_message = "Error in section"
 
     @staticmethod
     def __make_section(fn):
         """Create an operator section from a binary operator."""
         def section_wrapper(self, y):
-            if isinstance(y, __section__):
+            if isinstance(y, type(__)):
                 # double section, e.g. (__+__)
                 @sig(H/ "a" >> "b" >> "c")
                 def double_section(a, b):
@@ -764,6 +747,8 @@ class __section__(Syntax):
 
     # right section, e.g. (1+__)
     __flip = lambda f: lambda x, y: f(y, x)
+
+    import operator
 
     __add__ = __wrap(operator.add)
     __sub__ = __wrap(operator.sub)
@@ -804,8 +789,7 @@ class __section__(Syntax):
         __div__ = __wrap(operator.div)
         __rdiv__ = __wrap(__flip(operator.div))
 
-
-__ = __section__("Error in section")
+    del operator
 
 
 # Guards! Guards!
@@ -819,12 +803,13 @@ class NoGuardMatchException(Exception):
     pass
 
 
-class __guard_test__(Syntax):
+class c(Syntax):
     """A case in a guard.
 
-    ``c`` creates a new condition that can be used in a guard expression.
+    Creates a new condition that can be used in a guard expression.
 
-    ``otherwise`` is a guard condition that always evaluates to True.
+    `otherwise`:obj: is a `guard`:class: condition that always evaluates to
+    True.
 
     Usage::
 
@@ -834,23 +819,23 @@ class __guard_test__(Syntax):
             | otherwise      >> <return_value_3>
         )
 
-    See `guard`:class: for more details.
-
     """
+
+    invalid_syntax_message = "Syntax error in guard condition"
+
     def __init__(self, fn):
         if callable(fn):
             self.__test = fn
-            msg = "Syntax error in guard condition"
-            super(__guard_test__, self).__init__(msg)
+            super(c, self).__init__()
         else:
             raise ValueError("Guard condition must be callable")
 
     def __rshift__(self, value):
-        wrong_types = (__guard_test__, __guard_conditional__, __guard_base__)
+        wrong_types = (type(self), __guard_conditional__, __guard_base__)
         if not isinstance(value, wrong_types):
             return __guard_conditional__(self.__test, value)
         else:
-            raise self.invalid_syntax
+            raise SyntaxError(self.invalid_syntax_message)
 
 
 class __guard_conditional__(Syntax):
@@ -867,11 +852,13 @@ class __guard_conditional__(Syntax):
     See `guard`:class: for more details.
 
     """
+
+    invalid_syntax_message = "Syntax error in guard condition"
+
     def __init__(self, fn, return_value):
         self.check = fn
         self.return_value = return_value
-        msg = "Syntax error in guard condition"
-        super(__guard_conditional__, self).__init__(msg)
+        super(__guard_conditional__, self).__init__()
 
 
 class __guard_base__(Syntax):
@@ -883,9 +870,12 @@ class __guard_base__(Syntax):
     See `guard`:class: for more details.
 
     """
+
+    invalid_syntax_message = "Syntax error in guard"
+
     def __init__(self, value):
         self.value = value
-        super(__guard_base__, self).__init__("Syntax error in guard")
+        super(__guard_base__, self).__init__()
 
 
 class __unmatched_guard__(__guard_base__):
@@ -898,7 +888,7 @@ class __unmatched_guard__(__guard_base__):
     """
     def __or__(self, cond):
         # Consume the next line of the guard expression
-        if isinstance(cond, __guard_test__):
+        if isinstance(cond, type(c)):
             raise SyntaxError("Guard expression is missing return value")
         elif not isinstance(cond, __guard_conditional__):
             raise SyntaxError("Guard condition expected, got %s" % cond)
@@ -932,7 +922,7 @@ class __matched_guard__(__guard_base__):
         if isinstance(cond, __guard_conditional__):
             return self
         else:
-            raise self.invalid_syntax
+            raise SyntaxError(self.invalid_syntax_message)
 
     def __invert__(self):
         return self.value
@@ -971,13 +961,16 @@ class guard(__unmatched_guard__):
 
     :raises: NoGuardMatchException (if no match is found).
 
+    See `otherwise`:obj:, and `c`:class: special guards.
+
     """
     def __invert__(self):
-        raise self.invalid_syntax
+        raise SyntaxError(self.invalid_syntax_message)
 
 
-c = __guard_test__
-otherwise = c(lambda _: True)
+#: A special `c`:class: instance, used in a `guard`:class:, that evaluates to
+#: True.
+otherwise = c(lambda _: True)    # noqa
 
 
 # REPL tools (:q, :t, :i)
@@ -992,10 +985,18 @@ def _q(status=None):
         >>> _q()
 
     """
-    if status is None:
-        exit()
-    else:
-        exit(status)
+    from sys import exit
+    try:
+        exit(*([] if status is None else [status]))
+    except BaseException as error:
+        ipython = sys.modules.get('IPython.core.interactiveshell', None)
+        if ipython is not None:
+            msg = 'System exit failed "{}({})", trying IPython quit.'
+            print(msg.format(type(error).__name__, error))
+            shell = ipython.InteractiveShell.instance()
+            shell.ns_table['user_global']['exit']()
+        else:
+            raise
 
 
 def _t(obj):
@@ -1008,7 +1009,7 @@ def _t(obj):
 
     :returns: A string representation of the type.
 
-    Usage:
+    Usage::
 
         >>> from hask3 import _t
 
@@ -1019,6 +1020,7 @@ def _t(obj):
         '(Maybe str)'
 
     """
+    from hask3.lang.type_system import typeof
     return str(typeof(obj))
 
 
@@ -1040,3 +1042,5 @@ def _i(obj):
 
     """
     help(obj)
+
+    del sys, settle_magic_methods, objectify

@@ -1,12 +1,11 @@
-from ..lang import Typeclass
-from ..lang import build_instance
-from ..lang import H
-from ..lang import sig
+from hask3.lang.syntax import H
+from hask3.lang.syntax import sig
+
+from hask3.lang.type_system import Typeclass
 
 
 class Monoid(Typeclass):
-    """The class of monoids (types with an associative binary operation that has
-    an identity)
+    """Types with an associative binary operation that has an identity.
 
     Attributes:
 
@@ -23,6 +22,7 @@ class Monoid(Typeclass):
     """
     @classmethod
     def make_instance(typeclass, cls, mempty, mappend, mconcat):
+        from hask3.lang.type_system import build_instance
         attrs = {"mempty": mempty, "mappend": mappend, "mconcat": mconcat}
         build_instance(Monoid, cls, attrs)
 
@@ -31,7 +31,7 @@ class Monoid(Typeclass):
 def mappend(x, y):
     """``mappend :: a -> a -> a``
 
-    An associative operation
+    An associative operation.
 
     """
     return Monoid[x].mappend(x, y)
@@ -45,3 +45,7 @@ def mconcat(m):
 
     """
     raise NotImplementedError
+
+
+del Typeclass
+del H, sig

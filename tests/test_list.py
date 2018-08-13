@@ -7,9 +7,6 @@ from hask3 import has_instance
 
 from hask3.lang.lazylist import List
 
-te = TypeError
-se = SyntaxError
-ve = ValueError
 
 try:
     xrange
@@ -51,14 +48,14 @@ class TestList(unittest.TestCase):
         self.assertNotEqual(L[1, 2], L[[1]])
         self.assertNotEqual(L[1, 2], L[1, 2, 3])
         self.assertNotEqual(L[1, 2], L[2, 2])
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             L["a", "b"] == L[1, 2]
 
         # with infinite lists
         self.assertNotEqual(L[1, ...], L[0, ...])
         self.assertNotEqual(L[1, 3, ...], L[1, 4, ...])
         self.assertNotEqual(L[1, 4], L[1, 4, ...])
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             L["a", "b"] == L[1, ...]
 
     def test_ord(self):
@@ -119,21 +116,21 @@ class TestList(unittest.TestCase):
         self.assertFalse(L[1, 2, 3] + L[4, ...] < L[1, 2])
         self.assertFalse(L[1, 2, 3] + L[4, ...] <= L[1, 2])
 
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             L[1, 2] > L[1.0, 2.0]
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             L[1, 2] > L[1.0, 2.0, ...]
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             L[1, 2] < L[1.0, 2.0]
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             L[1, 2] < L[1.0, 2.0, ...]
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             L[1, 2] >= L[1.0, 2.0]
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             L[1, 2] >= L[1.0, 2.0, ...]
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             L[1, 2] <= L[1.0, 2.0]
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             L[1, 2] <= L[1.0, 2.0, ...]
 
     def test_show(self):
@@ -152,13 +149,13 @@ class TestList(unittest.TestCase):
         self.assertEqual(L[1, 2, 3], 1 ^ (2 ^ L[[3]]))
         self.assertEqual(L[0, 1, 2], (0 ^ L[1, ...])[:3])
         self.assertEqual(L[True, False, True], True ^ (False ^ L[[True]]))
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             "a" ^ L[2, 4]
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             True ^ L[2, 4]
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             "a" ^ L[(i for i in range(20))]
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             L[1, "a"]
 
     def test_extend(self):
@@ -166,11 +163,11 @@ class TestList(unittest.TestCase):
         self.assertEqual(L[1, 2, 3, 4, 5], L[1, 2] + L[3, 4] + L[[5]])
         self.assertEqual(L[1, 2, 3, 4, 5], L[1, 2] + L[[]] + L[3, 4, 5])
         self.assertEqual(L[1, ..., 10], (L[1, ...] + L[0, ...])[:10])
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             L[1.0, 2.0] + L[3, 4]
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             L[1.0, 2.0] + [3, 4]
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             L[(i for i in "abc")] + L[1, 2]
 
     def test_indexing(self):
@@ -245,11 +242,11 @@ class TestList(unittest.TestCase):
         self.assertEqual("abcdefghij", "".join(L["a", ...][:10]))
         self.assertEqual(11, len(L["a", ..., "k"]))
 
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             L[1, 2, 3, ...]
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             L[..., 2]
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             L[1, ..., 10, 11]
 
     def test_contains(self):
@@ -261,18 +258,18 @@ class TestList(unittest.TestCase):
         self.assertFalse(4 in L[1, 3, ..., 19])
         self.assertTrue(4 not in L[1, 3, ..., 19])
 
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             "b" in L[1, ...]
         self.assertEqual(1, L["a", "b", "a"].count("b"))
         self.assertEqual(2, L["a", "b", "a"].count("a"))
         self.assertEqual(0, L["a", "b", "a"].count("d"))
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             L["a", "b", "c"].count(1)
         self.assertEqual(1, L["a", "b", "a"].index("b"))
         self.assertEqual(0, L["a", "b", "a"].index("a"))
-        with self.assertRaises(ve):
+        with self.assertRaises(ValueError):
             L["a", "b", "c"].index("d")
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             L["a", "b", "c"].index(1)
 
     def test_functor(self):

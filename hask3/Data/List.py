@@ -1,20 +1,13 @@
-from ..lang import H
-from ..lang import sig
-from ..lang import t
-from ..lang import L
-from ..lang import __
-from ..lang import caseof
-from ..lang import m
-from ..lang import p
+from hask3.lang.syntax import H
+from hask3.lang.syntax import sig
+from hask3.lang.syntax import t
 
-from .Eq import Eq
-from .Ord import Ord
-from .Ord import Ordering
-from .Num import Num
-from .Num import Integral
-from .Maybe import Maybe
-from .Maybe import Just
-from .Maybe import Nothing
+from hask3.Data.Eq import Eq
+from hask3.Data.Ord import Ord
+from hask3.Data.Ord import Ordering
+from hask3.Data.Num import Num
+from hask3.Data.Num import Integral
+from hask3.Data.Maybe import Maybe
 
 
 @sig(H/ ["a"] >> "a")
@@ -44,33 +37,36 @@ def tail(xs):
     Extract the elements after the head of a list, which must be non-empty.
 
     """
-    if null(xs):
+    if not null(xs):
+        return xs[1:]
+    else:
         raise IndexError("empty list")
-    return xs[1:]
 
 
 @sig(H/ ["a"] >> ["a"])
 def init(xs):
     """``init :: [a] -> [a]``
 
-    Return all the elements of a list except the last one. The list must be
+    Return all the elements of a list except the last one.  The list must be
     non-empty.
 
     """
-    if null(xs):
+    if not null(xs):
+        return xs[:-1]
+    else:
         raise IndexError("empty list")
-    return xs[:-1]
 
 
 @sig(H/ ["a"] >> t(Maybe, ("a", ["a"])))
 def uncons(xs):
     """``uncons :: [a] -> Maybe (a, [a])``
 
-    Decompose a list into its head and tail. If the list is empty, returns
-    Nothing. If the list is non-empty, returns Just((x, xs)), where x is the
+    Decompose a list into its head and tail.  If the list is empty, returns
+    Nothing.  If the list is non-empty, returns Just((x, xs)), where x is the
     head of the list and xs its tail.
 
     """
+    from hask3.Data.Maybe import Just, Nothing
     return Just((head(xs), tail(xs))) if not null(xs) else Nothing
 
 
@@ -81,6 +77,7 @@ def null(xs):
     Test whether the structure is empty.
 
     """
+    from hask3.lang.syntax import caseof, m
     return ~(caseof(xs)
                 | m(m.y ^ m.ys) >> False
                 | m(m.ys)       >> True)
@@ -90,7 +87,7 @@ def null(xs):
 def length(xs):
     """``length :: [a] -> int``
 
-    Returns the size/length of a finite structure as an Int. The default
+    Returns the size/length of a finite structure as an Int.  The default
     implementation is optimized for structures that are similar to cons-lists,
     because there is no general way to do better.
 
@@ -102,10 +99,11 @@ def length(xs):
 def map(f, xs):
     """``map :: (a -> b) -> [a] -> [b]``
 
-    map(f, xs) is the list obtained by applying f to each element of xs
+    Returns the list obtained by applying f to each element of xs.
 
     """
     from xoutil.future.itertools import map as imap
+    from hask3.lang.lazylist import L
     return L[imap(f, xs)]
 
 
@@ -113,20 +111,23 @@ def map(f, xs):
 def reverse(xs):
     """``reverse :: [a] -> [a]``
 
-    reverse(xs) returns the elements of xs in reverse order. xs must be finite.
+    Returns the elements of `xs` in reverse order.  `xs` must be finite.
 
     """
-    return L[(x for x in xs[::-1])]
+    from hask3.lang.lazylist import L
+    return L[reversed(xs)]
 
 
 @sig(H/ "a" >> ["a"] >> ["a"])
 def intersperse(x, xs):
     """``intersperse :: a -> [a] -> [a]``
 
-    The intersperse function takes an element and a list and intersperses that
-    element between the elements of the list.
+    Takes an element and a list and intersperses that element between the
+    elements of the list.
 
     """
+    from hask3.lang.lazylist import L
+
     def __intersperse(x, xs):
         for y in init(xs):
             yield y
@@ -135,16 +136,16 @@ def intersperse(x, xs):
 
     if null(xs):
         return xs
-    return L[__intersperse(x, xs)]
+    else:
+        return L[__intersperse(x, xs)]
 
 
 @sig(H/ ["a"] >> [["a"]] >> ["a"])
 def intercalate(xs, xss):
     """``intercalate :: [a] -> [[a]] -> [a]``
 
-    intercalate(xs,xss) is equivalent to concat(intersperse(xs,xss)). It
-    inserts the list xs in between the lists in xss and concatenates the
-    result.
+    Equivalent to ``concat(intersperse(xs, xss))``.  It inserts the list
+    `xs` in between the lists in `xss` and concatenates the result.
 
     """
     return concat(intersperse(xs, xss))
@@ -154,10 +155,11 @@ def intercalate(xs, xss):
 def transpose(xs):
     """``transpose :: [[a]] -> [[a]]``
 
-    The transpose function transposes the rows and columns of its argument.
+    Transposes the rows and columns of its argument.
 
     """
     from xoutil.future.itertools import zip as izip
+    from hask3.lang.lazylist import L
     return L[(L[x] for x in izip(*xs))]
 
 
@@ -165,38 +167,39 @@ def transpose(xs):
 def subsequences(xs):
     """``subsequences :: [a] -> [[a]]``
 
-    The subsequences function returns the list of all subsequences of the
-    argument.
+    Returns the list of all subsequences of the argument.
 
     """
     import itertools
-    ret = L[[L[[]]]]
+    from hask3.lang.lazylist import L
+    res = L[[L[[]]]]
     for r, _ in enumerate(xs):
-        ret += L[(L[x] for x in itertools.combinations(xs, r+1))]
-    return ret
+        res += L[(L[x] for x in itertools.combinations(xs, r + 1))]
+    return res
 
 
 @sig(H/ ["a"] >> [["a"]])
 def permutations(xs):
     """``permutations :: [a] -> [[a]]``
 
-    The permutations function returns the list of all permutations of the
-    argument.
+    Returns the list of all permutations of the argument.
 
     """
     import itertools
+    from hask3.lang.lazylist import L
     if null(xs):
         return L[[]]
-    return L[(L[x] for x in itertools.permutations(xs))]
+    else:
+        return L[(L[x] for x in itertools.permutations(xs))]
 
 
 @sig(H/ (H/ "b" >> "a" >> "b") >> "a" >> ["a"] >> "b")
 def foldl(f, z, xs):
     """``foldl :: (b -> a -> b) -> b -> [a] -> b``
 
-    foldl, applied to a binary operator, a starting value (typically the
+    Applied to a binary operator, a starting value (typically the
     left-identity of the operator), and a list, reduces the list using the
-    binary operator, from left to right. The list must be finite.
+    binary operator, from left to right.  The list must be finite.
 
     """
     from functools import reduce
@@ -207,7 +210,7 @@ def foldl(f, z, xs):
 def foldl_(f, z, xs):
     """``foldl_ :: (b -> a -> b) -> b -> [a] -> b``
 
-    A strict version of foldl.
+    A strict version of `foldl`:func`.
 
     """
     return foldl(f, z, xs)
@@ -217,7 +220,7 @@ def foldl_(f, z, xs):
 def foldl1(f, xs):
     """``foldl1 :: (a -> a -> a) -> [a] -> a``
 
-    foldl1 is a variant of foldl that has no starting value argument, and thus
+    A variant of `foldl`:func: that has no starting value argument, and thus
     must be applied to non-empty lists.
 
     """
@@ -228,7 +231,7 @@ def foldl1(f, xs):
 def foldl1_(f, xs):
     """``foldl1_ :: (a -> a -> a) -> [a] -> a``
 
-    A strict version of foldl1
+    A strict version of `foldl1`:func:.
 
     """
     return foldl1(f, xs[0], xs[1:])
@@ -238,11 +241,13 @@ def foldl1_(f, xs):
 def foldr(f, z, xs):
     """``foldr :: (a -> b -> b) -> b -> [a] -> b``
 
-    foldr, applied to a binary operator, a starting value (typically the
+    Applied to a binary operator, a starting value (typically the
     right-identity of the operator), and a list, reduces the list using the
-    binary operator, from right to left
+    binary operator, from right to left.
 
     """
+    from hask3.lang.lazylist import L
+    from hask3.lang.syntax import caseof, m, p
     return ~(caseof(xs)
                 | m(L[[]])     >> z
                 | m(m.a ^ m.b) >> f(p.a, foldr(f, z, p.b)))
@@ -252,7 +257,7 @@ def foldr(f, z, xs):
 def foldr1(f, xs):
     """``foldr1 :: (a -> a -> a) -> [a] -> a``
 
-    foldr1 is a variant of foldr that has no starting value argument, and thus
+    A variant of `foldr`:func: that has no starting value argument, and thus
     must be applied to non-empty lists.
 
     """
@@ -266,11 +271,8 @@ def concat(xss):
     Concatenate a list of lists.
 
     """
-    def __concat(xss):
-        for xs in xss:
-            for x in xs:
-                yield x
-    return L[__concat(xss)]
+    from hask3.lang.lazylist import L
+    return L[(x for xs in xss for x in xs)]
 
 
 @sig(H/ (H/ "a" >> ["b"]) >> ["a"] >> ["b"])
@@ -287,8 +289,8 @@ def concatMap(f, xs):
 def and_(xs):
     """``and_ :: [Bool] -> Bool``
 
-    and returns the conjunction of a Boolean list. For the result to be True,
-    the list must be finite; False, however, results from a False value at a
+    Returns the conjunction of a Boolean list.  For the result to be True, the
+    list must be finite; False, however, results from a False value at a
     finite index of a finite or infinite list.
 
     """
@@ -299,7 +301,7 @@ def and_(xs):
 def or_(xs):
     """``or_ :: [Bool] -> Bool``
 
-    or returns the disjunction of a Boolean list. For the result to be False,
+    Returns the disjunction of a Boolean list.  For the result to be False,
     the list must be finite; True, however, results from a True value at a
     finite index of a finite or infinite list.
 
@@ -312,9 +314,9 @@ def any(p, xs):
     """``any :: (a -> Bool) -> [a] -> Bool``
 
     Applied to a predicate and a list, any determines if any element of the
-    list satisfies the predicate. For the result to be False, the list must be
-    finite; True, however, results from a True value for the predicate applied
-    to an element at a finite index of a finite or infinite list.
+    list satisfies the predicate.  For the result to be False, the list must
+    be finite; True, however, results from a True value for the predicate
+    applied to an element at a finite index of a finite or infinite list.
 
     """
     return True in ((p(x) for x in xs))
@@ -325,7 +327,7 @@ def all(p, xs):
     """``all :: (a -> Bool) -> [a] -> Bool``
 
     Applied to a predicate and a list, all determines if all elements of the
-    list satisfy the predicate. For the result to be True, the list must be
+    list satisfy the predicate.  For the result to be True, the list must be
     finite; False, however, results from a False value for the predicate
     applied to an element at a finite index of a finite or infinite list.
 
@@ -361,9 +363,9 @@ def product(xs):
 def minimum(xs):
     """``minimum :: Ord a => [a] -> a``
 
-    minimum returns the minimum value from a list, which must be non-empty,
-    finite, and of an ordered type. It is a special case of minimumBy, which
-    allows the programmer to supply their own comparison function.
+    Returns the minimum value from a list, which must be non-empty, finite,
+    and of an ordered type.  It is a special case of minimumBy, which allows
+    the programmer to supply their own comparison function.
 
     """
     return min(xs)
@@ -373,9 +375,9 @@ def minimum(xs):
 def maximum(xs):
     """``maximum :: Ord a => [a] -> a``
 
-    maximum returns the maximum value from a list, which must be non-empty,
-    finite, and of an ordered type. It is a special case of maximumBy, which
-    allows the programmer to supply their own comparison function.
+    Returns the maximum value from a list, which must be non-empty, finite,
+    and of an ordered type.  It is a special case of maximumBy, which allows
+    the programmer to supply their own comparison function.
 
     """
     return max(xs)
@@ -385,8 +387,8 @@ def maximum(xs):
 def scanl(f, z, xs):
     """``scanl :: (b -> a -> b) -> b -> [a] -> [b]``
 
-    scanl is similar to foldl, but returns a list of successive reduced values
-    from the left
+    Similar to `foldl`:func:, but returns a list of successive reduced values
+    from the left.
 
     """
     raise NotImplementedError()
@@ -396,7 +398,7 @@ def scanl(f, z, xs):
 def scanl1(f, xs):
     """``scanl1 :: (a -> a -> a) -> [a] -> [a]``
 
-    scanl1 is a variant of scanl that has no starting value argument
+    A variant of `scanl`:func: that has no starting value argument.
 
     """
     raise NotImplementedError()
@@ -406,7 +408,7 @@ def scanl1(f, xs):
 def scanr(f, z, xs):
     """``scanr :: (a -> b -> b) -> b -> [a] -> [b]``
 
-    scanr is the right-to-left dual of scanl.
+    The right-to-left dual of `scanl`:func:.
 
     """
     raise NotImplementedError()
@@ -416,7 +418,7 @@ def scanr(f, z, xs):
 def scanr1(f, xs):
     """``scanr1 :: (a -> a -> a) -> [a] -> [a]``
 
-    scanr1 is a variant of scanr that has no starting value argument.
+    A variant of `scanr`:func: that has no starting value argument.
 
     """
     raise NotImplementedError()
@@ -426,10 +428,10 @@ def scanr1(f, xs):
 def mapAccumL(xs):
     """``mapAccumL :: (a -> x -> (a, y)) -> a -> [x] -> (a, [y])``
 
-    The mapAccumL function behaves like a combination of map and foldl; it
-    applies a function to each element of a list, passing an accumulating
-    parameter from left to right, and returning a final value of this
-    accumulator together with the new list.
+    Behaves like a combination of `map`:func: and `foldl`:func:; it applies a
+    function to each element of a list, passing an accumulating parameter from
+    left to right, and returning a final value of this accumulator together
+    with the new list.
 
     """
     raise NotImplementedError()
@@ -439,10 +441,10 @@ def mapAccumL(xs):
 def mapAccumR(xs):
     """``mapAccumR :: (acc -> x -> (acc, y)) -> acc -> [x] -> (acc, [y])``
 
-    The mapAccumR function behaves like a combination of map and foldr; it
-    applies a function to each element of a list, passing an accumulating
-    parameter from right to left, and returning a final value of this
-    accumulator together with the new list.
+    Behaves like a combination of `map`:func: and `foldr`:func:; it applies a
+    function to each element of a list, passing an accumulating parameter from
+    right to left, and returning a final value of this accumulator together
+    with the new list.
 
     """
     raise NotImplementedError()
@@ -452,14 +454,18 @@ def mapAccumR(xs):
 def iterate(f, x):
     """``iterate :: (a -> a) -> a -> [a]``
 
-    iterate(f, x) returns an infinite List of repeated applications of f to x:
-    iterate(f, x) == [x, f(x), f(f(x)), ...]
+    Returns an infinite list of repeated applications of `f` to `x`\ ::
+
+      iterate(f, x) == [x, f(x), f(f(x)), ...]
 
     """
+    from hask3.lang.lazylist import L
+
     def __iterate(f, x):
         while True:
             yield x
             x = f(x)
+
     return L[__iterate(f, x)]
 
 
@@ -467,66 +473,65 @@ def iterate(f, x):
 def repeat(x):
     """``repeat :: a -> [a]``
 
-    repeat(x) is an infinite list, with x the value of every element.
+    Infinite list, with x the value of every element.
 
     """
-    def __repeat(x):
-        while True:
-            yield x
-    return L[__repeat(x)]
+    import itertools
+    from hask3.lang.lazylist import L
+    return L[itertools.repeat(x)]
 
 
 @sig(H/ int >> "a" >> ["a"])
 def replicate(n, x):
     """``replicate :: Int -> a -> [a]``
 
-    replicate(n, x) is a list of length n with x the value of every element.
+    A list of length `n` with `x` the value of every element.
 
     """
-    def __replicate(n, x):
-        for _ in range(n):
-            yield x
-    return L[__replicate(n, x)]
+    import itertools
+    from hask3.lang.lazylist import L
+    return L[itertools.repeat(x, n)]
 
 
 @sig(H/ ["a"] >> ["a"])
 def cycle(x):
     """``cycle :: [a] -> [a]``
 
-    cycle ties a finite list into a circular one, or equivalently, the infinite
-    repetition of the original list. It is the identity on infinite lists.
+    Ties a finite list into a circular one, or equivalently, the infinite
+    repetition of the original list.  It is the identity on infinite lists.
 
     """
-    def __cycle(x):
-        while True:
-            for i in x:
-                yield i
-    return L[__cycle(x)]
+    import itertools
+    from hask3.lang.lazylist import L
+    return L[itertools.cycle(x)]
 
 
 @sig(H/ (H/ "b" >> t(Maybe, ("a", "b"))) >> "b" >> ["a"])
 def unfoldr(f, x):
     """``unfoldr :: (b -> Maybe (a, b)) -> b -> [a]``
 
-    The unfoldr function is a dual to foldr: while foldr reduces a list to a
-    summary value, unfoldr builds a list from a seed value. The function takes
-    the element and returns Nothing if it is done producing the list or
-    returns Just (a,b), in which case, a is prepended to the list and b is
-    used as the next element in a recursive call
+    Dual to `foldr`:func:\ : while `foldr`:func: reduces a list to a summary
+    value, this one builds a list from a seed value.  The function takes the
+    element and returns `Nothing` if it is done producing the list or returns
+    ``Just (a, b)``, in which case, `a` is prepended to the list and `b` is
+    used as the next element in a recursive call.
 
     """
+    from hask3.lang.lazylist import L
+    from hask3.Data.Maybe import Nothing
     y = f(x)
     if y == Nothing:
         return L[[]]
-    return y[0][0] ^ unfoldr(f, y[0][1])
+    else:
+        return y[0][0] ^ unfoldr(f, y[0][1])
 
 
 @sig(H/ int >> ["a"] >> ["a"])
 def take(n, xs):
     """``take :: Int -> [a] -> [a]``
 
-    take(n), applied to a list xs, returns the prefix of xs of length n, or xs
-    itself if n > length xs
+    Applied to a list, returns the prefix of `xs` of length `n`, or `xs`
+    itself if ``n > length xs``.
 
     """
     return xs[:n]
@@ -536,8 +541,8 @@ def take(n, xs):
 def drop(n, xs):
     """``drop :: Int -> [a] -> [a]``
 
-    drop(n, xs) returns the suffix of xs after the first n elements, or [] if n >
-    length xs
+    Returns the suffix of list `xs` after the first `n` elements, or `[]` if
+    ``n > length xs``.
 
     """
     return xs[n:]
@@ -547,22 +552,23 @@ def drop(n, xs):
 def splitAt(n, xs):
     """``splitAt :: Int -> [a] -> ([a], [a])``
 
-    splitAt(n, xs) returns a tuple where first element is xs prefix of length n
-    and second element is the remainder of the list
+    Returns a tuple where first element is `xs` prefix of length `n` and
+    second element is the remainder of the list.
 
     """
-    return (xs[:n], xs[n:])
+    return xs[:n], xs[n:]
 
 
 @sig(H/ (H/ "a" >> bool) >> ["a"] >> ["a"])
 def takeWhile(p, xs):
     """``takeWhile :: (a -> Bool) -> [a] -> [a]``
 
-    takeWhile, applied to a predicate p and a list xs, returns the longest
-    prefix (possibly empty) of xs of elements that satisfy p
+    Returns the longest prefix (possibly empty) of the list `xs` of elements
+    that satisfy predicate `p`.
 
     """
     import itertools
+    from hask3.lang.lazylist import L
     return L[itertools.takewhile(p, xs)]
 
 
@@ -570,10 +576,11 @@ def takeWhile(p, xs):
 def dropWhile(p, xs):
     """``dropWhile :: (a -> Bool) -> [a] -> [a]``
 
-    dropWhile(p, xs) returns the suffix remaining after takeWhile(p, xs)
+    Returns the suffix remaining after ``takeWhile(p, xs)``.
 
     """
     import itertools
+    from hask3.lang.lazylist import L
     return L[itertools.dropwhile(p, xs)]
 
 
@@ -581,8 +588,8 @@ def dropWhile(p, xs):
 def dropWhileEnd(p, xs):
     """``dropWhileEnd :: (a -> Bool) -> [a] -> [a]``
 
-    The dropWhileEnd function drops the largest suffix of a list in which the
-    given predicate holds for all elements.
+    Drops the largest suffix of a list in which the given predicate holds for
+    all elements.
 
     """
     raise NotImplementedError()
@@ -592,9 +599,9 @@ def dropWhileEnd(p, xs):
 def span(p, xs):
     """``span :: (a -> Bool) -> [a] -> ([a], [a])``
 
-    span, applied to a predicate p and a list xs, returns a tuple where first
-    element is longest prefix (possibly empty) of xs of elements that satisfy p
-    and second element is the remainder of the list
+    Returns a tuple where first element is longest prefix (possibly empty) of
+    list `xs` of elements that satisfy predicate `p` and second element is the
+    remainder of the list.
 
     """
     front = takeWhile(p, xs)
@@ -606,11 +613,12 @@ def span(p, xs):
 def break_(p, xs):
     """``break :: (a -> Bool) -> [a] -> ([a], [a])``
 
-    break, applied to a predicate p and a list xs, returns a tuple where first
-    element is longest prefix (possibly empty) of xs of elements that do not
-    satisfy p and second element is the remainder of the list
+    Returns a tuple where first element is longest prefix (possibly empty) of
+    list `xs` of elements that do not satisfy predicate `p` and second element
+    is the remainder of the list.
 
     """
+    from hask3.lang.syntax import H
     inv = (lambda x: not p(x)) ** (H/ "a" >> bool)
     return span(inv, xs)
 
@@ -619,27 +627,26 @@ def break_(p, xs):
 def stripPrefix(xs, ys):
     """``stripPrefix :: Eq a => [a] -> [a] -> Maybe [a]``
 
-    The stripPrefix function drops the given prefix from a list. It returns
-    Nothing if the list did not start with the prefix given, or Just the list
-    after the prefix, if it does.
+    Drops the given prefix from a list.  It returns `Nothing` if the list
+    did not start with the prefix given, or `Just` the list after the
+    prefix, if it does.
 
     """
-    if isPrefixOf(xs, ys):
-        return Just(ys[len(xs)])
-    return Nothing
+    from hask3.Data.Maybe import Just, Nothing
+    return Just(ys[len(xs)]) if isPrefixOf(xs, ys) else Nothing
 
 
 @sig(H[(Eq, "a")]/ ["a"] >> [["a"]])
 def group(xs):
     """``group :: Eq a => [a] -> [[a]]``
 
-    The group function takes a list and returns a list of lists such that the
-    concatenation of the result is equal to the argument. Moreover, each
-    sublist in the result contains only equal elements.
-    It is a special case of groupBy, which allows the programmer to supply
-    their own equality test.
+    Takes a list and returns a list of lists such that the concatenation of
+    the result is equal to the argument.  Moreover, each sublist in the result
+    contains only equal elements.  It is a special case of `groupBy`:func:,
+    which allows the programmer to supply their own equality test.
 
     """
+    from hask3.lang.syntax import __
     return groupBy(xs, (__==__))
 
 
@@ -647,34 +654,35 @@ def group(xs):
 def inits(xs):
     """``inits :: [a] -> [[a]]``
 
-    The inits function returns all initial segments of the argument, shortest
-    first.
+    Returns all initial segments of the argument, shortest first.
 
     """
+    from hask3.lang.lazylist import L
     if null(xs):
         return L[[xs]]
-    return L[[L[[]]]] + L[(xs[:n+1] for n, _ in enumerate(xs))]
+    else:
+        return L[[L[[]]]] + L[(xs[:n + 1] for n, _ in enumerate(xs))]
 
 
 @sig(H/ ["a"] >> [["a"]])
 def tails(xs):
     """``tails :: [a] -> [[a]]``
 
-    The tails function returns all final segments of the argument, longest
-    first.
+    Returns all final segments of the argument, longest first.
 
     """
+    from hask3.lang.lazylist import L
     if null(xs):
         return L[[L[[]]]]
-    return L[(xs[n:] for n, _ in enumerate(xs))] + L[[L[[]]]]
+    else:
+        return L[(xs[n:] for n, _ in enumerate(xs))] + L[[L[[]]]]
 
 
 @sig(H[(Eq, "a")]/ ["a"] >> ["a"] >> bool)
 def isPrefixOf(xs, ys):
     """``isPrefixOf :: Eq a => [a] -> [a] -> Bool``
 
-    The isPrefixOf function takes two lists and returns True iff the first list
-    is a prefix of the second.
+    Returns True if the first list is a prefix of the second.
 
     """
     return xs == ys[:len(xs)]
@@ -684,8 +692,8 @@ def isPrefixOf(xs, ys):
 def isSuffixOf(xs, ys):
     """``isSuffixOf :: Eq a => [a] -> [a] -> Bool``
 
-    The isSuffixOf function takes two lists and returns True iff the first list
-    is a suffix of the second. The second list must be finite.
+    Returns True if the first list is a suffix of the second.  The second list
+    must be finite.
 
     """
     return xs == ys[-len(xs):]
@@ -695,8 +703,8 @@ def isSuffixOf(xs, ys):
 def isInfixOf(xs, ys):
     """``isInfixOf :: Eq a => [a] -> [a] -> Bool``
 
-    The isInfixOf function takes two lists and returns True iff the first list
-    is contained, wholly and intact, anywhere within the second.
+    Returns True if the first list is contained, wholly and intact, anywhere
+    within the second.
 
     """
     return any(isPrefixOf(xs), tails(ys))
@@ -706,8 +714,7 @@ def isInfixOf(xs, ys):
 def isSubsequenceOf(x, y):
     """``isSubsequenceOf :: Eq a => [a] -> [a] -> Bool``
 
-    The isSubsequenceOf function takes two lists and returns True if the first
-    list is a subsequence of the second list.
+    Returns True if the first list is a subsequence of the second list.
 
     isSubsequenceOf(x, y) is equivalent to elem(x, subsequences(y))
 
@@ -719,9 +726,9 @@ def isSubsequenceOf(x, y):
 def elem(x, xs):
     """``elem :: Eq a => a -> [a] -> Bool``
 
-    elem is the list membership predicate, elem(x, xs). For the result to be
-    False, the list must be finite; True, however, results from an element
-    equal to x found at a finite index of a finite or infinite list.
+    List membership predicate, ``elem(x, xs)``.  For the result to be False,
+    the list must be finite; True, however, results from an element equal to
+    `x` found at a finite index of a finite or infinite list.
 
     """
     return x in xs
@@ -731,7 +738,7 @@ def elem(x, xs):
 def notElem(x, xs):
     """``notElem :: Eq a => a -> [a] -> Bool``
 
-    notElem is the negation of `elem`:func:.
+    The negation of `elem`:func:.
 
     """
     return not elem(x, xs)
@@ -741,120 +748,109 @@ def notElem(x, xs):
 def lookup(key, assocs):
     """``lookup :: Eq a => a -> [(a, b)] -> Maybe b``
 
-    lookup(key, assocs) looks up a key in an association list.
+    Looks up a key in an association list.
 
     """
-    for k, value in assocs:
-        if k == key:
-            return Just(value)
-    return Nothing
+    from hask3.Data.Maybe import Just, Nothing
+    return next((Just(value) for k, value in assocs if k == key), Nothing)
 
 
 @sig(H/ (H/ "a" >> bool) >> ["a"] >> t(Maybe, "a"))
 def find(p, xs):
     """``find :: (a -> Bool) -> [a] -> Maybe a``
 
-    The find function takes a predicate and a structure and returns the
-    leftmost element of the structure matching the predicate, or Nothing if
-    there is no such element.
+    Returns the left-most element of the list matching the predicate, or
+    `Nothing` if there is no such element.
 
     """
-    for x in xs:
-        if p(x):
-            return Just(x)
-    return Nothing
+    from hask3.Data.Maybe import Just, Nothing
+    return next((Just(x) for x in xs if p(x)), Nothing)
 
 
 @sig(H/ (H/ "a" >> bool) >> ["a"] >> ["a"])
-def filter(f, xs):
+def filter(p, xs):
     """``filter :: (a -> Bool) -> [a] -> [a]``
 
-    filter, applied to a predicate and a list, returns the list of those
-    elements that satisfy the predicate
+    Returns the list of those elements that satisfy the predicate `p`.
 
     """
-    import itertools
-    return L[itertools.ifilter(f, xs)]
+    from hask3.lang.lazylist import L
+    return L[(x for x in xs if p(x))]
 
 
 @sig(H/ (H/ "a" >> bool) >> ["a"] >> (["a"], ["a"]))
-def partition(f, xs):
+def partition(p, xs):
     """``partition :: (a -> Bool) -> [a] -> ([a], [a])``
 
-    The partition function takes a predicate a list and returns the pair of
-    lists of elements which do and do not satisfy the predicate.
+    Returns the pair of lists of elements which do and do not satisfy the
+    predicate `p`.
 
     """
-    yes, no = [], []
-    for item in xs:
-        if f(item):
-            yes.append(item)
-        else:
-            no.append(item)
-    return L[yes], L[no]
+    import itertools
+    from hask3.lang.lazylist import L
+    yes, no = itertools.tee(xs)
+    return L[(x for x in yes if p(x))], L[(x for x in no if not p(x))]
 
 
 @sig(H[(Eq, "a")]/ "a" >> ["a"] >> t(Maybe, int))
 def elemIndex(x, xs):
     """``elemIndex :: Eq a => a -> [a] -> Maybe Int``
 
-    The elemIndex function returns the index of the first element in the given
-    list which is equal (by ==) to the query element, or Nothing if there is no
-    such element.
+    Returns the index of the first element in the given list which is equal
+    (by ``==``) to the query element, or `Nothing` if there is no such
+    element.
 
     """
-    for i, a in enumerate(xs):
-        if a == x:
-            return Just(i)
-    return Nothing
+    from hask3.Data.Maybe import Just, Nothing
+    return next((Just(i) for i, a in enumerate(xs) if a == x), Nothing)
 
 
 @sig(H[(Eq, "a")]/ "a" >> ["a"] >> [int])
 def elemIndices(x, xs):
     """``elemIndices :: Eq a => a -> [a] -> [Int]``
 
-    The elemIndices function extends elemIndex, by returning the indices of all
-    elements equal to the query element, in ascending order.
+    Extends `elemIndex`:func:, by returning the indices of all elements equal
+    to the query element, in ascending order.
 
     """
+    from hask3.lang.lazylist import L
     return L[(i for i, a in enumerate(xs) if a == x)]
 
 
 @sig(H/ (H/ "a" >> bool) >> ["a"] >> t(Maybe, int))
-def findIndex(f, xs):
+def findIndex(p, xs):
     """``findIndex :: (a -> Bool) -> [a] -> Maybe Int``
 
-    The findIndex function takes a predicate and a list and returns the index
-    of the first element in the list satisfying the predicate, or Nothing if
-    there is no such element.
+    Returns the index of the first element in the list `xs` satisfying the
+    predicate `p`, or `Nothing` if there is no such element.
 
     """
-    for i, x in enumerate(xs):
-        if f(x):
-            return Just(i)
-    return Nothing
+    from hask3.Data.Maybe import Just, Nothing
+    return next((Just(i) for i, a in enumerate(xs) if p(a)), Nothing)
 
 
 @sig(H/ (H/ "a" >> bool) >> ["a"] >> [int])
-def findIndicies(f, xs):
+def findIndicies(p, xs):
     """``findIndices :: (a -> Bool) -> [a] -> [Int]``
 
-    The findIndices function extends findIndex, by returning the indices of all
-    elements satisfying the predicate, in ascending order.
+    Extends `findIndex`:func:, by returning the indices of all elements
+    satisfying the predicate `p`, in ascending order.
 
     """
-    return L[(i for i, x in enumerate(xs) if f(x))]
+    from hask3.lang.lazylist import L
+    return L[(i for i, x in enumerate(xs) if p(x))]
 
 
 @sig(H/ ["a"] >> ["b"] >> [("a", "b")])
 def zip(xs, ys):
     """``zip :: [a] -> [b] -> [(a, b)]``
 
-    zip takes two lists and returns a list of corresponding pairs. If one input
+    Takes two lists and returns a list of corresponding pairs.  If one input
     list is short, excess elements of the longer list are discarded.
 
     """
     from xoutil.future.itertools import zip as izip
+    from hask3.lang.lazylist import L
     return L[izip(xs, ys)]
 
 
@@ -862,10 +858,11 @@ def zip(xs, ys):
 def zip3(a, b, c):
     """``zip3 :: [a] -> [b] -> [c] -> [(a, b, c)]``
 
-    zip3 takes three lists and returns a list of triples, analogous to zip.
+    Takes three lists and returns a list of triples, analogous to `zip`:func:.
 
     """
     from xoutil.future.itertools import zip as izip
+    from hask3.lang.lazylist import L
     return L[izip(a, b, c)]
 
 
@@ -873,11 +870,11 @@ def zip3(a, b, c):
 def zip4(a, b, c, d):
     """``zip4 :: [a] -> [b] -> [c] -> [d] -> [(a, b, c, d)]``
 
-    The zip4 function takes four lists and returns a list of quadruples,
-    analogous to zip.
+    Takes four lists and returns a list of quadruples, analogous to `zip`:func:.
 
     """
     from xoutil.future.itertools import zip as izip
+    from hask3.lang.lazylist import L
     return L[izip(a, b, c, d)]
 
 
@@ -886,11 +883,12 @@ def zip4(a, b, c, d):
 def zip5(a, b, c, d, e):
     """``zip5 :: [a] -> [b] -> [c] -> [d] -> [e] -> [(a, b, c, d, e)]``
 
-    The zip5 function takes five lists and returns a list of five-tuples,
-    analogous to zip.
+    Takes five lists and returns a list of five-tuples, analogous to
+    `zip`:func:.
 
     """
     from xoutil.future.itertools import zip as izip
+    from hask3.lang.lazylist import L
     return L[izip(a, b, c, d, e)]
 
 
@@ -899,11 +897,11 @@ def zip5(a, b, c, d, e):
 def zip6(a, b, c, d, e, f):
     """``zip6 :: [a] -> [b] -> [c] -> [d] -> [e] -> [f] -> [(a, b, c, d, e, f)]``
 
-    The zip6 function takes six lists and returns a list of six-tuples,
-    analogous to zip.
+    Takes six lists and returns a list of six-tuples, analogous to `zip`:func:.
 
     """
     from xoutil.future.itertools import zip as izip
+    from hask3.lang.lazylist import L
     return L[izip(a, b, c, d, e, f)]
 
 
@@ -912,11 +910,12 @@ def zip6(a, b, c, d, e, f):
 def zip7(a, b, c, d, e, f, g):
     """``zip7 :: [a] -> [b] -> [c] -> [d] -> [e] -> [f] -> [g] -> [(a, b, c, d, e, f, g)]``
 
-    The zip7 function takes seven lists and returns a list of seven-tuples,
-    analogous to zip.
+    Takes seven lists and returns a list of seven-tuples, analogous to
+    `zip`:func:.
 
     """
     from xoutil.future.itertools import zip as izip
+    from hask3.lang.lazylist import L
     return L[izip(a, b, c, d, e, f, g)]
 
 
@@ -924,11 +923,12 @@ def zip7(a, b, c, d, e, f, g):
 def zipWith(fn, xs, ys):
     """``zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]``
 
-    zipWith generalises zip by zipping with the function given as the first
-    argument, instead of a tupling function. For example, zipWith (+) is
+    Generalises `zip`:func: by zipping with the function given as the first
+    argument, instead of a tupling function.  For example, ``zipWith (+)`` is
     applied to two lists to produce the list of corresponding sums.
 
     """
+    from hask3.lang.lazylist import L
     return L[(fn(*s) for s in zip(xs, ys))]
 
 
@@ -936,11 +936,12 @@ def zipWith(fn, xs, ys):
 def zipWith3(fn, a, b, c):
     """``zipWith3 :: (a -> b -> c -> d) -> [a] -> [b] -> [c] -> [d]``
 
-    The zipWith3 function takes a function which combines three elements, as
-    well as three lists and returns a list of their point-wise combination,
-    analogous to zipWith.
+    Takes a function which combines three elements, as well as three lists and
+    returns a list of their point-wise combination, analogous to
+    `zipWith`:func:.
 
     """
+    from hask3.lang.lazylist import L
     return L[(fn(*s) for s in zip3(a, b, c))]
 
 
@@ -949,11 +950,12 @@ def zipWith3(fn, a, b, c):
 def zipWith4(fn, a, b, c, d):
     """``zipWith4 :: (a -> b -> c -> d -> e) -> [a] -> [b] -> [c] -> [d] -> [e]``
 
-    The zipWith4 function takes a function which combines four elements, as
-    well as four lists and returns a list of their point-wise combination,
-    analogous to zipWith.
+    Takes a function which combines four elements, as well as four lists and
+    returns a list of their point-wise combination, analogous to
+    `zipWith`:func:.
 
     """
+    from hask3.lang.lazylist import L
     return L[(fn(*s) for s in zip4(a, b, c, d))]
 
 
@@ -962,11 +964,12 @@ def zipWith4(fn, a, b, c, d):
 def zipWith5(fn, a, b, c, d, e):
     """``zipWith5 :: (a -> b -> c -> d -> e -> f) -> [a] -> [b] -> [c] -> [d] -> [e] -> [f]``
 
-    The zipWith5 function takes a function which combines five elements, as
-    well as five lists and returns a list of their point-wise combination,
-    analogous to zipWith.
+    Takes a function which combines five elements, as well as five lists and
+    returns a list of their point-wise combination, analogous to
+    `zipWith`:func:.
 
     """
+    from hask3.lang.lazylist import L
     return L[(fn(*s) for s in zip5(a, b, c, d, e))]
 
 
@@ -975,11 +978,12 @@ def zipWith5(fn, a, b, c, d, e):
 def zipWith6(fn, a, b, c, d, e, f):
     """``zipWith6 :: (a -> b -> c -> d -> e -> f -> g) -> [a] -> [b] -> [c] -> [d] -> [e] -> [f] -> [g]``
 
-    The zipWith6 function takes a function which combines six elements, as well
-    as six lists and returns a list of their point-wise combination, analogous
-    to zipWith.
+    Takes a function which combines six elements, as well as six lists and
+    returns a list of their point-wise combination, analogous to
+    `zipWith`:func:.
 
     """
+    from hask3.lang.lazylist import L
     return L[(fn(*s) for s in zip6(a, b, c, d, e, f))]
 
 
@@ -988,11 +992,12 @@ def zipWith6(fn, a, b, c, d, e, f):
 def zipWith7(fn, a, b, c, d, e, f):
     """``zipWith7 :: (a -> b -> c -> d -> e -> f -> g -> h) -> [a] -> [b] -> [c] -> [d] -> [e] -> [f] -> [g] -> [h]``
 
-    The zipWith7 function takes a function which combines seven elements, as
-    well as seven lists and returns a list of their point-wise combination,
-    analogous to zipWith.
+    Takes a function which combines seven elements, as well as seven lists and
+    returns a list of their point-wise combination, analogous to
+    `zipWith`:func:.
 
     """
+    from hask3.lang.lazylist import L
     return L[(fn(*s) for s in zip7(a, b, c, d, e, f))]
 
 
@@ -1000,10 +1005,11 @@ def zipWith7(fn, a, b, c, d, e, f):
 def unzip(xs):
     """``unzip :: [(a, b)] -> ([a], [b])``
 
-    unzip transforms a list of pairs into a list of first components and a
-    list of second components.
+    Transforms a list of pairs into a list of first components and a list of
+    second components.
 
     """
+    from hask3.lang.lazylist import L
     a = L[(i[0] for i in xs)]
     b = L[(i[1] for i in xs)]
     return a, b
@@ -1013,10 +1019,11 @@ def unzip(xs):
 def unzip3(xs):
     """``unzip3 :: [(a, b, c)] -> ([a], [b], [c])``
 
-    The unzip3 function takes a list of triples and returns three lists,
-    analogous to unzip.
+    Takes a list of triples and returns three lists, analogous to
+    `unzip`:func:.
 
     """
+    from hask3.lang.lazylist import L
     a = L[(i[0] for i in xs)]
     b = L[(i[1] for i in xs)]
     c = L[(i[2] for i in xs)]
@@ -1027,10 +1034,11 @@ def unzip3(xs):
 def unzip4(xs):
     """``unzip4 :: [(a, b, c, d)] -> ([a], [b], [c], [d])``
 
-    The unzip4 function takes a list of quadruples and returns four lists,
-    analogous to unzip.
+    Takes a list of quadruples and returns four lists, analogous to
+    `unzip`:func:.
 
     """
+    from hask3.lang.lazylist import L
     a = L[(i[0] for i in xs)]
     b = L[(i[1] for i in xs)]
     c = L[(i[2] for i in xs)]
@@ -1042,10 +1050,11 @@ def unzip4(xs):
 def unzip5(xs):
     """``unzip5 :: [(a, b, c, d, e)] -> ([a], [b], [c], [d], [e])``
 
-    The unzip5 function takes a list of five-tuples and returns five lists,
-    analogous to unzip.
+    Takes a list of five-tuples and returns five lists, analogous to
+    `unzip`:func:.
 
     """
+    from hask3.lang.lazylist import L
     a = L[(i[0] for i in xs)]
     b = L[(i[1] for i in xs)]
     c = L[(i[2] for i in xs)]
@@ -1059,10 +1068,11 @@ def unzip5(xs):
 def unzip6(xs):
     """``unzip6 :: [(a, b, c, d, e, f)] -> ([a], [b], [c], [d], [e], [f])``
 
-    The unzip6 function takes a list of six-tuples and returns six lists,
-    analogous to unzip.
+    Takes a list of six-tuples and returns six lists, analogous to
+    `unzip`:func:.
 
     """
+    from hask3.lang.lazylist import L
     a = L[(i[0] for i in xs)]
     b = L[(i[1] for i in xs)]
     c = L[(i[2] for i in xs)]
@@ -1077,10 +1087,11 @@ def unzip6(xs):
 def unzip7(xs):
     """``unzip7 :: [(a, b, c, d, e, f, g)] -> ([a], [b], [c], [d], [e], [f], [g])``
 
-    The unzip7 function takes a list of seven-tuples and returns seven lists,
-    analogous to unzip.
+    Takes a list of seven-tuples and returns seven lists, analogous to
+    `unzip`:func:.
 
     """
+    from hask3.lang.lazylist import L
     a = L[(i[0] for i in xs)]
     b = L[(i[1] for i in xs)]
     c = L[(i[2] for i in xs)]
@@ -1091,34 +1102,35 @@ def unzip7(xs):
     return a, b, c, d, e, f, g
 
 
-from .String import lines  # noqa
-from .String import words  # noqa
-from .String import unlines  # noqa
-from .String import unwords  # noqa
+from hask3.Data.String import lines  # noqa
+from hask3.Data.String import words  # noqa
+from hask3.Data.String import unlines  # noqa
+from hask3.Data.String import unwords  # noqa
 
 
 @sig(H[(Eq, "a")]/ ["a"] >> ["a"])
 def nub(xs):
     """``nub :: Eq a => [a] -> [a]``
 
-    The nub function removes duplicate elements from a list. In particular, it
-    keeps only the first occurrence of each element. (The name nub means
-    essence.) It is a special case of nubBy, which allows the programmer to
-    supply their own equality test.
+    Removes duplicate elements from a list `xs`.  In particular, it keeps only
+    the first occurrence of each element.  (The name nub means essence.)  It
+    is a special case of `nubBy`:func:, which allows the programmer to supply
+    their own equality test.
 
     """
+    from hask3.lang.lazylist import L
     return L[(i for i in set(xs))]
 
 
 @sig(H[(Eq, "a")]/ "a" >> ["a"] >> ["a"])
 def delete(x, xs):
-    """
-    ``delete :: Eq a => a -> [a] -> [a]``
+    """``delete :: Eq a => a -> [a] -> [a]``
 
-    delete(x) removes the first occurrence of x from its list argument.
+    Removes the first occurrence of `x` from its list argument.
 
-    It is a special case of deleteBy, which allows the programmer to supply
-    their own equality test.
+    It is a special case of `deleteBy`:func:, which allows the programmer to
+    supply their own equality test.
+
     """
     raise NotImplementedError()
 
@@ -1137,12 +1149,12 @@ def diff(xs, ys):
 def union(xs, ys):
     """``union :: Eq a => [a] -> [a] -> [a]``
 
-    The union function returns the list union of the two lists.
+    Returns the list union of the two lists.
 
-    Duplicates, and elements of the first list, are removed from the the second
-    list, but if the first list contains duplicates, so will the result. It is
-    a special case of unionBy, which allows the programmer to supply their own
-    equality test.
+    Duplicates, and elements of the first list, are removed from the the
+    second list, but if the first list contains duplicates, so will the
+    result.  It is a special case of `unionBy`:func:, which allows the
+    programmer to supply their own equality test.
 
     """
     raise NotImplementedError()
@@ -1152,9 +1164,9 @@ def union(xs, ys):
 def intersect(xs, ys):
     """``intersect :: Eq a => [a] -> [a] -> [a]``
 
-    The intersect function takes the list intersection of two lists.  It is a
-    special case of intersectBy, which allows the programmer to supply their
-    own equality test. If the element is found in both the first and the second
+    Takes the list intersection of two lists.  It is a special case of
+    `intersectBy`:func:, which allows the programmer to supply their own
+    equality test.  If the element is found in both the first and the second
     list, the element from the first list will be used.
 
     """
@@ -1165,13 +1177,14 @@ def intersect(xs, ys):
 def sort(xs):
     """``sort :: Ord a => [a] -> [a]``
 
-    The sort function implements a stable sorting algorithm. It is a special
-    case of sortBy, which allows the programmer to supply their own comparison
+    Implements a stable sorting algorithm.  It is a special case of
+    `sortBy`:func:, which allows the programmer to supply their own comparison
     function.
 
-    Note: Current implementation is not lazy
+    .. note:: Current implementation is not lazy
 
     """
+    from hask3.lang.lazylist import L
     return L[sorted(xs)]
 
 
@@ -1182,7 +1195,7 @@ def sortOn(f, xs):
     Sort a list by comparing the results of a key function applied to each
     element.
 
-    Note: Current implementation is not lazy
+    .. note:: Current implementation is not lazy
 
     """
     raise NotImplementedError()
@@ -1192,17 +1205,20 @@ def sortOn(f, xs):
 def insert(x, xs):
     """``insert :: Ord a => a -> [a] -> [a]``
 
-    The insert function takes an element and a list and inserts the element
-    into the list at the first position where it is less than or equal to the
-    next element. In particular, if the list is sorted before the call, the
-    result will also be sorted.
+    Takes an element and a list and inserts the element into the list at the
+    first position where it is less than or equal to the next element.  In
+    particular, if the list is sorted before the call, the result will also be
+    sorted.
 
     """
+    from hask3.lang.lazylist import L
+
     def __insert(x, xs):
         for i in xs:
             if i > x:
                 yield x
             yield i
+
     return L[__insert(x, xs)]
 
 
@@ -1210,8 +1226,8 @@ def insert(x, xs):
 def nubBy(f, xs):
     """``nubBy :: (a -> a -> Bool) -> [a] -> [a]``
 
-    The nubBy function behaves just like nub, except it uses a user-supplied
-    equality predicate instead of the overloaded == function.
+    Behaves just like `nub`:func:, except it uses a user-supplied equality
+    predicate instead of the overloaded ``==`` function.
 
     """
     raise NotImplementedError()
@@ -1221,8 +1237,7 @@ def nubBy(f, xs):
 def deleteBy(f, xs):
     """``deleteBy :: (a -> a -> Bool) -> a -> [a] -> [a]``
 
-    The deleteBy function behaves like delete, but takes a user-supplied
-    equality predicate.
+    Behaves like `delete`:func:, but takes a user-supplied equality predicate.
 
     """
     raise NotImplementedError()
@@ -1232,9 +1247,8 @@ def deleteBy(f, xs):
 def deleteFirstBy(f, xs, ys):
     """``deleteFirstsBy :: (a -> a -> Bool) -> [a] -> [a] -> [a]``
 
-    The deleteFirstsBy function takes a predicate and two lists and returns the
-    first list with the first occurrence of each element of the second list
-    removed.
+    Takes a predicate and two lists and returns the first list with the first
+    occurrence of each element of the second list removed.
 
     """
     raise NotImplementedError()
@@ -1244,7 +1258,7 @@ def deleteFirstBy(f, xs, ys):
 def unionBy(f, xs, ys):
     """``unionBy :: (a -> a -> Bool) -> [a] -> [a] -> [a]``
 
-    The unionBy function is the non-overloaded version of union.
+    The non-overloaded version of `union`:func:.
 
     """
     raise NotImplementedError()
@@ -1254,7 +1268,7 @@ def unionBy(f, xs, ys):
 def intersectBy(f, xs, ys):
     """``intersectBy :: (a -> a -> Bool) -> [a] -> [a] -> [a]``
 
-    The intersectBy function is the non-overloaded version of intersect.
+    The non-overloaded version of `intersect`:func:.
 
     """
     raise NotImplementedError()
@@ -1264,10 +1278,11 @@ def intersectBy(f, xs, ys):
 def groupBy(f, xs):
     """``groupBy :: (a -> a -> Bool) -> [a] -> [[a]]``
 
-    The groupBy function is the non-overloaded version of group.
+    The non-overloaded version of `group`:func:.
 
     """
     import itertools
+    from hask3.lang.lazylist import L
     return L[(L[i[1]] for i in itertools.groupby(xs, keyfunc=f))]
 
 
@@ -1275,7 +1290,7 @@ def groupBy(f, xs):
 def sortBy(f, xs):
     """``sortBy :: (a -> a -> Ordering) -> [a] -> [a]``
 
-    The sortBy function is the non-overloaded version of sort.
+    The non-overloaded version of `sort`:func:.
 
     """
     raise NotImplementedError()
@@ -1285,7 +1300,7 @@ def sortBy(f, xs):
 def insertBy(f, xs):
     """``insertBy :: (a -> a -> Ordering) -> a -> [a] -> [a]``
 
-    The non-overloaded version of insert.
+    The non-overloaded version of `insert`:func:.
 
     """
     raise NotImplementedError()
@@ -1295,9 +1310,8 @@ def insertBy(f, xs):
 def maximumBy(f, xs):
     """``maximumBy :: (a -> a -> Ordering) -> [a] -> a``
 
-    The maximumBy function takes a comparison function and a list and returns
-    the greatest element of the list by the comparison function. The list must
-    be finite and non-empty.
+    Returns the greatest element of the list by the comparison function.  The
+    list must be finite and non-empty.
 
     """
     return max(xs, key=f)
@@ -1307,9 +1321,8 @@ def maximumBy(f, xs):
 def minimumBy(f, xs):
     """``minimumBy :: (a -> a -> Ordering) -> [a] -> a``
 
-    The minimumBy function takes a comparison function and a list and returns
-    the least element of the list by the comparison function. The list must be
-    finite and non-empty.
+    Returns the least element of the list by the comparison function.  The
+    list must be finite and non-empty.
 
     """
     return min(xs, key=f)
@@ -1319,9 +1332,9 @@ def minimumBy(f, xs):
 def genericLength(xs):
     """``genericLength :: Num i => [a] -> i``
 
-    The genericLength function is an overloaded version of length. In
-    particular, instead of returning an Int, it returns any type which is an
-    instance of Num. It is, however, less efficient than length.
+    An overloaded version of `length`:func:.  In particular, instead of
+    returning an `Int`, it returns any type which is an instance of `Num`.  It
+    is, however, less efficient than length.
 
     """
     raise NotImplementedError()
@@ -1331,8 +1344,8 @@ def genericLength(xs):
 def genericTake(n, xs):
     """``genericTake :: Integral i => i -> [a] -> [a]``
 
-    The genericTake function is an overloaded version of take, which accepts
-    any Integral value as the number of elements to take.
+    An overloaded version of `take`:func:, which accepts any `Integral` value
+    as the number of elements to take.
 
     """
     raise NotImplementedError()
@@ -1342,8 +1355,8 @@ def genericTake(n, xs):
 def genericDrop(n, xs):
     """``genericDrop :: Integral i => i -> [a] -> [a]``
 
-    The genericDrop function is an overloaded version of drop, which accepts
-    any Integral value as the number of elements to drop.
+    An overloaded version of `drop`:func:, which accepts any `Integral` value
+    as the number of elements to drop.
 
     """
     raise NotImplementedError()
@@ -1353,8 +1366,8 @@ def genericDrop(n, xs):
 def genericSplitAt(n, xs):
     """``genericSplitAt :: Integral i => i -> [a] -> ([a], [a])``
 
-    The genericSplitAt function is an overloaded version of splitAt, which
-    accepts any Integral value as the position at which to split.
+    An overloaded version of `splitAt`:func:, which accepts any `Integral`
+    value as the position at which to split.
 
     """
     raise NotImplementedError()
@@ -1364,8 +1377,8 @@ def genericSplitAt(n, xs):
 def genericIndex(xs, i):
     """``genericIndex :: Integral i => [a] -> i -> a``
 
-    The genericIndex function is an overloaded version of !!, which accepts any
-    Integral value as the index.
+    An overloaded version of ``!!``, which accepts any `Integral` value as the
+    index.
 
     """
     raise NotImplementedError()
@@ -1375,8 +1388,12 @@ def genericIndex(xs, i):
 def genericReplicate(i, a):
     """``genericReplicate :: Integral i => i -> a -> [a]``
 
-    The genericReplicate function is an overloaded version of replicate, which
-    accepts any Integral value as the number of repetitions to make.
+    An overloaded version of `replicate`:func:, which accepts any `Integral`
+    value as the number of repetitions to make.
 
     """
     raise NotImplementedError()
+
+
+del Maybe, Integral, Num, Ordering, Ord, Eq
+del t, sig, H

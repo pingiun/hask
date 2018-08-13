@@ -1,5 +1,5 @@
-from ..lang import H
-from ..lang import sig
+from hask3.lang.syntax import sig
+from hask3.lang.syntax import H
 
 
 @sig(H/ ("a", "b") >> "a")
@@ -9,7 +9,7 @@ def fst(tup):
     Extract the first component of a pair.
 
     """
-    x, y = tup
+    x, _y = tup
     return x
 
 
@@ -20,7 +20,7 @@ def snd(tup):
     Extract the second component of a pair.
 
     """
-    x, y = tup
+    _x, y = tup
     return y
 
 
@@ -28,7 +28,7 @@ def snd(tup):
 def curry(tup_fn, x, y):
     """``curry :: ((a, b) -> c) -> a -> b -> c``
 
-    curry converts an uncurried function to a curried function.
+    Converts an uncurried function to a curried function.
 
     """
     return tup_fn((x, y))
@@ -38,7 +38,7 @@ def curry(tup_fn, x, y):
 def uncurry(fn, tup):
     """``uncurry :: (a -> b -> c) -> (a, b) -> c``
 
-    uncurry converts a curried function to a function on pairs.
+    Converts a curried function to a function on pairs.
 
     """
     return fn(fst(tup), snd(tup))
@@ -53,3 +53,6 @@ def swap(tup):
     """
     a, b = tup
     return (b, a)
+
+
+del sig, H

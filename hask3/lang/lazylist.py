@@ -1,25 +1,16 @@
-import collections
-import itertools
-import sys
+from collections import Sequence
+from hask3.hack import objectify
+from hask3.lang.type_system import Typeclass
+from hask3.lang.type_system import Hask
+from hask3.lang.typeclasses import Show
+from hask3.lang.typeclasses import Eq
+from hask3.lang.typeclasses import Ord
+from hask3.lang.syntax import Syntax
+from hask3.lang.syntax import instance
+from hask3.lang.syntax import sig
+from hask3.lang.syntax import H
 
-from .hindley_milner import TypeVariable
-from .hindley_milner import ListType
-from .hindley_milner import unify
-
-from .type_system import typeof
-from .type_system import Typeclass
-from .type_system import Hask
-from .type_system import build_instance
-
-from .typeclasses import Show
-from .typeclasses import show
-from .typeclasses import Eq
-from .typeclasses import Ord
-
-from .syntax import Syntax
-from .syntax import instance
-from .syntax import sig
-from .syntax import H
+# LT, EQ, GT = -1, 0, 1
 
 try:
     from __builtin__ import cmp
@@ -63,6 +54,8 @@ class Enum(Typeclass):
     """
     @classmethod
     def make_instance(typeclass, cls, toEnum, fromEnum):
+        from hask3.lang.type_system import build_instance
+
         def succ(a):
             return toEnum(fromEnum(a) + 1)
 
@@ -138,7 +131,7 @@ def pred(a):
 def enumFromThen(start, second):
     """``enumFromThen :: a -> a -> [a]``
 
-    Used in translation of [n, n_, ...]
+    Used in translation of ``[n, n_, ...]``.
 
     """
     return L[Enum[start].enumFromThen(start, second)]
@@ -178,47 +171,54 @@ instance(Enum, int).where(fromEnum=int, toEnum=int)
 instance(Enum, bool).where(fromEnum=int, toEnum=bool)
 instance(Enum, str).where(fromEnum=ord, toEnum=chr)
 
+
+import sys    # noqa
 if sys.version[0] == '2':
     long = long   # noqa
     instance(Enum, long).where(fromEnum=int, toEnum=long)
+del sys
 
 
-class List(collections.Sequence, Hask):
+class List(Sequence, Hask):
     """Statically typed lazy sequence datatype.
 
     See `L`:obj: for more information.
 
     """
     def __init__(self, head=None, tail=None):
-        self.__head = []
-        self.__tail = itertools.chain([])
-        self.__is_evaluated = True
-
-        if head is not None and len(head) > 0:
-            fst = head[0]
-            for fst, other in zip(itertools.repeat(fst), head):
-                unify(typeof(fst), typeof(other))
-            self.__head.extend(head)
-        if tail is not None:
-            self.__tail = itertools.chain(self.__tail, tail)
-            self.__is_evaluated = False
+        from itertools import chain
+        from hask3.lang.type_system import typeof
+        from hask3.lang.hindley_milner import unify
+        if head is not None:
+            count = len(head)
+            if count > 0:
+                fst = head[0]
+                i = 1
+                while i < count:
+                    unify(typeof(fst), typeof(head[i]))
+                    i += 1
+            self.__head = list(head)
+        else:
+            self.__head = []
+        self.__is_evaluated = tail is None
+        self.__tail = chain([] if self.__is_evaluated else tail)
 
     def __type__(self):
-        if self.__is_evaluated:
-            if len(self.__head) == 0:
+        from hask3.lang.type_system import typeof
+        from hask3.lang.hindley_milner import TypeVariable, ListType
+        if len(self.__head) == 0:
+            if self.__is_evaluated:
                 return ListType(TypeVariable())
+            else:
+                self.__next()
+                return self.__type__()
+        else:
             return ListType(typeof(self[0]))
 
-        elif len(self.__head) == 0:
-            self.__next()
-            return self.__type__()
-
-        return ListType(typeof(self[0]))
-
     def __next(self):
-        """
-        Evaluate the next element of the tail, and add it to the head.
-        """
+        """Evaluate the next element of the tail, and add it to the head."""
+        from hask3.lang.type_system import typeof
+        from hask3.lang.hindley_milner import unify
         if self.__is_evaluated:
             raise StopIteration
         else:
@@ -238,9 +238,9 @@ class List(collections.Sequence, Hask):
             self.__next()
 
     def __rxor__(self, item):
-        """
-        ^ is the cons operator (equivalent to : in Haskell)
-        """
+        """``^`` is the ``cons`` operator (equivalent to ``:`` in Haskell)."""
+        from hask3.lang.type_system import typeof
+        from hask3.lang.hindley_milner import ListType, unify
         unify(self.__type__(), ListType(typeof(item)))
         if self.__is_evaluated:
             return List(head=[item] + self.__head)
@@ -253,24 +253,27 @@ class List(collections.Sequence, Hask):
         + is the list concatenation operator, equivalent to ++ in Haskell and +
         for Python lists
         """
+        from itertools import chain
+        from hask3.lang.type_system import typeof
+        from hask3.lang.hindley_milner import unify
         unify(self.__type__(), typeof(other))
         if self.__is_evaluated and other.__is_evaluated:
             return List(head=self.__head + other.__head)
         elif self.__is_evaluated and not other.__is_evaluated:
-            return List(head=self.__head + other.__head,
-                        tail=other.__tail)
-        return List(head=self.__head,
-                    tail=itertools.chain(self.__tail, iter(other)))
+            return List(head=self.__head + other.__head, tail=other.__tail)
+        else:
+            return List(head=self.__head, tail=chain(self.__tail, other))
 
     def __str__(self):
-        if len(self.__head) == 0 and self.__is_evaluated:
-            return "L[[]]"
-
-        elif len(self.__head) == 1 and self.__is_evaluated:
-            return "L[[%s]]" % show(self.__head[0])
-
-        body = ", ".join((show(s) for s in self.__head))
-        return "L[%s]" % body if self.__is_evaluated else "L[%s ...]" % body
+        from hask3.lang.typeclasses import show
+        body = ", ".join(map(show, self.__head))
+        if self.__is_evaluated:
+            if len(self.__head) <= 1:
+                body = '[{}]'.format(body)
+            suffix = ''
+        else:
+            suffix = ' ...'
+        return "L[{}{}]".format(body, suffix)
 
     def __cmp__(self, other):
         if self.__is_evaluated and other.__is_evaluated:
@@ -344,21 +347,25 @@ class List(collections.Sequence, Hask):
             yield item
 
     def count(self, x):
+        from hask3.lang.type_system import typeof
+        from hask3.lang.hindley_milner import ListType, unify
         unify(self.__type__(), ListType(typeof(x)))
         self.__evaluate()
         return self.__head.count(x)
 
     def index(self, x):
+        from hask3.lang.type_system import typeof
+        from hask3.lang.hindley_milner import ListType, unify
         unify(self.__type__(), ListType(typeof(x)))
         self.__evaluate()
         return self.__head.index(x)
 
     def __contains__(self, x):
+        from hask3.hack import isin
+        from hask3.lang.type_system import typeof
+        from hask3.lang.hindley_milner import ListType, unify
         unify(self.__type__(), ListType(typeof(x)))
-        for item in iter(self):
-            if item is x:
-                return True
-        return False
+        return isin(x, iter(self))
 
     def __getitem__(self, ix):
         is_slice = isinstance(ix, slice)
@@ -381,12 +388,13 @@ class List(collections.Sequence, Hask):
                     break
         else:
             self.__evaluate()
-
         if is_slice:
             if ix.stop is None and not self.__is_evaluated:
                 return List(head=self.__head[ix], tail=self.__tail)
-            return List(head=self.__head[ix])
-        return self.__head[i]
+            else:
+                return List(head=self.__head[ix])
+        else:
+            return self.__head[i]
 
 
 # Basic typeclass instances for list
@@ -406,10 +414,11 @@ instance(Ord, List).where(
 )
 
 
-class __list_comprehension__(Syntax):
-    """
-    L is the syntactic construct for Haskell-style list comprehensions and lazy
-    list creation. To create a new List, just wrap an interable in L[ ].
+@objectify
+class L(Syntax):
+    """``L`` is for comprehensions and lazy creation of Haskell-style lists.
+
+    To create a new List, just wrap an interable in ``L[ ]``.
 
     List comprehensions can be used with any instance of Enum, including the
     built-in types int, long, float, and char.
@@ -428,9 +437,12 @@ class __list_comprehension__(Syntax):
     # list from 1 to 20 (inclusive), counting by fours
 
     """
+
+    invalid_syntax_message = "Invalid input to list constructor"
+
     def __getitem__(self, lst):
-        if isinstance(lst, tuple) and len(lst) < 5 and \
-                any((Ellipsis is x for x in lst)):
+        from hask3.hack import isin, is_iterator
+        if isinstance(lst, tuple) and len(lst) < 5 and isin(Ellipsis, lst):
             # L[x, ...]
             if len(lst) == 2 and lst[1] is Ellipsis:
                 return enumFrom(lst[0])
@@ -446,13 +458,14 @@ class __list_comprehension__(Syntax):
             # L[x, y, ..., z]
             elif len(lst) == 4 and lst[2] is Ellipsis:
                 return enumFromThenTo(lst[0], lst[1], lst[3])
-
-            raise SyntaxError("Invalid list comprehension: %s" % str(lst))
-
-        elif hasattr(lst, "next") or hasattr(lst, "__next__"):
+            else:
+                raise SyntaxError("Invalid list comprehension: %s" % str(lst))
+        elif is_iterator(lst) or isinstance(lst, List):
             return List(tail=lst)
 
         return List(head=lst)
 
 
-L = __list_comprehension__("Invalid input to list constructor")
+del Sequence, objectify
+del Typeclass, Hask, Show, Eq, Ord
+del Syntax, instance, sig, H

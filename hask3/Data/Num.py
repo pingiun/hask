@@ -1,19 +1,19 @@
-import math
-import fractions
 import sys
+import math
 
-from ..lang import data
-from ..lang import d
-from ..lang import deriving
-from ..lang import H
-from ..lang import sig
-from ..lang import t
-from ..lang import instance
-from ..lang import build_instance
-from ..lang import Enum
-from ..lang import Show
-from .Eq import Eq
-from .Ord import Ord
+from hask3.lang.syntax import data
+from hask3.lang.syntax import d
+from hask3.lang.syntax import deriving
+from hask3.lang.syntax import instance
+
+from hask3.lang.syntax import H
+from hask3.lang.syntax import sig
+from hask3.lang.syntax import t
+
+from hask3.lang.lazylist import Enum
+from hask3.lang.typeclasses import Show
+from hask3.Data.Eq import Eq
+from hask3.Data.Ord import Ord
 
 
 class Num(Show, Eq):
@@ -47,6 +47,8 @@ class Num(Show, Eq):
     @classmethod
     def make_instance(typeclass, cls, add, mul, abs, signum, fromInteger,
                       negate, sub=None):
+        from hask3.lang.syntax import H
+        from hask3.lang.type_system import build_instance
 
         @sig(H[(Num, "a")]/ "a" >> "a" >> "a")
         def default_sub(a, b):
@@ -103,11 +105,13 @@ instance(Num, int).where(
 )
 
 try:
+    long = long    # noqa
+    _l_1, _l0, _l1 = long(-1), long(0), long(1)
     instance(Num, long).where(
         add = long.__add__,
         mul = long.__mul__,
         abs = long.__abs__,
-        signum = lambda x: long(-1) if x < long(0) else (long(1) if x > long(0) else long(0)),
+        signum = lambda x: _l_1 if x < _l0 else (_l1 if x > _l0 else _l0),
         fromInteger = long,
         negate = long.__neg__,
         sub = long.__sub__
@@ -157,14 +161,17 @@ class Fractional(Num):
     """
     @classmethod
     def make_instance(typeclass, cls, fromRational, div, recip=None):
+        from hask3.lang.type_system import build_instance
         if recip is None:
             recip = lambda x: div(1, x)
         attrs = {"fromRational": fromRational, "div": div, "recip": recip}
         build_instance(Fractional, cls, attrs)
 
 
-Ratio, R =\
+Ratio, R = (
         data.Ratio("a") == d.R("a", "a") & deriving(Eq)
+)
+
 
 Rational = t(Ratio, int)
 
@@ -238,7 +245,9 @@ class Floating(Fractional):
     """
     @classmethod
     def make_instance(typeclass, cls, pi, exp, sqrt, log, pow, logBase, sin,
-            tan, cos, asin, atan, acos, sinh, tanh, cosh, asinh, atanh, acosh):
+                      tan, cos, asin, atan, acos, sinh, tanh, cosh, asinh,
+                      atanh, acosh):
+        from hask3.lang.type_system import build_instance
         attrs = {"pi": pi, "exp": exp, "sqrt": sqrt, "log": log, "pow": pow,
                 "logBase": logBase, "sin": sin, "tan": tan, "cos": cos,
                 "asin": asin, "atan": atan, "acos": acos, "sinh": sinh,
@@ -424,6 +433,7 @@ class Real(Num, Ord):
     """
     @classmethod
     def make_instance(typeclass, cls, toRational):
+        from hask3.lang.type_system import build_instance
         build_instance(Real, cls, {})
 
 
@@ -466,7 +476,8 @@ class Integral(Real, Enum):
     """
     @classmethod
     def make_instance(typeclass, cls, quotRem, divMod, toInteger, quot=None,
-            rem=None, div=None, mod=None):
+                      rem=None, div=None, mod=None):
+        from hask3.lang.type_system import build_instance
 
         quot = lambda x: quotRem(x)[0] if quot is None else quot
         rem = lambda x: quotRem(x)[1] if rem is None else rem
@@ -485,6 +496,7 @@ def toRatio(num, denom):
     Conversion to Ratio.
 
     """
+    import fractions
     frac = fractions.Fraction(num, denom)
     return R(frac.numerator, frac.denominator)
 
@@ -554,8 +566,9 @@ class RealFrac(Real, Fractional):
 
     """
     @classmethod
-    def make_instance(typeclass, cls, properFraction, truncate, round, ceiling,
-            floor):
+    def make_instance(typeclass, cls, properFraction, truncate, round,
+                      ceiling, floor):
+        from hask3.lang.type_system import build_instance
         attrs = {"properFraction": properFraction, "truncate": truncate,
                 "round": round, "ceiling": ceiling, "floor": floor}
         build_instance(RealFrac, cls, attrs)
@@ -617,9 +630,19 @@ def floor(x):
     return RealFrac[x].floor(x)
 
 
+def _properFraction(x):
+    import math
+    return int(math.floor(x)), x - math.floor(x)
+
+
+def _truncate(x):
+    import math
+    return int(math.floor(x) if x > 0 else math.floor(x+1))
+
+
 instance(RealFrac, float).where(
-    properFraction = lambda x: (int(math.floor(x)), x - math.floor(x)),
-    truncate = lambda x: int(math.floor(x) if x > 0 else math.floor(x+1)),
+    properFraction = _properFraction,
+    truncate = _truncate,
     round = lambda x: int(round(x, 0)),
     ceiling = math.ceil,
     floor = math.floor
@@ -654,7 +677,8 @@ class RealFloat(Floating, RealFrac):
     """
     @classmethod
     def make_instance(typeclass, cls, floatRange, isNan, isInfinite,
-            isNegativeZero, atan2):
+                      isNegativeZero, atan2):
+        from hask3.lang.type_system import build_instance
         attrs = {"floatRange": floatRange, "isNan": isNan,
                 "isInfinite": isInfinite, "isNegativeZero": isNegativeZero,
                 "atan2": atan2}
@@ -701,10 +725,21 @@ def atan2(y, x):
     return RealFloat[x].atan2(y, x)
 
 
+def _isNegativeZero(x):
+    import math
+    return math.copysign(1, x) == -1.0
+
+
 instance(RealFloat, float).where(
-    floatRange=(sys.float_info.min, sys.float_info.max),
-    isNan=math.isnan,
-    isInfinite=lambda x: x == float('inf') or x == -float('inf'),
-    isNegativeZero=lambda x: math.copysign(1, x) == -1.0,
-    atan2=math.atan2
+    floatRange = (sys.float_info.min, sys.float_info.max),
+    isNan = math.isnan,
+    isInfinite = lambda x: x == float('inf') or x == -float('inf'),
+    isNegativeZero = _isNegativeZero,
+    atan2 = math.atan2
 )
+
+
+del math, sys
+del data, d, deriving, instance
+del H, sig, t
+del Enum, Show, Eq, Ord

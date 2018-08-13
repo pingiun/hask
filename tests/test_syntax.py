@@ -10,124 +10,120 @@ from hask3 import Just, Nothing, Maybe, Either
 from hask3 import GT, EQ, LT, Ordering, Eq, L
 
 
-te = TypeError
-se = SyntaxError
-ve = ValueError
-
-
 class TestSyntax(unittest.TestCase):
 
     def test_syntax(self):
         from hask3.lang.syntax import Syntax
-        s = Syntax("err")
-        with self.assertRaises(se):
+        s = Syntax()
+        s.invalid_syntax_message = "err"
+        with self.assertRaises(SyntaxError):
             len(s)
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s[0]
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s[1]
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             del s["foo"]
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             iter(s)
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             reversed(s)
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             1 in s
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             1 not in s
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s("f")
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             with s:
                 pass
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s > 0
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s < 0
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s >= 0
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s <= 0
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s == 0
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s != 0
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             abs(s)
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             ~s
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             +s
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             -s
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s + 1
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s - 1
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s * 1
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s ** 1
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s / 1
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s % 1
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             divmod(s, 1)
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s << 1
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s >> 1
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s & 1
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s | 1
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s ^ 1
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             1 + s
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             1 - s
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             1 * s
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             1 ** s
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             1 / s
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             1 % s
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             1 << s
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             1 >> s
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             1 & s
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             1 | s
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             1 ^ s
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s += 1
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s -= 1
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s *= 1
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s **= 1
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s /= 1
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s %= 1
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s <<= 1
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s >>= 1
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s &= 1
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s |= 1
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             s ^= 1
 
     def test_section(self):
@@ -203,62 +199,62 @@ class TestSyntax(unittest.TestCase):
             | c(lambda x: x == 1) >> "foo"
             | otherwise           >> "Err"))
 
-        with self.assertRaises(ve):
+        with self.assertRaises(ValueError):
             ~(guard(2) | c(1) >> 1)
         with self.assertRaises(me):
             ~(guard(1) | c(lambda x: x == 2) >> 1)
 
         # syntax checks
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             c(lambda x: x == 10) + c(lambda _: 1)
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             c(lambda x: x == 10) - c(lambda _: 1)
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             c(lambda x: x == 10) * c(lambda _: 1)
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             c(lambda x: x == 10) / c(lambda _: 1)
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             c(lambda x: x == 10) % c(lambda _: 1)
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             c(lambda x: x == 10) ** c(lambda _: 1)
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             c(lambda x: x == 10) << c(lambda _: 1)
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             c(lambda x: x == 10) & c(lambda _: 1)
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             c(lambda x: x == 10) ^ c(lambda _: 1)
 
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             c(lambda x: x == 10) >> c(lambda _: 1)
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             c(lambda x: x == 10) >> 2 >> 2
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             c(lambda x: x > 1) | c(lambda x: x < 1)
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             otherwise >> c(lambda _: 1)
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             otherwise | c(lambda x: x < 1)
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             otherwise >> c(lambda _: 1)
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             otherwise | c(lambda x: x < 1)
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             ~(guard(2) | c(lambda x: x == 2) >> 1 | c(lambda y: y == 2))
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             c(lambda x: x == 10) >> "1" >> "2"
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             "1" >> c(lambda x: x == 10)
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             guard(1) | c(lambda x: x > 1)
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             guard(1) | (lambda x: x > 1)
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             ~guard(1) | (lambda x: x > 1)
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             ~guard(1)
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             otherwise >> "1" >> "2"
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             "1" >> otherwise
 
     def test_caseof(self):
@@ -363,15 +359,15 @@ class TestSyntax(unittest.TestCase):
                             | m(m.a ^ m.b) >> False
                             | m(m.a)       >> True))
 
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             ~(caseof((1, 2))
                 | m((m.a, m.a)) >> p.a
                 | m(1)          >> 1)
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             ~(caseof([1, 2, 3, 4])
                 | m(m.a ^ m.b ^ m.c) >> True
                 | m(m.x)             >> False)
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             ~(caseof(L[1, 2, 2])
                 | m(m.a ^ 1) >> False
                 | m(m.a)     >> True)
@@ -388,31 +384,31 @@ class TestSyntax(unittest.TestCase):
         with self.assertRaises(tse):
             x ** (H/ int >> "AAA")
 
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             t(Maybe, "a", "b")
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             t(Either, "a")
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             t(Ordering, "a")
 
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             sig(sig(H/ int >> int))
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             sig(H)
 
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             H[Eq, "a", "b"]
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             H[(Eq, Eq)]
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             H[("a", Eq)]
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             H[("a", "a")]
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             H[(Eq, "a", "b")]
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             H[(Eq, 1)]
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             H[(Maybe, 1)]
-        with self.assertRaises(se):
+        with self.assertRaises(SyntaxError):
             sig(H/ "a")(1)

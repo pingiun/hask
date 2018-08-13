@@ -19,10 +19,7 @@ from hask3.lang.hindley_milner import TypeVariable
 from hask3.lang.hindley_milner import TypeOperator
 from hask3.lang.hindley_milner import Function
 from hask3.lang.hindley_milner import Tuple
-from hask3.lang.hindley_milner import analyze
 from hask3.lang.hindley_milner import unify
-
-te = TypeError
 
 
 class TestHindleyMilner(unittest.TestCase):
@@ -30,13 +27,13 @@ class TestHindleyMilner(unittest.TestCase):
 
     def inference(self, expr):
         """Type inference succeeded using our toy environment"""
-        self.assertIsNotNone(analyze(expr, self.env))
+        self.assertIsNotNone(expr.analyze(self.env))
         return
 
     def not_inference(self, expr):
         """Type inference failed using our toy environment"""
-        with self.assertRaises(te):
-            analyze(expr, self.env)
+        with self.assertRaises(TypeError):
+            expr.analyze(self.env)
         return
 
     def unified(self, t1, t2):
@@ -46,14 +43,14 @@ class TestHindleyMilner(unittest.TestCase):
 
     def typecheck(self, expr, expr_type):
         """Typecheck succeeded using our toy environment"""
-        self.assertIsNone(unify(analyze(expr, self.env), expr_type))
+        self.assertIsNone(unify(expr.analyze(self.env), expr_type))
         return
 
     def not_typecheck(self, expr, expr_type):
         """Typecheck failed, but inference succeeded using our toy environment
         """
         self.inference(expr)
-        with self.assertRaises(te):
+        with self.assertRaises(TypeError):
             self.typecheck(expr, expr_type)
         return
 

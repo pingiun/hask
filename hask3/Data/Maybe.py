@@ -1,58 +1,72 @@
-from ..lang import Read
-from ..lang import Show
-from ..lang import L
-from ..lang import H
-from ..lang import sig
-from ..lang import t
-from ..lang import data
-from ..lang import d
-from ..lang import caseof
-from ..lang import m
-from ..lang import p
-from ..lang import deriving
-from ..lang import instance
-from ..lang import typify
+from hask3.lang.typeclasses import Show
+from hask3.lang.typeclasses import Read
 
-from .Eq import Eq
-from .Ord import Ord
-from .Functor import Functor
-from ..Control.Applicative import Applicative
-from ..Control.Monad import Monad
+from hask3.lang.syntax import H
+from hask3.lang.syntax import sig
+from hask3.lang.syntax import t
+
+from hask3.lang.syntax import data
+from hask3.lang.syntax import d
+from hask3.lang.syntax import deriving
+from hask3.lang.syntax import instance
+
+from hask3.Data.Eq import Eq
+from hask3.Data.Ord import Ord
+from hask3.Data.Functor import Functor
+from hask3.Control.Applicative import Applicative
+from hask3.Control.Monad import Monad
 
 
 # data Maybe a = Nothing | Just a deriving(Show, Eq, Ord)
-Maybe, Nothing, Just =\
+Maybe, Nothing, Just = (
     data.Maybe("a") == d.Nothing | d.Just("a") & deriving(Read, Show, Eq, Ord)
+)
+
+
+def _fmap(f, x):
+    from hask3.lang.syntax import caseof, m, p
+    return ~(caseof(x)
+                | m(Just(m.a)) >> Just(f(p.a))
+                | m(Nothing)   >> Nothing)
+
 
 instance(Functor, Maybe).where(
-    fmap = lambda f, x: ~(caseof(x)
-                            | m(Just(m.a)) >> Just(f(p.a))
-                            | m(Nothing)   >> Nothing)
+    fmap = _fmap
 )
+
 
 instance(Applicative, Maybe).where(
     pure = Just
 )
 
+
+def _bind(x, f):
+    from hask3.lang.syntax import caseof, m, p
+    return ~(caseof(x)
+                | m(Just(m.a)) >> f(p.a)
+                | m(Nothing)   >> Nothing)
+
+
 instance(Monad, Maybe).where(
-    bind = lambda x, f: ~(caseof(x)
-                            | m(Just(m.a)) >> f(p.a)
-                            | m(Nothing)   >> Nothing)
+    bind = _bind
 )
 
 
 def in_maybe(fn):
     """Decorator for monadic error handling.
 
-    If the decorated function raises an exception, return Nothing.  Otherwise,
-    take the result and wrap it in a Just.
+    If the decorated function raises an exception, return `Nothing`.
+    Otherwise, take the result and wrap it in a `Just`.
 
     """
+    from hask3.lang.syntax import typify, t
+
     def closure_in_maybe(*args, **kwargs):
         try:
             return Just(fn(*args, **kwargs))
         except:    # noqa
             return Nothing
+
     return typify(fn, hkt=lambda x: t(Maybe, x))(closure_in_maybe)
 
 
@@ -87,6 +101,7 @@ def isNothing(a):
     Type signature: ``isNothing :: [Maybe a] -> bool``.
 
     '''
+    from hask3.lang.syntax import caseof, m
     return ~(caseof(a)
                 | m(Nothing)   >> True
                 | m(Just(m.x)) >> False)
@@ -103,7 +118,8 @@ def fromJust(x):
     '''
     if isJust(x):
         return x[0]
-    raise ValueError("Cannot call fromJust on Nothing.")
+    else:
+        raise ValueError("Cannot call fromJust on Nothing.")
 
 
 @sig(H/ 'a' >> t(Maybe, 'a') >> 'a')
@@ -116,6 +132,7 @@ def fromMaybe(default, x):
     Type signature:: ``fromMaybe :: a -> Maybe a -> a``.
 
     '''
+    from hask3.lang.syntax import caseof, m, p
     return ~(caseof(x)
         | m(Nothing) >> default
         | m(Just(m.x)) >> p.x
@@ -131,6 +148,7 @@ def listToMaybe(ls):
     Type signature: ``listToMaybe :: [a] -> [Maybe a]``.
 
     '''
+    from hask3.lang.syntax import caseof, m, p
     return ~(caseof(ls)
                 | m(m.a ^ m.b) >> Just(p.a)
                 | m(m.a)       >> Nothing)
@@ -146,6 +164,8 @@ def maybeToList(a):
     Type signature: ``maybeToList :: Maybe a -> [a]``.
 
     """
+    from hask3.lang.syntax import caseof, m, p
+    from hask3.lang.lazylist import L
     return ~(caseof(a)
                 | m(Nothing)   >> L[[]]
                 | m(Just(m.x)) >> L[[p.x]])
@@ -158,6 +178,7 @@ def catMaybes(maybes):
     Type signature: ``catMaybes :: [Maybe a] -> [a]``.
 
     """
+    from hask3.lang.lazylist import L
     return L[(fromJust(item) for item in maybes if isJust(item))]
 
 
@@ -173,4 +194,11 @@ def mapMaybe(f, la):
     Type signature: ``mapMaybe :: (a -> Maybe b) -> [a] -> [b]``
 
     """
+    from hask3.lang.lazylist import L
     return L[(fromJust(b) for b in (f(a) for a in la) if isJust(b))]
+
+
+del Read, Show
+del H, sig, t
+del data, d, instance, deriving
+del Eq, Ord, Functor, Applicative, Monad
