@@ -20,39 +20,19 @@ from xoutil.decorator.meta import decorator
 import sys
 import types
 
-if sys.version[0] == '2':
-    __python_builtins__ = {
-        types.BooleanType, types.BufferType, types.BuiltinFunctionType,
-        types.BuiltinMethodType, types.ClassType, types.CodeType,
-        types.ComplexType, types.DictProxyType, types.DictType,
-        types.DictionaryType, types.EllipsisType, types.FileType,
-        types.FloatType, types.FrameType, types.FunctionType,
-        types.GeneratorType, types.GetSetDescriptorType, types.InstanceType,
-        types.IntType, types.LambdaType, types.ListType, types.LongType,
-        types.MemberDescriptorType, types.MethodType, types.ModuleType,
-        types.NoneType, types.NotImplementedType, types.ObjectType,
-        types.SliceType, types.StringType, types.StringTypes,
-        types.TracebackType, types.TupleType, types.TypeType,
-        types.UnboundMethodType, types.UnicodeType, types.XRangeType, set,
-        frozenset}
+__python_builtins__ = {
 
-    __python_function_types__ = tuple({
-        types.FunctionType, types.LambdaType, types.MethodType,
-        types.UnboundMethodType, types.BuiltinFunctionType,
-        types.BuiltinMethodType})
-else:
-    __python_builtins__ = {
-        bool, dict, type(Ellipsis), float, int, type(None), str, tuple,
-        complex, list, set, frozenset, slice,
-        type, types.BuiltinFunctionType, types.BuiltinMethodType,
-        types.CodeType, types.DynamicClassAttribute, types.FrameType,
-        types.FunctionType, types.GeneratorType, types.GetSetDescriptorType,
-        types.LambdaType, types.MappingProxyType, types.MemberDescriptorType,
-        types.MethodType, types.ModuleType, types.TracebackType}
+    bool, dict, type(Ellipsis), float, int, type(None), str, tuple,
+    complex, list, set, frozenset, slice,
+    type, types.BuiltinFunctionType, types.BuiltinMethodType,
+    types.CodeType, types.DynamicClassAttribute, types.FrameType,
+    types.FunctionType, types.GeneratorType, types.GetSetDescriptorType,
+    types.LambdaType, types.MappingProxyType, types.MemberDescriptorType,
+    types.MethodType, types.ModuleType, types.TracebackType}
 
-    __python_function_types__ = tuple({
-        types.FunctionType, types.LambdaType, types.MethodType,
-        types.BuiltinFunctionType, types.BuiltinMethodType})
+__python_function_types__ = tuple({
+    types.FunctionType, types.LambdaType, types.MethodType,
+    types.BuiltinFunctionType, types.BuiltinMethodType})
 
 
 # Magic Names
@@ -75,11 +55,9 @@ _OPS = {
                           'rshift', 'and', 'xor', 'or'},
 }
 
-_PYTHON2 = {'div', 'rdiv', 'idiv', 'nonzero'}
 _MAGICS = set.union(
     # TODO: After Python 3.6 `f'{p}{o}'`
     {'{}{}'.format(p, o) for p in 'ri' for o in _OPS['arithmetic-binary']},
-    _PYTHON2 if sys.version[0] == '2' else (),
     *_OPS.values())
 
 

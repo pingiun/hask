@@ -785,10 +785,6 @@ class __(Syntax):
     __rand__ = __wrap(__flip(operator.and_))
     __rxor__ = __wrap(__flip(operator.xor))
 
-    if sys.version[0] == '2':
-        __div__ = __wrap(operator.div)
-        __rdiv__ = __wrap(__flip(operator.div))
-
     del operator
 
 
