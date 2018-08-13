@@ -20,8 +20,6 @@ Changes from Robert's version:
 
 '''
 
-from __future__ import division, print_function, absolute_import
-
 from xoutil.eight.abc import abstractmethod, ABC
 from xoutil.objects import staticproperty
 

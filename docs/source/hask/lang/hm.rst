@@ -1,6 +1,6 @@
 ===============================================================================
- `hask.lang.hindley_milner`:mod: -- Hindley-Milner type-checking and inference
+ `hask3.lang.hindley_milner`:mod: -- Hindley-Milner type-checking and inference
 ===============================================================================
 
-.. automodule:: hask.lang.hindley_milner
+.. automodule:: hask3.lang.hindley_milner
    :members:

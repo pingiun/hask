@@ -1,8 +1,8 @@
 ============================================
- :mod:`hask.Data.Char` -- The ``Data.Char``
+ :mod:`hask3.Data.Char` -- The ``Data.Char``
 ============================================
 
-.. automodule:: hask.Data.Char
+.. automodule:: hask3.Data.Char
 
 .. autofunction:: isControl
 
@@ -57,11 +57,11 @@
 
 .. function:: chr(x)
 
-   The builtin `chr` converted to a `~hask.lang.type_system.TypedFunc`:class:.
+   The builtin `chr` converted to a `~hask3.lang.type_system.TypedFunc`:class:.
    Defined as ``chr ** (H/ int >> str)``
 
 
 .. function:: ord(x)
 
-   The builtin `ord` converted to a `~hask.lang.type_system.TypedFunc`:class:.
+   The builtin `ord` converted to a `~hask3.lang.type_system.TypedFunc`:class:.
    Defined as ``ord ** (H/ int >> str)``

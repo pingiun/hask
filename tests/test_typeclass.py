@@ -1,6 +1,6 @@
 import unittest
-from hask import has_instance, deriving, data, d, instance
-from hask.Prelude import Show, Eq, Ord
+from hask3 import has_instance, deriving, data, d, instance
+from hask3.Prelude import Show, Eq, Ord
 
 
 class TestTypeclass(unittest.TestCase):
@@ -36,5 +36,5 @@ class TestTypeclass(unittest.TestCase):
         with self.assertRaises(TypeError):
             instance(example, str)
 
-        from hask.Prelude import show
+        from hask3.Prelude import show
         self.assertEqual("example()", show(example()))

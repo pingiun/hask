@@ -1,5 +1,3 @@
-from __future__ import division, print_function, absolute_import
-
 from xoutil.future.itertools import map as imap
 
 from ..lang import TypedFunc

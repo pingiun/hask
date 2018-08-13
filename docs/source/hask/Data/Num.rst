@@ -1,8 +1,8 @@
 ==========================================
- :mod:`hask.Data.Num` -- The ``Data.Num``
+ :mod:`hask3.Data.Num` -- The ``Data.Num``
 ==========================================
 
-.. automodule:: hask.Data.Num
+.. automodule:: hask3.Data.Num
 
 .. autoclass:: Num
 

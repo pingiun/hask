@@ -1,8 +1,8 @@
 ==============================================
- :mod:`hask.Data.Tuple` -- The ``Data.Tuple``
+ :mod:`hask3.Data.Tuple` -- The ``Data.Tuple``
 ==============================================
 
-.. automodule:: hask.Data.Tuple
+.. automodule:: hask3.Data.Tuple
 
 .. autofunction:: fst
 

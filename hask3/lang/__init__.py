@@ -1,6 +1,4 @@
 # flake8: noqa
-from __future__ import division, print_function, absolute_import
-
 from .typeclasses import Show
 from .typeclasses import show
 from .typeclasses import Read

@@ -3,21 +3,22 @@
 This makes it easier to chain lots of things together in function composition
 without having to manually add type signatures to Python builtins.
 
-Each function is a `~hask.lang.type_system.TypedFunc`:class: replacement of
+Each function is a `~hask3.lang.type_system.TypedFunc`:class: replacement of
 the corresponding Python builtin with the right signature.
 
 '''
-
-from __future__ import division, print_function, absolute_import
-
 from ..lang import H
 
 try:
     from __builtin__ import cmp as pycmp
 except ImportError:
     def pycmp(a, b):
-        '''Return negative if x<y, zero if x==y, positive if x>y.'''
-        return 0 if a == b else (-1 if a < b else 1)
+        if a == b:
+            return 0
+        elif a < b:
+            return -1
+        else:
+            return 1
 
 callable = callable ** (H/ "a" >> bool)
 cmp = pycmp ** (H/ "a" >> "a" >> int)

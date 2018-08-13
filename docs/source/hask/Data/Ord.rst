@@ -1,8 +1,8 @@
 ==========================================
- :mod:`hask.Data.Ord` -- The ``Data.Ord``
+ :mod:`hask3.Data.Ord` -- The ``Data.Ord``
 ==========================================
 
-.. automodule:: hask.Data.Ord
+.. automodule:: hask3.Data.Ord
 
 .. object:: Ordering
 

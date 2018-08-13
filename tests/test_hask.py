@@ -1,46 +1,44 @@
 # flake8: noqa
-from __future__ import division, print_function, absolute_import
-
 import math
 import sys
 import unittest
 
-from hask import H, sig, t, func, TypeSignatureError
-from hask import p, m, caseof, IncompletePatternError
-from hask import has_instance
-from hask import guard, c, otherwise, NoGuardMatchException
-from hask import __
-from hask import data, d, deriving, instance
-from hask import L
-from hask import Ordering, LT, EQ, GT
-from hask import Maybe, Just, Nothing, in_maybe
-from hask import Either, Left, Right, in_either
-from hask import Typeclass
-from hask import Read, Show, Eq, Ord, Bounded, Num
-from hask import Functor, Applicative, Monad
-from hask import Foldable, Traversable
+from hask3 import H, sig, t, func, TypeSignatureError
+from hask3 import p, m, caseof, IncompletePatternError
+from hask3 import has_instance
+from hask3 import guard, c, otherwise, NoGuardMatchException
+from hask3 import __
+from hask3 import data, d, deriving, instance
+from hask3 import L
+from hask3 import Ordering, LT, EQ, GT
+from hask3 import Maybe, Just, Nothing, in_maybe
+from hask3 import Either, Left, Right, in_either
+from hask3 import Typeclass
+from hask3 import Read, Show, Eq, Ord, Bounded, Num
+from hask3 import Functor, Applicative, Monad
+from hask3 import Foldable, Traversable
 
 # internals
-from hask.lang.type_system import make_fn_type
-from hask.lang.type_system import build_sig_arg
-from hask.lang.type_system import build_sig
-from hask.lang.type_system import build_ADT
-from hask.lang.type_system import typeof
-from hask.lang.type_system import pattern_match
-from hask.lang.type_system import PatternMatchBind
+from hask3.lang.type_system import make_fn_type
+from hask3.lang.type_system import build_sig_arg
+from hask3.lang.type_system import build_sig
+from hask3.lang.type_system import build_ADT
+from hask3.lang.type_system import typeof
+from hask3.lang.type_system import pattern_match
+from hask3.lang.type_system import PatternMatchBind
 
-from hask.lang.hindley_milner import Var
-from hask.lang.hindley_milner import App
-from hask.lang.hindley_milner import Lam
-from hask.lang.hindley_milner import Let
-from hask.lang.hindley_milner import TypeVariable
-from hask.lang.hindley_milner import TypeOperator
-from hask.lang.hindley_milner import Function
-from hask.lang.hindley_milner import Tuple
-from hask.lang.hindley_milner import analyze
-from hask.lang.hindley_milner import unify
+from hask3.lang.hindley_milner import Var
+from hask3.lang.hindley_milner import App
+from hask3.lang.hindley_milner import Lam
+from hask3.lang.hindley_milner import Let
+from hask3.lang.hindley_milner import TypeVariable
+from hask3.lang.hindley_milner import TypeOperator
+from hask3.lang.hindley_milner import Function
+from hask3.lang.hindley_milner import Tuple
+from hask3.lang.hindley_milner import analyze
+from hask3.lang.hindley_milner import unify
 
-from hask.lang.lazylist import List
+from hask3.lang.lazylist import List
 
 te = TypeError
 se = SyntaxError
@@ -336,14 +334,14 @@ class TestADTSyntax(unittest.TestCase):
 class TestBuiltins(unittest.TestCase):
 
     def test_show(self):
-        from hask.Prelude import show
+        from hask3.Prelude import show
         self.assertEqual('1', show(1))
         self.assertEqual("'a'", show("a"))
         self.assertEqual("[1, 2]", show([1, 2]))
         self.assertEqual("{'a': 1}", show({"a": 1}))
 
     def test_enum(self):
-        from hask.Prelude import fromEnum, succ, pred
+        from hask3.Prelude import fromEnum, succ, pred
         self.assertEqual(1, fromEnum(1))
         self.assertEqual("b", succ("a"))
         self.assertEqual("a", pred("b"))
@@ -379,15 +377,15 @@ class Test_README_Examples(unittest.TestCase):
         with self.assertRaises(te): "a" ^ L[1.0, 10.3]
         self.assertEqual(L[1, 2] + L[3, 4], L[1, 2, 3, 4])
 
-        from hask.Data.List import take
+        from hask3.Data.List import take
         self.assertEqual(take(5, L["a", "b", ...]),
                          L['a', 'b', 'c', 'd', 'e'])
 
         self.assertEqual(L[1,...][5:10],
                          L[6, 7, 8, 9, 10])
 
-        from hask.Data.List import map
-        from hask.Data.Char import chr
+        from hask3.Data.List import map
+        from hask3.Data.Char import chr
         letters = map(chr, L[97, ...])
         self.assertEqual(letters[:9],
                           L['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'])
@@ -434,7 +432,7 @@ class Test_README_Examples(unittest.TestCase):
         # map a Python (untyped) function over a Python (untyped) set
         @sig(H/ func >> set >> set)
         def set_map(fn, lst):
-            return {fn(x) for x in lst}
+            return set((fn(x) for x in lst))
 
         # map a typed function over a List
         @sig(H/ (H/ "a" >> "b") >> ["a"] >> ["b"])
@@ -456,7 +454,8 @@ class Test_README_Examples(unittest.TestCase):
         def launch_missiles(num_missiles):
             return
 
-        Ratio, R = data.Ratio("a") == d.R("a", "a") & deriving(Eq)
+        Ratio, R =\
+                data.Ratio("a") == d.R("a", "a") & deriving(Eq)
 
         Rational = t(Ratio, int)
 
@@ -465,7 +464,7 @@ class Test_README_Examples(unittest.TestCase):
         def addRational(rat1, rat2):
             pass
 
-        from hask.Prelude import flip
+        from hask3.Prelude import flip
         h = (lambda x, y: x / y) ** (H/ float >> float >> float)
         self.assertEqual(h(3.0) * h(6.0) * flip(h, 2.0) % 36.0, 9.0)
 
@@ -503,12 +502,11 @@ class Test_README_Examples(unittest.TestCase):
         self.assertEqual(default_to_zero(Just(27)), 27)
         self.assertEqual(default_to_zero(Nothing), 0)
         self.assertEqual(Just(20.0)[0], 20.0)
-        self.assertEqual(Left("words words words words")[0],
-                         "words words words words")
+        self.assertEqual(Left("words words words words")[0], "words words words words")
         with self.assertRaises(IndexError): Nothing[0]
 
     def test_typeclasses(self):
-        from hask.Prelude import fmap
+        from hask3.Prelude import fmap
         M, N, J = data.M("a") == d.N | d.J("a") & deriving(Show, Eq, Ord)
 
         def maybe_fmap(fn, maybe_value):
@@ -543,14 +541,14 @@ class Test_README_Examples(unittest.TestCase):
         def safe_div(x, y):
             return N if y == 0 else J(x//y)
 
-        from hask.Prelude import flip
+        from hask3.Prelude import flip
         divBy = flip(safe_div)
         self.assertEqual(J(9) >> divBy(3), J(3))
 
         self.assertEqual(Just(12) >> divBy(2) >> divBy(2) >> divBy(3), J(1))
         self.assertEqual(J(12) >> divBy(0) >> divBy(6), N)
 
-        from hask.Data.List import replicate
+        from hask3.Data.List import replicate
         self.assertEqual(L[1, 2] >> replicate(2) >> replicate(2),
                 L[1, 1, 1, 1, 2, 2, 2, 2])
 
@@ -620,19 +618,19 @@ class Test_README_Examples(unittest.TestCase):
         def safe_div(x, y):
             return Nothing if y == 0 else Just(x//y)
 
-        from hask.Data.Maybe import mapMaybe
+        from hask3.Data.Maybe import mapMaybe
         self.assertEqual(mapMaybe(safe_div(12)) % L[0, 1, 3, 0, 6],
                          L[12, 4, 2])
 
-        from hask.Data.List import isInfixOf
+        from hask3.Data.List import isInfixOf
         self.assertTrue(isInfixOf(L[2, 8], L[1, 4, 6, 2, 8, 3, 7]))
 
-        from hask.Control.Monad import join
+        from hask3.Control.Monad import join
         self.assertEqual(join(Just(Just(1))), Just(1))
 
-        from hask.Prelude import flip
-        from hask.Data.Tuple import snd
-        from hask.Python.builtins import divmod, hex
+        from hask3.Prelude import flip
+        from hask3.Data.Tuple import snd
+        from hask3.Python.builtins import divmod, hex
 
         hexMod = hex * snd * flip(divmod, 16)
         self.assertEqual(hexMod(24), '0x8')

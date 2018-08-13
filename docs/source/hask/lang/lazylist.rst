@@ -1,8 +1,8 @@
 ==========================================
- :mod:`hask.lang.lazylist` -- A lazy List
+ :mod:`hask3.lang.lazylist` -- A lazy List
 ==========================================
 
-.. automodule:: hask.lang.lazylist
+.. automodule:: hask3.lang.lazylist
    :members: Enum, fromEnum, succ, pred, enumFromThen, enumFrom,
              enumFromThenTo, enumFromTo
 
@@ -19,7 +19,7 @@
 
    There are four basic list comprehension patterns:
 
-       >>> from hask import L
+       >>> from hask3 import L
        >>> # list from 1 to infinity, counting by ones
        >>> L[1, ...]
        L[1, ...]

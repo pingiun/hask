@@ -1,6 +1,6 @@
 ===================================================================
- :mod:`hask.Control.Applicative` -- The ``Applicative`` type class
+ :mod:`hask3.Control.Applicative` -- The ``Applicative`` type class
 ===================================================================
 
-.. automodule:: hask.Control.Applicative
+.. automodule:: hask3.Control.Applicative
    :members:

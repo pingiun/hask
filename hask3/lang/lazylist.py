@@ -1,6 +1,5 @@
-from __future__ import division, print_function, absolute_import
-
 import collections
+import itertools
 import sys
 
 from .hindley_milner import TypeVariable
@@ -25,9 +24,6 @@ from .syntax import H
 try:
     from __builtin__ import cmp
 except ImportError:
-    # TODO: `__cmp__` special method is no longer supported in Python 3
-    # (If you really need this functionality, you could use the expression:
-    # ``(a > b) - (a < b) as the equivalent for cmp(a, b).``
     def cmp(a, b):
         if a == b:
             return 0
@@ -38,14 +34,14 @@ except ImportError:
 
 
 class Enum(Typeclass):
-    """Operations on sequentially ordered types.
+    """
+    Class Enum defines operations on sequentially ordered types.
 
-    The ``enumFrom...`` methods are used in translation of arithmetic
-    sequences.
+    The enumFrom... methods are used in translation of arithmetic sequences.
 
-    Instances of `Enum` may be derived for any enumeration type (types whose
-    constructors have no fields).  The nullary constructors are assumed to be
-    numbered left-to-right by fromEnum from ``0`` through ``n-1``.
+    Instances of Enum may be derived for any enumeration type (types whose
+    constructors have no fields). The nullary constructors are assumed to be
+    numbered left-to-right by fromEnum from 0 through n-1.
 
     Attributes:
 
@@ -86,22 +82,25 @@ class Enum(Typeclass):
         def enumFromThenTo(start, second, end):
             if start == end:
                 yield start
-            elif not ((second >= start > end) or (second <= start < end)):
-                pointer, stop = fromEnum(start), fromEnum(end)
-                step = fromEnum(second) - pointer
-                while ((start < end and pointer <= stop) or
-                       (start > end and pointer >= stop)):
-                    yield toEnum(pointer)
-                    pointer += step
+                return
+
+            elif (second >= start > end) or (second <= start < end):
+                return
+
+            pointer, stop = fromEnum(start), fromEnum(end)
+            step = fromEnum(second) - pointer
+            while (start < end and pointer <= stop) or \
+                  (start > end and pointer >= stop):
+                yield toEnum(pointer)
+                pointer += step
 
         def enumFromTo(start, end):
             second = succ(start) if start < end else pred(start)
             return enumFromThenTo(start, second, end)
 
-        attrs = {"toEnum": toEnum, "fromEnum": fromEnum, "succ": succ,
-                 "pred": pred, "enumFromThen": enumFromThen,
-                 "enumFrom": enumFrom, "enumFromThenTo": enumFromThenTo,
-                 "enumFromTo": enumFromTo}
+        attrs = {"toEnum": toEnum, "fromEnum": fromEnum, "succ": succ, "pred":
+                 pred, "enumFromThen": enumFromThen, "enumFrom": enumFrom,
+                 "enumFromThenTo": enumFromThenTo, "enumFromTo": enumFromTo}
         build_instance(Enum, cls, attrs)
 
 
@@ -119,7 +118,7 @@ def fromEnum(a):
 def succ(a):
     """``succ :: a -> a``
 
-    The successor of a value.  For numeric types, succ adds 1.
+    the successor of a value. For numeric types, succ adds 1.
 
     """
     return Enum[a].succ(a)
@@ -127,10 +126,10 @@ def succ(a):
 
 @sig(H/ "a" >> "a")
 def pred(a):
-    """``pred :: a -> a``
+    """
+    pred :: a -> a
 
-    The predecessor of a value.  For numeric types, pred subtracts 1.
-
+    the predecessor of a value. For numeric types, pred subtracts 1.
     """
     return Enum[a].pred(a)
 
@@ -149,7 +148,7 @@ def enumFromThen(start, second):
 def enumFrom(start):
     """``enumFrom :: a -> [a]``
 
-    Used in translation of ``L[n, ...]``.
+    Used in translation of L[n, ...]
 
     """
     return L[Enum[start].enumFrom(start)]
@@ -159,7 +158,7 @@ def enumFrom(start):
 def enumFromThenTo(start, second, end):
     """``enumFromThenTo :: a -> a -> a -> [a]``
 
-    Used in translation of ``L[n, n_, ..., m]``.
+    Used in translation of L[n, n_, ..., m]
 
     """
     return L[Enum[start].enumFromThenTo(start, second, end)]
@@ -169,7 +168,7 @@ def enumFromThenTo(start, second, end):
 def enumFromTo(start, end):
     """``enumFromTo :: a -> a -> [a]``
 
-    Used in translation of ``L[n, ..., m]``.
+    Used in translation of L[n, ..., m]
 
     """
     return L[Enum[start].enumFromTo(start, end)]
@@ -180,7 +179,7 @@ instance(Enum, bool).where(fromEnum=int, toEnum=bool)
 instance(Enum, str).where(fromEnum=ord, toEnum=chr)
 
 if sys.version[0] == '2':
-    long = long    # noqa
+    long = long   # noqa
     instance(Enum, long).where(fromEnum=int, toEnum=long)
 
 
@@ -191,29 +190,35 @@ class List(collections.Sequence, Hask):
 
     """
     def __init__(self, head=None, tail=None):
-        import itertools
+        self.__head = []
+        self.__tail = itertools.chain([])
+        self.__is_evaluated = True
+
         if head is not None and len(head) > 0:
             fst = head[0]
-            for other in head:
+            for fst, other in zip(itertools.repeat(fst), head):
                 unify(typeof(fst), typeof(other))
-            self.__head = list(head)
-        else:
-            self.__head = []
-        self.__is_evaluated = tail is None
-        self.__tail = itertools.chain([] if self.__is_evaluated else tail)
+            self.__head.extend(head)
+        if tail is not None:
+            self.__tail = itertools.chain(self.__tail, tail)
+            self.__is_evaluated = False
 
     def __type__(self):
-        if len(self.__head) == 0:
-            if self.__is_evaluated:
+        if self.__is_evaluated:
+            if len(self.__head) == 0:
                 return ListType(TypeVariable())
-            else:
-                self.__next()
-                return self.__type__()
-        else:
             return ListType(typeof(self[0]))
 
+        elif len(self.__head) == 0:
+            self.__next()
+            return self.__type__()
+
+        return ListType(typeof(self[0]))
+
     def __next(self):
-        """Evaluate the next element of the tail, and add it to the head."""
+        """
+        Evaluate the next element of the tail, and add it to the head.
+        """
         if self.__is_evaluated:
             raise StopIteration
         else:
@@ -226,46 +231,51 @@ class List(collections.Sequence, Hask):
                 self.__is_evaluated = True
 
     def __evaluate(self):
-        """Evaluate the entire List."""
+        """
+        Evaluate the entire List.
+        """
         while not self.__is_evaluated:
             self.__next()
 
     def __rxor__(self, item):
-        """``^`` is the ``cons`` operator (equivalent to ``:`` in Haskell)."""
+        """
+        ^ is the cons operator (equivalent to : in Haskell)
+        """
         unify(self.__type__(), ListType(typeof(item)))
         if self.__is_evaluated:
             return List(head=[item] + self.__head)
-        else:
-            return List(head=[item] + self.__head, tail=self.__tail)
+        return List(head=[item] + self.__head, tail=self.__tail)
 
     def __add__(self, other):
-        """``(+) :: [a] -> [a] -> [a]``
-
-        ``+`` is the list concatenation operator, equivalent to ``++`` in
-        Haskell and ``+`` for Python lists.
-
         """
-        import itertools
+        (+) :: [a] -> [a] -> [a]
+
+        + is the list concatenation operator, equivalent to ++ in Haskell and +
+        for Python lists
+        """
         unify(self.__type__(), typeof(other))
         if self.__is_evaluated and other.__is_evaluated:
             return List(head=self.__head + other.__head)
         elif self.__is_evaluated and not other.__is_evaluated:
-            return List(head=self.__head + other.__head, tail=other.__tail)
-        else:
-            return List(head=self.__head,
-                        tail=itertools.chain(self.__tail, iter(other)))
+            return List(head=self.__head + other.__head,
+                        tail=other.__tail)
+        return List(head=self.__head,
+                    tail=itertools.chain(self.__tail, iter(other)))
 
     def __str__(self):
-        body = ", ".join(map(show, self.__head))
-        if len(self.__head) <= 1:
-            # XXX: WTF, but there are explicit tests for these cases
-            body = '[{}]'.format(body)
-        return "L[{}{}]".format(body, '' if self.__is_evaluated else ' ...')
+        if len(self.__head) == 0 and self.__is_evaluated:
+            return "L[[]]"
 
-    # TODO: `__cmp__` special method is no longer supported in Python 3
+        elif len(self.__head) == 1 and self.__is_evaluated:
+            return "L[[%s]]" % show(self.__head[0])
+
+        body = ", ".join((show(s) for s in self.__head))
+        return "L[%s]" % body if self.__is_evaluated else "L[%s ...]" % body
+
     def __cmp__(self, other):
         if self.__is_evaluated and other.__is_evaluated:
             return cmp(self.__head, other.__head)
+
         elif len(self.__head) >= len(other.__head):
             # check the evaluated heads
             heads = zip(self.__head[:len(other.__head)], other.__head)
@@ -273,6 +283,7 @@ class List(collections.Sequence, Hask):
             for comp in heads_comp:
                 if comp != 0:
                     return comp
+
             # evaluate the shorter-headed list until it is the same size
             while len(self.__head) > len(other.__head):
                 if other.__is_evaluated:
@@ -304,24 +315,19 @@ class List(collections.Sequence, Hask):
         return 0
 
     def __eq__(self, other):
-        # TODO: `__cmp__` special method is no longer supported in Python 3
         return self.__cmp__(other) == 0
 
     def __lt__(self, other):
-        # TODO: `__cmp__` special method is no longer supported in Python 3
         return self.__cmp__(other) == -1
 
     def __gt__(self, other):
-        # TODO: `__cmp__` special method is no longer supported in Python 3
         return self.__cmp__(other) == 1
 
     def __le__(self, other):
-        # TODO: `__cmp__` special method is no longer supported in Python 3
         comp = self.__cmp__(other)
         return comp in (-1, 0)
 
     def __ge__(self, other):
-        # TODO: `__cmp__` special method is no longer supported in Python 3
         comp = self.__cmp__(other)
         return comp in (1, 0)
 
@@ -332,6 +338,7 @@ class List(collections.Sequence, Hask):
     def __iter__(self):
         for item in self.__head:
             yield item
+
         for item in self.__tail:
             self.__head.append(item)
             yield item
@@ -347,12 +354,13 @@ class List(collections.Sequence, Hask):
         return self.__head.index(x)
 
     def __contains__(self, x):
-        from hask.hack import isin
         unify(self.__type__(), ListType(typeof(x)))
-        return isin(x, iter(self))
+        for item in iter(self):
+            if item is x:
+                return True
+        return False
 
     def __getitem__(self, ix):
-        # TODO: why not to use full slice definition (start, stop, step)
         is_slice = isinstance(ix, slice)
         if is_slice:
             i = ix.start if ix.stop is None else ix.stop
@@ -373,13 +381,12 @@ class List(collections.Sequence, Hask):
                     break
         else:
             self.__evaluate()
+
         if is_slice:
             if ix.stop is None and not self.__is_evaluated:
                 return List(head=self.__head[ix], tail=self.__tail)
-            else:
-                return List(head=self.__head[ix])
-        else:
-            return self.__head[i]
+            return List(head=self.__head[ix])
+        return self.__head[i]
 
 
 # Basic typeclass instances for list
@@ -400,13 +407,13 @@ instance(Ord, List).where(
 
 
 class __list_comprehension__(Syntax):
-    """``L`` is the Haskell-style for list comprehensions and lazy creation.
+    """
+    L is the syntactic construct for Haskell-style list comprehensions and lazy
+    list creation. To create a new List, just wrap an interable in L[ ].
 
-    To create a new List, just wrap an interable in ``L[ ]``.
-
-    List comprehensions can be used with any instance of `Enum`, including the
-    built-in types int, long, float, and char.  There are four basic list
-    comprehension patterns:
+    List comprehensions can be used with any instance of Enum, including the
+    built-in types int, long, float, and char.
+    There are four basic list comprehension patterns:
 
     >>> L[1, ...]
     # list from 1 to infinity, counting by ones
@@ -422,26 +429,30 @@ class __list_comprehension__(Syntax):
 
     """
     def __getitem__(self, lst):
-        from hask.hack import isin
-        if isinstance(lst, tuple) and len(lst) < 5 and isin(Ellipsis, lst):
+        if isinstance(lst, tuple) and len(lst) < 5 and \
+                any((Ellipsis is x for x in lst)):
             # L[x, ...]
             if len(lst) == 2 and lst[1] is Ellipsis:
                 return enumFrom(lst[0])
+
             # L[x, y, ...]
             elif len(lst) == 3 and lst[2] is Ellipsis:
                 return enumFromThen(lst[0], lst[1])
+
             # L[x, ..., y]
             elif len(lst) == 3 and lst[1] is Ellipsis:
                 return enumFromTo(lst[0], lst[2])
+
             # L[x, y, ..., z]
             elif len(lst) == 4 and lst[2] is Ellipsis:
                 return enumFromThenTo(lst[0], lst[1], lst[3])
-            else:
-                raise SyntaxError("Invalid list comprehension: %s" % str(lst))
+
+            raise SyntaxError("Invalid list comprehension: %s" % str(lst))
+
         elif hasattr(lst, "next") or hasattr(lst, "__next__"):
             return List(tail=lst)
-        else:
-            return List(head=lst)
+
+        return List(head=lst)
 
 
 L = __list_comprehension__("Invalid input to list constructor")

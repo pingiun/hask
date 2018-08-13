@@ -1,5 +1,3 @@
-from __future__ import division, print_function, absolute_import
-
 from ..lang import build_instance
 from ..lang import List, L
 from ..lang import instance
@@ -13,7 +11,7 @@ class Applicative(Functor):
 
     Dependencies:
 
-    - `~hask.Data.Functor.Functor`:class:
+    - `~hask3.Data.Functor.Functor`:class:
 
     Attributes:
 

@@ -1,8 +1,8 @@
 =========================
- :mod:`hask` -- Hask API
+ :mod:`hask3` -- Hask API
 =========================
 
-.. module:: hask
+.. module:: hask3
 
 .. toctree::
    :glob:

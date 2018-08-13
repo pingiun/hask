@@ -1,33 +1,35 @@
 ==============================================
- :mod:`hask.Data.Maybe` -- The ``Data.Maybe``
+ :mod:`hask3.Data.Maybe` -- The ``Data.Maybe``
 ==============================================
 
-.. automodule:: hask.Data.Maybe
+.. automodule:: hask3.Data.Maybe
 
-.. object:: hask.Data.Maybe.Maybe
+.. object:: hask3.Data.Maybe.Maybe
 
    The ADT Maybe::
 
       data.Maybe("a") == d.Nothing | d.Just("a") & deriving(Read, Show, Eq, Ord)
 
-.. object:: hask.Data.Maybe.Nothing
+.. object:: hask3.Data.Maybe.Nothing
 
 .. function:: Just(a)
 
 .. autofunction:: in_maybe
 
-.. autofunction:: maybe
+.. autofunction:: maybe(default, f, maybe_a)
 
-.. autofunction:: isJust
+.. autofunction:: isJust(a)
 
-.. autofunction:: isNothing
+.. autofunction:: isNothing(a)
 
-.. autofunction:: fromJust
+.. autofunction:: fromJust(x)
 
-.. autofunction:: listToMaybe
+.. autofunction:: fromMaybe(default, maybe_a)
 
-.. autofunction:: maybeToList
+.. autofunction:: listToMaybe(ls)
 
-.. autofunction:: catMaybes
+.. autofunction:: maybeToList(maybe_a)
 
-.. autofunction:: mapMaybe
+.. autofunction:: catMaybes(ms)
+
+.. autofunction:: mapMaybe(f, ls)

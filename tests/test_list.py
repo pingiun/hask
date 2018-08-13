@@ -1,13 +1,11 @@
-from __future__ import division, print_function, absolute_import
-
 import unittest
 
-from hask import Show, Eq, Ord, Functor, Monad, Applicative
-from hask import Foldable, Typeclass, Num
-from hask import L, H, sig
-from hask import has_instance
+from hask3 import Show, Eq, Ord, Functor, Monad, Applicative
+from hask3 import Foldable, Typeclass, Num
+from hask3 import L, H, sig
+from hask3 import has_instance
 
-from hask.lang.lazylist import List
+from hask3.lang.lazylist import List
 
 te = TypeError
 se = SyntaxError
@@ -139,7 +137,7 @@ class TestList(unittest.TestCase):
             L[1, 2] <= L[1.0, 2.0, ...]
 
     def test_show(self):
-        from hask.Prelude import show
+        from hask3.Prelude import show
         self.assertEqual("L[[]]", show(L[[]]))
         self.assertEqual("L[[2.0]]", show(L[[2.0]]))
         self.assertEqual("L['a', 'a']", show(L[['a', 'a']]))
@@ -278,7 +276,7 @@ class TestList(unittest.TestCase):
             L["a", "b", "c"].index(1)
 
     def test_functor(self):
-        from hask.Prelude import id, map, fmap  # noqa: F401
+        from hask3.Prelude import id, map, fmap  # noqa: F401
         f = (lambda x: x ** 2 - 1) ** (H/ int >> int)
         g = (lambda y: y // 4 + 9) ** (H/ int >> int)
 

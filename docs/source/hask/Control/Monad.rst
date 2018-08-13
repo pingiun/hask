@@ -1,6 +1,6 @@
 =======================================================
- :mod:`hask.Control.Monad` -- The ``Monad`` type class
+ :mod:`hask3.Control.Monad` -- The ``Monad`` type class
 =======================================================
 
-.. automodule:: hask.Control.Monad
+.. automodule:: hask3.Control.Monad
    :members:

@@ -1,8 +1,8 @@
 ==================================================================
- :mod:`hask.Python.builtins` -- Python builtins as Hask functions
+ :mod:`hask3.Python.builtins` -- Python builtins as Hask functions
 ==================================================================
 
-.. automodule:: hask.Python.builtins
+.. automodule:: hask3.Python.builtins
 
 .. function:: callable
 
@@ -67,4 +67,4 @@
    ``sorted ** (H/ "a" >> list)``
 
    .. note:: Python's ``sorted`` may take an optional `key` argument.  This
-             cannot be properly capture by Hask.
+             cannot be properly capture by Hask3.

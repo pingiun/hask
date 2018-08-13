@@ -1,18 +1,18 @@
 ================================================
- :mod:`hask.Data.Either` -- The ``Data.Either``
+ :mod:`hask3.Data.Either` -- The ``Data.Either``
 ================================================
 
-.. automodule:: hask.Data.Either
+.. automodule:: hask3.Data.Either
 
-.. object:: hask.Data.Either.Either
+.. object:: hask3.Data.Either.Either
 
    The ADT Either::
 
       data.Either == d.Left('a') | d.Right('b') & deriving(Read, Show, Eq, Ord)
 
-.. function:: hask.Data.Either.Left(a)
+.. function:: hask3.Data.Either.Left(a)
 
-.. function:: hask.Data.Either.Right(b)
+.. function:: hask3.Data.Either.Right(b)
 
 .. autofunction:: either
 

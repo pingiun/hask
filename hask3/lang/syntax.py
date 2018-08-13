@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-from __future__ import division, print_function, absolute_import
-
 import operator
 import sys
 
@@ -93,7 +88,7 @@ class instance(Syntax):
 
     """
     def __init__(self, typecls, cls):
-        from hask.hack import safe_issubclass
+        from hask3.hack import safe_issubclass
         if safe_issubclass(typecls, Typeclass):
             self.typeclass = typecls
             self.cls = cls
@@ -136,7 +131,7 @@ class __constraints__(Syntax):
         super(__constraints__, self).__init__(_msg)
 
     def __add_constraint(self, con):
-        from hask.hack import safe_issubclass
+        from hask3.hack import safe_issubclass
         if len(con) != 2 or not isinstance(con, tuple):
             raise SyntaxError("Invalid typeclass constraint: %s" % str(con))
         elif not isinstance(con[1], str):
@@ -183,10 +178,10 @@ class sig(Syntax):
     """Convert a Python function into a Statically Typed Function.
 
     Statically typed functions are represented by the class
-    `~hask.lang.type_system.TypedFunc`:class:.
+    `~hask3.lang.type_system.TypedFunc`:class:.
 
-    TypedFuncs are automagically curried, and polymorphic type arguments will
-    be inferred by the type system.
+    `TypedFunc` instances are automagically curried, and polymorphic type
+    arguments will be inferred by the type system.
 
     Usage::
 
@@ -224,10 +219,10 @@ class sig(Syntax):
 def t(type_constructor, *params):
     '''Helper to instantiate a higher-kinded type.
 
-    See `~hask.lang.type_system.TypeSignatureHKT`:class: class.
+    See `~hask3.lang.type_system.TypeSignatureHKT`:class: class.
 
     '''
-    from hask.hack import safe_issubclass
+    from hask3.hack import safe_issubclass
     if (safe_issubclass(type_constructor, ADT) and
         len(type_constructor.__params__) != len(params)):
         _msg = "Incorrect number of type parameters to {}"
@@ -245,7 +240,7 @@ def typify(fn, hkt=None):
     :param hkt: A higher-kinded type wrapped in a closure (e.g.,
                ``lambda x: t(Maybe, x)``)
 
-    :returns: A `~hask.lang.type_system.TypedFunc`:class: object with a
+    :returns: A `~hask3.lang.type_system.TypedFunc`:class: object with a
         polymorphic type (e.g. ``a -> b -> c``, etc) with the same number of
         arguments as `fn`.  If `hkt` is supplied, the return type will be the
         supplied HKT parameterized by a type variable.
@@ -489,7 +484,7 @@ class __data__(Syntax):
 
     Example usage:
 
-        >>> from hask import data, d, deriving, Read, Show, Eq, Ord
+        >>> from hask3 import data, d, deriving, Read, Show, Eq, Ord
 
         >>> Maybe, Nothing, Just = (
         ...     data.Maybe("a") == d.Nothing | d.Just("a") &
@@ -629,7 +624,7 @@ class __new_dcon_deriving__(__new_dcon__):
     """Represents a `data` statement in mid evaluation.
 
     The part of the expression that builds a data constructor (with or without
-    type parameters) and adds derived `~hask.lang.typeclasses`:mod:.
+    type parameters) and adds derived `~hask3.lang.typeclasses`:mod:.
 
     Examples::
 
@@ -660,7 +655,7 @@ class __new_dcons_deriving__(Syntax):
     """A `data` statement in mid evaluation.
 
     The part of the expression that builds data constructors (with or without
-    type parameters) and adds derived `~hask.lang.typeclasses`:mod:.
+    type parameters) and adds derived `~hask3.lang.typeclasses`:mod:.
 
     Examples::
 
@@ -678,7 +673,7 @@ class __new_dcons__(__new_dcons_deriving__):
     """A `data` statement in mid evaluation.
 
     The part of the expression that builds data constructors (with or without
-    type parameters), with no derived `~hask.lang.typeclasses`:mod:.
+    type parameters), with no derived `~hask3.lang.typeclasses`:mod:.
 
     Examples::
 
@@ -726,9 +721,6 @@ class __section__(Syntax):
     arguments (operands).
 
     Example usage:
-
-        >>> from __future__ import division
-        >>> from hask.lang import __
 
         >>> (__+1)(5)
         6
@@ -1018,7 +1010,7 @@ def _t(obj):
 
     Usage:
 
-        >>> from hask import _t
+        >>> from hask3 import _t
 
         >>> _t(1)
         'int'

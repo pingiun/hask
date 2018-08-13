@@ -1,12 +1,12 @@
 import unittest
 import math
 
-from hask import __
-from hask import L
-from hask import sig, H, t
-from hask import LT, GT
+from hask3 import __
+from hask3 import L
+from hask3 import sig, H, t
+from hask3 import LT, GT
 
-from hask import Nothing, Just, Maybe
+from hask3 import Nothing, Just, Maybe
 
 te = TypeError
 ve = ValueError
@@ -15,7 +15,7 @@ ve = ValueError
 class TestDataString(unittest.TestCase):
 
     def test_string(self):
-        from hask.Data.String import lines, words, unlines, unwords
+        from hask3.Data.String import lines, words, unlines, unwords
         self.assertEqual(lines("a\nb \n\nc"), L[["a", "b ", "", "c"]])
         self.assertEqual(lines(""), L[[]])
         self.assertEqual(unlines(L[["a", "b ", "", "c"]]), "a\nb \n\nc")
@@ -29,7 +29,7 @@ class TestDataString(unittest.TestCase):
 class TestDataChar(unittest.TestCase):
 
     def test_char(self):
-        from hask.Data.Char import ord, chr
+        from hask3.Data.Char import ord, chr
 
         self.assertEqual("a", chr(97))
         with self.assertRaises(te):
@@ -45,7 +45,7 @@ class TestDataChar(unittest.TestCase):
 class TestDataNum(unittest.TestCase):
 
     def test_Num(self):
-        from hask.Data.Num import negate, signum, abs
+        from hask3.Data.Num import negate, signum, abs
         self.assertEqual(negate(5), -5)
         self.assertEqual(negate(-5), 5)
         self.assertEqual(signum(5), 1)
@@ -55,7 +55,7 @@ class TestDataNum(unittest.TestCase):
         self.assertEqual(abs(-5), 5)
 
     def test_RealFloat(self):
-        from hask.Data.Num import isNaN, isInfinite, isNegativeZero, atan2
+        from hask3.Data.Num import isNaN, isInfinite, isNegativeZero, atan2
         self.assertTrue(isNaN(float("nan")) and not isNaN(1.0))
         self.assertTrue(isInfinite(float("-inf")) and not isInfinite(1.0))
         self.assertTrue(isNegativeZero(-0.0) and not isNegativeZero(0.0))
@@ -66,7 +66,7 @@ class TestDataNum(unittest.TestCase):
 class TestDataTuple(unittest.TestCase):
 
     def test_tuple(self):
-        from hask.Data.Tuple import fst, snd, curry, uncurry, swap
+        from hask3.Data.Tuple import fst, snd, curry, uncurry, swap
 
         self.assertEqual(1, fst((1, 2)))
         self.assertEqual(("a", "b"), fst((("a", "b"), ("c", "d"))))
@@ -97,12 +97,12 @@ class TestDataTuple(unittest.TestCase):
 class TestDataOrd(unittest.TestCase):
 
     def test_ord(self):
-        from hask.Data.Ord import max, min, compare, comparing
+        from hask3.Data.Ord import max, min, compare, comparing
         self.assertEqual(max(1, 2), 2)
         self.assertEqual(min(1, 2), 1)
         self.assertEqual(compare(1)(2), LT)
 
-        from hask.Data.Tuple import fst, snd
+        from hask3.Data.Tuple import fst, snd
         self.assertEqual(comparing(fst, (1, 2), (3, 0)), LT)
         self.assertEqual(comparing(snd, (1, 2), (3, 0)), GT)
 
@@ -110,7 +110,7 @@ class TestDataOrd(unittest.TestCase):
 class TestDataRatio(unittest.TestCase):
 
     def test_ratio(self):
-        from hask.Data.Ratio import R, numerator, denominator
+        from hask3.Data.Ratio import R, numerator, denominator
         self.assertEqual(1, numerator % R(1, 2))
         self.assertEqual(2, denominator % R(1, 2))
 
@@ -118,7 +118,7 @@ class TestDataRatio(unittest.TestCase):
 class TestDataList(unittest.TestCase):
 
     def test_basic_functions(self):
-        from hask.Data.List import head, last, tail, init, uncons, null, length
+        from hask3.Data.List import head, last, tail, init, uncons, null, length
 
         self.assertEqual(4, head(L[4, 2]))
         self.assertEqual(1, head(L[1, ...]))
@@ -152,8 +152,8 @@ class TestDataList(unittest.TestCase):
         self.assertEqual(0, length(L[[]]))
 
     def test_list_transformations(self):
-        from hask.Data.List import map, reverse, intersperse, intercalate  # noqa: F401
-        from hask.Data.List import transpose, subsequences, permutations  # noqa: F401
+        from hask3.Data.List import map, reverse, intersperse, intercalate  # noqa: F401
+        from hask3.Data.List import transpose, subsequences, permutations  # noqa: F401
 
         self.assertEqual(L[1, 2, 1], intersperse(2, L[1, 1]))
         self.assertEqual(L[[]], intersperse(2, L[[]]))
@@ -166,11 +166,11 @@ class TestDataList(unittest.TestCase):
         self.assertEqual(L[[]], permutations(L[[]]))
 
     def test_reducing_lists(self):
-        from hask.Data.List import foldl, foldl_, foldr, foldr1, concat  # noqa: F401
-        from hask.Data.List import concatMap, and_, or_, any, all, sum, product  # noqa: F401
-        from hask.Data.List import maximum, minimum
+        from hask3.Data.List import foldl, foldl_, foldr, foldr1, concat  # noqa: F401
+        from hask3.Data.List import concatMap, and_, or_, any, all, sum, product  # noqa: F401
+        from hask3.Data.List import maximum, minimum
 
-        from hask.Data.List import repeat, take
+        from hask3.Data.List import repeat, take
 
         self.assertEqual(L[1, ..., 6], concat(L[L[1, 2, 3], L[4, 5, 6]]))
         self.assertEqual(L[[]], concat(L[[]]))
@@ -211,9 +211,9 @@ class TestDataList(unittest.TestCase):
             minimum(L[[]])
 
     def test_building_lists(self):
-        from hask.Data.List import scanl, scanl1, scanr, scanr1, mapAccumL  # noqa: F401
-        from hask.Data.List import mapAccumR, iterate, repeat, replicate, cycle  # noqa: F401
-        from hask.Data.List import unfoldr
+        from hask3.Data.List import scanl, scanl1, scanr, scanr1, mapAccumL  # noqa: F401
+        from hask3.Data.List import mapAccumR, iterate, repeat, replicate, cycle  # noqa: F401
+        from hask3.Data.List import unfoldr
 
         plus_one = (lambda x: x + 1) ** (H/ int >> int)
         self.assertEquals(iterate(plus_one, 0)[:10], L[range(10)])
@@ -225,10 +225,10 @@ class TestDataList(unittest.TestCase):
         self.assertEquals(L[1, ..., 6], unfoldr(uf, 0))
 
     def test_sublists(self):
-        from hask.Data.List import take, drop, splitAt, takeWhile, dropWhile  # noqa: F401
-        from hask.Data.List import dropWhileEnd, span, break_, stripPrefix  # noqa: F401
-        from hask.Data.List import group, inits, tails, isPrefixOf, isSuffixOf  # noqa: F401
-        from hask.Data.List import isInfixOf, isSubsequenceOf  # noqa: F401
+        from hask3.Data.List import take, drop, splitAt, takeWhile, dropWhile  # noqa: F401
+        from hask3.Data.List import dropWhileEnd, span, break_, stripPrefix  # noqa: F401
+        from hask3.Data.List import group, inits, tails, isPrefixOf, isSuffixOf  # noqa: F401
+        from hask3.Data.List import isInfixOf, isSubsequenceOf  # noqa: F401
 
         self.assertEqual(L[1, 2], take(2, L[1, 2, 3]))
         self.assertEqual(L[1, 2, 3], take(3, L[1, 2, 3]))
@@ -272,8 +272,8 @@ class TestDataList(unittest.TestCase):
         self.assertFalse(isInfixOf(L[1, 2], L[2, 3, 1, 4]))
 
     def test_searching_lists(self):
-        from hask.Data.List import elem, notElem, lookup, find, filter  # noqa: F401
-        from hask.Data.List import partition  # noqa: F401
+        from hask3.Data.List import elem, notElem, lookup, find, filter  # noqa: F401
+        from hask3.Data.List import partition  # noqa: F401
 
         self.assertTrue(elem(1, L[1, ...]))
         self.assertFalse(elem(2, L[1, 3, 4, 5]))
@@ -281,14 +281,14 @@ class TestDataList(unittest.TestCase):
         self.assertTrue(notElem(2, L[1, 3, 4, 5]))
 
     def test_indexing_lists(self):
-        from hask.Data.List import elemIndex, elemIndices, findIndex  # noqa: F401
-        from hask.Data.List import findIndicies  # noqa: F401
+        from hask3.Data.List import elemIndex, elemIndices, findIndex  # noqa: F401
+        from hask3.Data.List import findIndicies  # noqa: F401
 
     def test_zipping_lists(self):
-        from hask.Data.List import zip, zip3, zip4, zip5, zip6, zip7, zipWith  # noqa: F401
-        from hask.Data.List import zipWith3, zipWith4, zipWith5, zipWith6  # noqa: F401
-        from hask.Data.List import zipWith7, unzip, unzip3, unzip4, unzip5  # noqa: F401
-        from hask.Data.List import unzip6  # noqa: F401
+        from hask3.Data.List import zip, zip3, zip4, zip5, zip6, zip7, zipWith  # noqa: F401
+        from hask3.Data.List import zipWith3, zipWith4, zipWith5, zipWith6  # noqa: F401
+        from hask3.Data.List import zipWith7, unzip, unzip3, unzip4, unzip5  # noqa: F401
+        from hask3.Data.List import unzip6  # noqa: F401
 
         self.assertEqual(L[(1, "a"), (2, "b")], zip(L[1, 2], L["a", "b"]))
         self.assertEqual(L[(1, "a"), (2, "b")], zip(L[1, 2, 3], L["a", "b"]))
@@ -304,14 +304,14 @@ class TestDataList(unittest.TestCase):
         self.assertEqual((L[[]], L[[]]), unzip(L[[]]))
 
     def test_set_operations(self):
-        from hask.Data.List import nub, delete, diff, union, intersect  # noqa: F401
+        from hask3.Data.List import nub, delete, diff, union, intersect  # noqa: F401
 
         self.assertEqual(L[[]], nub(L[[]]))
         self.assertEqual(L[[1]], nub(L[[1]]))
         self.assertEqual(L[[1]], nub(L[[1, 1]]))
 
     def test_ordered_lists(self):
-        from hask.Data.List import sort, sortOn, insert  # noqa: F401
+        from hask3.Data.List import sort, sortOn, insert  # noqa: F401
 
         self.assertEqual(L[[]], sort(L[[]]))
         self.assertEqual(L[1, 2, 3], sort(L[1, 2, 3]))
@@ -319,8 +319,8 @@ class TestDataList(unittest.TestCase):
         self.assertEqual(L[1, 1, 2, 3], sort(L[2, 1, 3, 1]))
 
     def test_generalized_functions(self):
-        from hask.Data.List import nubBy, deleteBy, deleteFirstBy, unionBy  # noqa: F401
-        from hask.Data.List import intersectBy, groupBy, sortBy, insertBy  # noqa: F401
-        from hask.Data.List import maximumBy, minimumBy, genericLength  # noqa: F401
-        from hask.Data.List import genericTake, genericDrop, genericSplitAt  # noqa: F401
-        from hask.Data.List import genericIndex, genericReplicate  # noqa: F401
+        from hask3.Data.List import nubBy, deleteBy, deleteFirstBy, unionBy  # noqa: F401
+        from hask3.Data.List import intersectBy, groupBy, sortBy, insertBy  # noqa: F401
+        from hask3.Data.List import maximumBy, minimumBy, genericLength  # noqa: F401
+        from hask3.Data.List import genericTake, genericDrop, genericSplitAt  # noqa: F401
+        from hask3.Data.List import genericIndex, genericReplicate  # noqa: F401

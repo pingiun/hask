@@ -1,5 +1,3 @@
-from __future__ import division, print_function, absolute_import
-
 import itertools
 
 from ..lang import sig
@@ -22,7 +20,7 @@ class Monad(Applicative):
 
     Dependencies:
 
-    - `~hask.Control.Applicative.Applicative`:class:
+    - `~hask3.Control.Applicative.Applicative`:class:
 
     Attributes:
 

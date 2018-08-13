@@ -1,5 +1,5 @@
 # flake8: noqa
-from __future__ import division, print_function, absolute_import
+import fractions
 
 from .lang import H
 from .lang import sig
@@ -147,7 +147,6 @@ def gcd(x, y):
     2, gcd(0,4) = 4. gcd(0,0) = 0. (That is, the common divisor that is
     "greatest" in the divisibility preordering.)
     """
-    import fractions
     return fractions.gcd(x, y)
 
 

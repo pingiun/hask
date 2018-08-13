@@ -1,26 +1,26 @@
 import unittest
-from hask import H, t
-from hask import __
-from hask import L
-from hask import Maybe, Just, Nothing
-from hask import Either, Left, Right
+from hask3 import H, t
+from hask3 import __
+from hask3 import L
+from hask3 import Maybe, Just, Nothing
+from hask3 import Either, Left, Right
 
 # internals
-from hask.lang.type_system import make_fn_type
-from hask.lang.type_system import build_sig_arg
-from hask.lang.type_system import build_sig
-from hask.lang.type_system import typeof
+from hask3.lang.type_system import make_fn_type
+from hask3.lang.type_system import build_sig_arg
+from hask3.lang.type_system import build_sig
+from hask3.lang.type_system import typeof
 
-from hask.lang.hindley_milner import Var
-from hask.lang.hindley_milner import App
-from hask.lang.hindley_milner import Lam
-from hask.lang.hindley_milner import Let
-from hask.lang.hindley_milner import TypeVariable
-from hask.lang.hindley_milner import TypeOperator
-from hask.lang.hindley_milner import Function
-from hask.lang.hindley_milner import Tuple
-from hask.lang.hindley_milner import analyze
-from hask.lang.hindley_milner import unify
+from hask3.lang.hindley_milner import Var
+from hask3.lang.hindley_milner import App
+from hask3.lang.hindley_milner import Lam
+from hask3.lang.hindley_milner import Let
+from hask3.lang.hindley_milner import TypeVariable
+from hask3.lang.hindley_milner import TypeOperator
+from hask3.lang.hindley_milner import Function
+from hask3.lang.hindley_milner import Tuple
+from hask3.lang.hindley_milner import analyze
+from hask3.lang.hindley_milner import unify
 
 te = TypeError
 

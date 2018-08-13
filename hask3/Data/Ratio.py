@@ -1,5 +1,3 @@
-from __future__ import division, print_function, absolute_import
-
 from ..lang import sig
 from ..lang import H
 from ..lang import t
