@@ -151,7 +151,7 @@ def enumFrom(start):
 def enumFromThenTo(start, second, end):
     """``enumFromThenTo :: a -> a -> a -> [a]``
 
-    Used in translation of L[n, n_, ..., m]
+    Used in translation of ``L[n, n_, ..., m]``.
 
     """
     return L[Enum[start].enumFromThenTo(start, second, end)]
