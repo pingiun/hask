@@ -20,8 +20,8 @@ Changes from Robert's version:
 
 '''
 
-# TODO: Remove these kind of dependencies in 'xoutil.eight'
-from xoutil.eight.abc import abstractmethod, ABC
+
+from abc import abstractmethod, ABC
 from xoutil.objects import staticproperty
 
 
