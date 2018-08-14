@@ -2,7 +2,7 @@
  :mod:`hask3.lang.lazylist` -- A lazy List
 ==========================================
 
-.. automodule:: hask.lang.lazylist
+.. automodule:: hask3.lang.lazylist
    :members: Enum
 
 .. autodata:: fromEnum

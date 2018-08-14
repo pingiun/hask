@@ -16,7 +16,7 @@ This is a fork for the original project `hask`_ for Python 3.4+ (see the our
    :caption: Contents:
 
    overview
-   hask/index.rst
+   hask3/index.rst
    history.rst
 
 

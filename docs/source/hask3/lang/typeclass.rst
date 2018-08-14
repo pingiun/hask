@@ -1,8 +1,8 @@
 ===========================================================
- :mod:`hask.lang.typeclasses` -- The standard type classes
+ `hask3.lang.typeclasses`:mod: -- The standard type classes
 ===========================================================
 
-.. automodule:: hask.lang.typeclasses
+.. automodule:: hask3.lang.typeclasses
    :members: Show, Eq, Bounded, Ord, Read
 
 .. autodata:: show

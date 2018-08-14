@@ -112,7 +112,7 @@ Hask provides all of the Haskell functions for List manipulation
 `~hask3.Data.List.takeWhile`:func:, etc.), or you can also use Python-style
 indexing::
 
-    >>> from hask import L
+    >>> from hask3 import L
     >>> L[1, ...]
     L[1 ...]
 
@@ -134,7 +134,7 @@ indexing::
 Otherwise, you can use `~hask3.lang.lazylist.List`:class: just like you would
 use a regular Python list::
 
-    >>> from hask import L
+    >>> from hask3 import L
     >>> for i in L[0, ..., 3]:
     ...     print(i)
     0
@@ -157,8 +157,8 @@ with a fixed number of typed, unnamed fields.
 Here is the definition for the infamous `~hask3.Data.Maybe.Maybe`:class:
 type::
 
-    >>> from hask import data, d, deriving
-    >>> from hask import Read, Show, Eq, Ord
+    >>> from hask3 import data, d, deriving
+    >>> from hask3 import Read, Show, Eq, Ord
 
     >>> Maybe, Nothing, Just = (
     ...     data.Maybe("a") == d.Nothing | d.Just("a") &
@@ -195,7 +195,7 @@ Putting it all together, here are the definitions of
 
 ::
 
-    >>> from hask import Read, Show, Eq, Ord, Bounded
+    >>> from hask3 import Read, Show, Eq, Ord, Bounded
 
     >>> Either, Left, Right = (
     ...    data.Either("a", "b") == d.Left("a") | d.Right("b") &
@@ -229,7 +229,7 @@ can use it just like a variable::
 You can view the type of an object with `~hask3.lang.syntax._t`:func:
 (equivalent to `:t` in ghci)::
 
-    >>> from hask import _t, L
+    >>> from hask3 import _t, L
 
     >>> _t(1)
     'int'
@@ -279,7 +279,7 @@ checked -- when arguments are supplied, the type inference engine will check
 whether their types match the type signature, and raise a `TypeError`:class:
 if there is a discrepancy::
 
-    >>> from hask import H
+    >>> from hask3 import H
     >>> f = (lambda x, y: x + y) ** (H/ int >> int >> int)
 
     >>> f(2, 3)
@@ -293,7 +293,7 @@ if there is a discrepancy::
 Second, `~hask3.lang.type_system.TypedFunc`:class: objects can be partially
 applied::
 
-   >>> from hask import H
+   >>> from hask3 import H
    >>> g = (lambda a, b, c: a // (b + c)) ** (H/ int >> int >> int >> int)
 
    >>> g(10, 2, 3)
@@ -445,7 +445,7 @@ Here is a function that uses pattern matching to compute the fibonacci
 sequence.  Note that within a pattern match expression, ``m.*`` is used to
 bind variables, and ``p.*`` is used to access them::
 
-    >>> from hask import caseof, m, p, sig, H
+    >>> from hask3 import caseof, m, p, sig, H
     >>> @sig(H/ int >> int)
     ... def fib(x):
     ...     return ~(caseof(x)
@@ -469,8 +469,8 @@ the variable after the ``^`` is bound to the rest of the iterable.  Here is a
 function that adds the first two elements of any iterable, returning
 ``Nothing`` if there are less than two elements::
 
-    >>> from hask import sig, t, caseof, m, p, H
-    >>> from hask import Num, Maybe, Just, Nothing
+    >>> from hask3 import sig, t, caseof, m, p, H
+    >>> from hask3 import Num, Maybe, Just, Nothing
 
     >>> @sig(H[(Num, "a")]/ ["a"] >> t(Maybe, "a"))
     ... def add_first_two(xs):
@@ -487,8 +487,8 @@ function that adds the first two elements of any iterable, returning
 Pattern matching is also very useful for deconstructing ADTs and assigning
 their fields to temporary variables::
 
-    >>> from hask import caseof, m, p
-    >>> from hask import Num, Maybe, Just, Nothing
+    >>> from hask3 import caseof, m, p
+    >>> from hask3 import Num, Maybe, Just, Nothing
 
     >>> def default_to_zero(x):
     ...     return ~(caseof(x)
@@ -572,8 +572,8 @@ Applicative and then an instance of Monad by defining the appropriate function
 implementations.  To implement Applicative, we just need to provide ``pure``.
 To implement Monad, we need to provide ``bind``::
 
-    >>> from hask import instance, m, caseof, p
-    >>> from hask import Applicative, Monad
+    >>> from hask3 import instance, m, caseof, p
+    >>> from hask3 import Applicative, Monad
     >>> from hask3.Data.Maybe import Maybe, Just, Nothing
     >>> instance(Applicative, Maybe).where(
     ...    pure = Just
@@ -587,7 +587,7 @@ To implement Monad, we need to provide ``bind``::
 
 The ``bind`` function also has an infix form, which is ``>>`` in Hask::
 
-    >>> from hask import sig, t
+    >>> from hask3 import sig, t
     >>> from hask3.Data.Maybe import Maybe, Just, Nothing
 
     >>> @sig(H/ int >> int >> t(Maybe, int))
@@ -609,14 +609,14 @@ The ``bind`` function also has an infix form, which is ``>>`` in Hask::
 As in Haskell, List is also a monad, and ``bind`` for the List type is just
 ``concatMap``::
 
-    >>> from hask import L
+    >>> from hask3 import L
     >>> from hask3.Data.List import replicate
     >>> L[1, 2] >> replicate(2) >> replicate(2)
     L[1, 1, 1, 1, 2, 2, 2, 2]
 
 You can also define typeclass instances for classes that are not ADTs:
 
-    >>> from hask import instance, Eq
+    >>> from hask3 import instance, Eq
 
     >>> class Person(object):
     ...     def __init__(self, name, age):
@@ -636,7 +636,7 @@ automagically generate instances rather than defining them manually.
 
 Defining your own typeclasses is pretty easy--take a look at
 `~hask3.lang.type_system.Typeclass`:class: and look at the typeclasses defined
-in `hask.Data.Functor`:mod: and `hask.Data.Num`:mod: to see how it's done.
+in `hask3.Data.Functor`:mod: and `hask3.Data.Num`:mod: to see how it's done.
 
 
 Operator sections
@@ -646,7 +646,7 @@ Hask also supports operator sections (e.g. ``(1+)`` in Haskell).  Sections are
 just `~hask3.lang.type_system.TypedFunc`:class: objects, so they are
 automatically curried and type-checked::
 
-    >>> from hask import __
+    >>> from hask3 import __
     >>> f = (__ - 20) * (2 ** __) * (__ + 3)
     >>> f(10)
     8172
@@ -700,7 +700,7 @@ be raised.
 
 Guards will also play nicely with sections::
 
-    >>> from hask import guard, c, otherwise
+    >>> from hask3 import guard, c, otherwise
     >>> porridge_tempurature = 80
     >>> ~(guard(porridge_tempurature)
     ...     | c(__ < 20)  >> "Porridge is too cold!"

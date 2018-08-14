@@ -1,8 +1,8 @@
-============================================================================
- `hask.lang.syntax`:mod: -- The "syntactic" elements to build Hask programs
-============================================================================
+=============================================================================
+ `hask3.lang.syntax`:mod: -- The "syntactic" elements to build Hask programs
+=============================================================================
 
-.. automodule:: hask.lang.syntax
+.. automodule:: hask3.lang.syntax
    :members: sig, Syntax, instance, caseof, deriving, t, typify,
 	     guard, c, _t, _i,
 	     IncompletePatternError, MatchStackFrame, MatchStack
