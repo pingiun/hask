@@ -46,9 +46,11 @@ Hask provides the `~hask3.lang.lazylist.List`:class: type, a lazy and
 statically-typed list, similar to Haskell's standard list type.
 
 To create a new List, just put the elements inside ``L[`` and ``]`` brackets,
-or wrap an existing iterable inside ``L[ ]``::
+or wrap an existing iterable inside ``L[ ]``:
 
-    >>> from hask import L
+.. doctest::
+
+    >>> from hask3 import L
     >>> L[1, 2, 3]
     L[1, 2, 3]
 
@@ -61,7 +63,9 @@ or wrap an existing iterable inside ``L[ ]``::
 
 
 To add elements to the front of a List, use ``^``, the cons operator.  To
-combine two lists, use ``+``, the concatenation operator::
+combine two lists, use ``+``, the concatenation operator:
+
+.. doctest::
 
     >>> 1 ^ L[2, 3]
     L[1, 2, 3]
@@ -70,7 +74,7 @@ combine two lists, use ``+``, the concatenation operator::
     L['goodnight', 'sweet', 'prince']
 
     >>> "a" ^ L[1.0, 10.3]  # doctests: +ELLIPSIS
-    Traceback (...)
+    Traceback (most recent call last):
     ...
     TypeError: ...
 
@@ -91,13 +95,11 @@ there are four basic type of list comprehensions::
     >>> # list from 1 to infinity, counting by ones
     >>> L[1 ...]
 
-
     >>> # list from 1 to infinity, counting by twos
     >>> L[1, 3, ...]
 
     >>> # list from 1 to 20 (inclusive), counting by ones
     >>> L[1, ..., 20]
-
 
     >>> # list from 1 to 20 (inclusive), counting by fours
     >>> L[1, 5, ..., 20]
@@ -110,7 +112,9 @@ or any other instance of the `~hask3.lang.lazylist.Enum`:class: typeclass
 Hask provides all of the Haskell functions for List manipulation
 (`~hask3.Data.List.take`:func:, `~hask3.Data.List.drop`:func:,
 `~hask3.Data.List.takeWhile`:func:, etc.), or you can also use Python-style
-indexing::
+indexing:
+
+.. doctest::
 
     >>> from hask3 import L
     >>> L[1, ...]
@@ -132,7 +136,9 @@ indexing::
     >>> # DON'T do this: len(L[1, 3, ...])
 
 Otherwise, you can use `~hask3.lang.lazylist.List`:class: just like you would
-use a regular Python list::
+use a regular Python list:
+
+.. doctest::
 
     >>> from hask3 import L
     >>> for i in L[0, ..., 3]:
@@ -155,7 +161,9 @@ with a fixed number of typed, unnamed fields.
 .. _algebraic datatypes: https://wiki.haskell.org/Algebraic_data_type
 
 Here is the definition for the infamous `~hask3.Data.Maybe.Maybe`:class:
-type::
+type:
+
+.. doctest::
 
     >>> from hask3 import data, d, deriving
     >>> from hask3 import Read, Show, Eq, Ord
@@ -176,7 +184,9 @@ To define `data constructors
 <https://wiki.haskell.org/Constructor#Data_constructor__>`__ for this type,
 use ``d``.  The name of the data constructor goes first, followed by its
 fields.  Multiple data constructors should be separated by ``|``.  If your
-data constructor has no fields, you can omit the parens.  For example::
+data constructor has no fields, you can omit the parens.  For example:
+
+.. doctest::
 
     >>> FooBar, Foo, Bar = (
     ...    data.FooBar("a", "b") == d.Foo("a", "b", str) | d.Bar
@@ -193,7 +203,7 @@ and `~hask3.lang.typeclasses.Bounded`:class:.
 Putting it all together, here are the definitions of
 `~hask3.Data.Either.Either`:class: and `~hask3.Data.Ordering.Ordering`:class:.
 
-::
+.. doctest::
 
     >>> from hask3 import Read, Show, Eq, Ord, Bounded
 
@@ -209,7 +219,11 @@ Putting it all together, here are the definitions of
 
 You can now use the data constructors defined in a `data` statement to create
 instances of these new types.  If the data constructor takes no arguments, you
-can use it just like a variable::
+can use it just like a variable:
+
+.. doctest::
+
+    >>> from hask3 import Just, Nothing, Left
 
     >>> Just(10)
     Just(10)
@@ -223,11 +237,17 @@ can use it just like a variable::
     >>> Left(1)
     Left(1)
 
-    >>> Foo(1, 2, "hello")
-    Foo(1, 2, 'hello')
+.. error:: Next construction must result valid as a test, but right now there
+	   are problems in Hask string representation, and with `TypedFunc`
+	   wrappers::
+
+             >>> Foo(1, 2, "hello")
+	     Foo(1, 2, 'hello')
 
 You can view the type of an object with `~hask3.lang.syntax._t`:func:
-(equivalent to `:t` in ghci)::
+(equivalent to `:t` in ghci):
+
+.. doctest::
 
     >>> from hask3 import _t, L
 
@@ -277,7 +297,9 @@ around Python functions.  There are two ways to create TypedFunc objects:
 TypedFunc objects have several special properties.  First, they are type
 checked -- when arguments are supplied, the type inference engine will check
 whether their types match the type signature, and raise a `TypeError`:class:
-if there is a discrepancy::
+if there is a discrepancy:
+
+.. doctest::
 
     >>> from hask3 import H
     >>> f = (lambda x, y: x + y) ** (H/ int >> int >> int)
@@ -286,25 +308,27 @@ if there is a discrepancy::
     5
 
     >>> f(9, 1.0)  # doctest: +ELLIPSIS
-    Traceback (...)
-       ...
+    Traceback (most recent call last):
+    ...
     TypeError: ...
 
 Second, `~hask3.lang.type_system.TypedFunc`:class: objects can be partially
-applied::
+applied:
 
-   >>> from hask3 import H
-   >>> g = (lambda a, b, c: a // (b + c)) ** (H/ int >> int >> int >> int)
+.. doctest::
 
-   >>> g(10, 2, 3)
-   2
+    >>> from hask3 import H
+    >>> g = (lambda a, b, c: a // (b + c)) ** (H/ int >> int >> int >> int)
 
-   >>> part_g = g(12)
-   >>> part_g(2, 2)
-   3
+    >>> g(10, 2, 3)
+    2
 
-   >>> g(20, 1)(4)
-   4
+    >>> part_g = g(12)
+    >>> part_g(2, 2)
+    3
+
+    >>> g(20, 1)(4)
+    4
 
 `~hask3.lang.type_system.TypedFunc`:class: objects also have two special infix
 operators, the ``*`` and ``%`` operators.  ``*`` is the compose operator
@@ -314,11 +338,11 @@ argument (equivalent to ``$`` in Haskell).  The convinience of this notation
 (when combined with partial application) cannot be overstated -- you can get
 rid of a ton of nested parenthesis this way:
 
-
-   >>> from hask3.Prelude import flip
-   >>> h = (lambda x, y: x / y) ** (H/ float >> float >> float)
-   >>> h(3.0) * h(6.0) * flip(h, 2.0) % 36.0
-   9.0
+    >>> from hask3 import H
+    >>> from hask3.Prelude import flip
+    >>> h = (lambda x, y: x / y) ** (H/ float >> float >> float)
+    >>> h(3.0) * h(6.0) * flip(h, 2.0) % 36.0
+    9.0
 
 
 The compose operation is also typed-checked, which makes it appealing to write
@@ -327,8 +351,9 @@ composition and relying on the type system to catch programming errors.
 
 As you would expect, data constructors are also just TypedFunc objects:
 
-   >>> Just * Just * Just * Just % 77
-   Just(Just(Just(Just(77))))
+    >>> from hask3 import Just
+    >>> Just * Just * Just * Just % 77
+    Just(Just(Just(Just(77))))
 
 
 The type signature syntax is very simple, and consists of a few basic
@@ -443,7 +468,9 @@ Pattern matching expressions follow this syntax::
 
 Here is a function that uses pattern matching to compute the fibonacci
 sequence.  Note that within a pattern match expression, ``m.*`` is used to
-bind variables, and ``p.*`` is used to access them::
+bind variables, and ``p.*`` is used to access them:
+
+.. doctest::
 
     >>> from hask3 import caseof, m, p, sig, H
     >>> @sig(H/ int >> int)
@@ -467,9 +494,11 @@ You can also deconstruct an iterable using ``^`` (the cons operator).  The
 variable before the ``^`` is bound to the first element of the iterable, and
 the variable after the ``^`` is bound to the rest of the iterable.  Here is a
 function that adds the first two elements of any iterable, returning
-``Nothing`` if there are less than two elements::
+``Nothing`` if there are less than two elements:
 
-    >>> from hask3 import sig, t, caseof, m, p, H
+.. doctest::
+
+    >>> from hask3 import sig, t, caseof, m, p, H, L
     >>> from hask3 import Num, Maybe, Just, Nothing
 
     >>> @sig(H[(Num, "a")]/ ["a"] >> t(Maybe, "a"))
@@ -481,11 +510,13 @@ function that adds the first two elements of any iterable, returning
     >>> add_first_two(L[1, 2, 3, 4, 5])
     Just(3)
 
-    >>> add_first_two(L[9.0])
+    >>> add_first_two(L[[9.0]])
     Nothing
 
 Pattern matching is also very useful for deconstructing ADTs and assigning
-their fields to temporary variables::
+their fields to temporary variables:
+
+.. doctest::
 
     >>> from hask3 import caseof, m, p
     >>> from hask3 import Num, Maybe, Just, Nothing
@@ -504,7 +535,9 @@ their fields to temporary variables::
 
 If you find pattern matching on ADTs too cumbersome, you can also use numeric
 indexing on ADT fields.  An `IndexError` will be thrown if you mess something
-up::
+up:
+
+.. doctest::
 
    >>> Just(20.0)[0]
    20.0
@@ -512,7 +545,10 @@ up::
    >>> Left("words words words words")[0]
    'words words words words'
 
-   >>> Nothing[0]  # IndexError
+   >>> Nothing[0]    # doctests: +ELLIPSIS
+   Traceback (most recent call last):
+   ...
+   IndexError: ...
 
 
 Typeclasses and typeclass instances
@@ -526,7 +562,9 @@ syntax for creating new typeclass instances.
 As an example, let's add a `Monad <https://wiki.haskell.org/Monad_>`__
 instance for the Maybe type.  First, however, Maybe needs `Functor
 <https://wiki.haskell.org/Functor_>`__ and `Applicative
-<https://wiki.haskell.org/Applicative_functor_>`__ instances::
+<https://wiki.haskell.org/Applicative_functor_>`__ instances:
+
+.. doctest::
 
     def maybe_fmap(fn, x):
         """Apply a function to the value inside of a (Maybe a) value"""
@@ -540,7 +578,9 @@ instance for the Maybe type.  First, however, Maybe needs `Functor
     )
 
 Maybe is now an instance of Functor.  This allows us to call ``fmap`` and map
-any function of type ``a -> b`` into a value of type ``Maybe a``::
+any function of type ``a -> b`` into a value of type ``Maybe a``:
+
+.. doctest::
 
     >>> from hask3.Data.Maybe import Just, Nothing
     >>> from hask3.Data.Functor import fmap
@@ -555,7 +595,9 @@ any function of type ``a -> b`` into a value of type ``Maybe a``::
 
 Lots of nested calls to fmap get unwieldy very fast.  Fortunately, any
 instance of Functor can be used with the infix fmap operator, ``*``.  This is
-equivalent to ``<$>`` in Haskell.  Rewriting our example from above::
+equivalent to ``<$>`` in Haskell.  Rewriting our example from above:
+
+.. doctest::
 
     >>> (toFloat * times2) * Just(25)
     Just(50.0)
@@ -570,7 +612,9 @@ remember that ``fmap`` for functions is just function composition!
 Now that Maybe is an instance of Functor, we can make it an instance of
 Applicative and then an instance of Monad by defining the appropriate function
 implementations.  To implement Applicative, we just need to provide ``pure``.
-To implement Monad, we need to provide ``bind``::
+To implement Monad, we need to provide ``bind``.
+
+.. doctest::
 
     >>> from hask3 import instance, m, caseof, p
     >>> from hask3 import Applicative, Monad
@@ -585,16 +629,18 @@ To implement Monad, we need to provide ``bind``::
     ...                             | m(Nothing)   >> Nothing)
     ... )
 
-The ``bind`` function also has an infix form, which is ``>>`` in Hask::
+The ``bind`` function also has an infix form, which is ``>>`` in Hask:
 
-    >>> from hask3 import sig, t
+.. doctest::
+
+    >>> from hask3 import sig, t, H
     >>> from hask3.Data.Maybe import Maybe, Just, Nothing
+    >>> from hask3.Prelude import flip
 
     >>> @sig(H/ int >> int >> t(Maybe, int))
     ... def safe_div(x, y):
-    ...     return Nothing if y == 0 else Just(x/y)
+    ...     return Nothing if y == 0 else Just(x//y)
 
-    >>> from hask3.Prelude import flip
     >>> divBy = flip(safe_div)
 
     >>> Just(9) >> divBy(3)
@@ -607,14 +653,18 @@ The ``bind`` function also has an infix form, which is ``>>`` in Hask::
     Nothing
 
 As in Haskell, List is also a monad, and ``bind`` for the List type is just
-``concatMap``::
+``concatMap``:
+
+.. doctest::
 
     >>> from hask3 import L
     >>> from hask3.Data.List import replicate
-    >>> L[1, 2] >> replicate(2) >> replicate(2)
-    L[1, 1, 1, 1, 2, 2, 2, 2]
+    >>> list(L[1, 2] >> replicate(2) >> replicate(2))
+    [1, 1, 1, 1, 2, 2, 2, 2]
 
 You can also define typeclass instances for classes that are not ADTs:
+
+.. doctest::
 
     >>> from hask3 import instance, Eq
 
@@ -684,7 +734,9 @@ Guards
 
 If you don't need the full power of pattern matching and just want a neater
 switch statement, you can use guards.  The syntax for guards is almost
-identical to the syntax for pattern matching::
+identical to the syntax for pattern matching.
+
+::
 
     ~(guard(expr_to_test)
         | c(test_1) >> return_value_1
@@ -692,15 +744,16 @@ identical to the syntax for pattern matching::
         | otherwise >> return_value_3
     )
 
-
 As in Haskell, `~hask3.lang.syntax.otherwise`:obj: will always evaluate to
 True and can be used as a catch-all in guard expressions.  If no match is
 found (and an otherwise clause is not present), a `NoGuardMatchException` will
 be raised.
 
-Guards will also play nicely with sections::
+Guards will also play nicely with sections:
 
-    >>> from hask3 import guard, c, otherwise
+.. doctest::
+
+    >>> from hask3 import guard, c, otherwise, __
     >>> porridge_tempurature = 80
     >>> ~(guard(porridge_tempurature)
     ...     | c(__ < 20)  >> "Porridge is too cold!"
@@ -711,9 +764,12 @@ Guards will also play nicely with sections::
     'Porridge is just right!'
 
 If you need a more complex conditional, you can always use lambdas, regular
-Python functions, or any other callable in your guard condition::
+Python functions, or any other callable in your guard condition.
+
+.. doctest::
 
     >>> def examine_password_security(password):
+    ...     from hask3 import __
     ...     analysis = ~(guard(password)
     ...         | c(lambda x: len(x) > 20) >> "Wow, that's one secure password"
     ...         | c(lambda x: len(x) < 5)  >> "You made Bruce Schneier cry"
@@ -738,10 +794,12 @@ the result wrapped inside a Maybe or Either value.
 
 If a function wrapped in ``in_maybe`` raises an exception, the wrapped
 function will return Nothing.  Otherwise, the result will be returned wrapped
-in a ``Just``::
+in a ``Just``.
+
+.. doctest::
 
     >>> from hask3.Data.Maybe import in_maybe
-     
+
     >>> def eat_cheese(cheese):
     ...     if cheese > 0:
     ...         return cheese - 1
@@ -761,7 +819,9 @@ makes it easier to use the convineient monad error handling style commonly
 seen in Haskell with existing Python functions.
 
 Continuing with this silly example, let's try to eat three pieces of cheese,
-returning Nothing if the attempt was unsuccessful::
+returning Nothing if the attempt was unsuccessful:
+
+.. doctest::
 
     >>> from hask3.Data.Maybe import Just
 
@@ -778,16 +838,24 @@ and are now handling it in a type-safe, monadic way.
 
 The ``in_either`` function works just like ``in_maybe``.  If an exception is
 thrown, the wrapped function will return the exception wrapped in ``Left``.
-Otherwise, the result will be returned wrapped in ``Right``::
+Otherwise, the result will be returned wrapped in ``Right``.
+
+.. doctest::
 
     >>> from hask3.Data.Either import in_either, Right, Left
 
+    >>> def eat_cheese(cheese):
+    ...     if cheese > 0:
+    ...         return cheese - 1
+    ...     else:
+    ...         raise ValueError("Out of cheese error")
+
     >>> either_eat = in_either(eat_cheese)
-    >>> either_eat(Right(10))
+    >>> either_eat(10)
     Right(9)
 
-    >>> either_eat(Right(0))
-    Left(ValueError('Out of cheese error',))
+    >>> either_eat(0)    # doctest: +SKIP
+    Left(ValueError('Out of cheese error'))
 
 Chained cheese-eating in the Either monad is left as an exercise for the
 reader.
