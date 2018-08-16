@@ -318,7 +318,8 @@ class TestList(unittest.TestCase):
 
     def test_len(self):
         self.assertEqual(0, len(L[[]]))
-        self.assertEqual(0, len(L[None]))
+        # Now this is a list with `None` as member
+        self.assertEqual(1, len(L[None]))
         self.assertEqual(1, len(L[None, ]))
         self.assertEqual(3, len(L[1, 2, 3]))
         self.assertEqual(20, len(L[0, ..., 19]))

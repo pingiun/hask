@@ -415,39 +415,49 @@ class L(Syntax):
 
     List comprehensions can be used with any instance of Enum, including the
     built-in types int, float, and char.
-    There are four basic list comprehension patterns:
+    There are four basic list comprehension patterns::
 
-    >>> L[1, ...]
-    # list from 1 to infinity, counting by ones
+        >>> L[1, ...]
+        # list from 1 to infinity, counting by ones
 
-    >>> L[1, 3, ...]
-    # list from 1 to infinity, counting by twos
+        >>> L[1, 3, ...]
+        # list from 1 to infinity, counting by twos
 
-    >>> L[1, ..., 20]
-    # list from 1 to 20 (inclusive), counting by ones
+        >>> L[1, ..., 20]
+        # list from 1 to 20 (inclusive), counting by ones
 
-    >>> L[1, 5, ..., 20]
-    # list from 1 to 20 (inclusive), counting by fours
+        >>> L[1, 5, ..., 20]
+        # list from 1 to 20 (inclusive), counting by fours
+
+    There is a semantic problem because differences between Python sequences
+    and Haskell List.  Because of that ``L[1, 2]`` will pass a tuple to
+    `__getitem__` magic, but ``L[1]`` will not.  To avoid, as much as
+    possible, this issue related with two phrases with equivalent denotations,
+    singular elements will be converted to lists.  The logic to test if a
+    given value is singular is whether is not an instance of
+    `~collections.Sequence`:class: or a string.  For example:
+
+        >>> from hask3 import L
+        >>> L[1] == L[[1]]
+        True
 
     """
 
     invalid_syntax_message = "Invalid input to list constructor"
 
     def __getitem__(self, lst):
+        from collections import Sequence
         from hask3.hack import isin, is_iterator
         if isinstance(lst, tuple) and len(lst) < 5 and isin(Ellipsis, lst):
             # L[x, ...]
             if len(lst) == 2 and lst[1] is Ellipsis:
                 return enumFrom(lst[0])
-
             # L[x, y, ...]
             elif len(lst) == 3 and lst[2] is Ellipsis:
                 return enumFromThen(lst[0], lst[1])
-
             # L[x, ..., y]
             elif len(lst) == 3 and lst[1] is Ellipsis:
                 return enumFromTo(lst[0], lst[2])
-
             # L[x, y, ..., z]
             elif len(lst) == 4 and lst[2] is Ellipsis:
                 return enumFromThenTo(lst[0], lst[1], lst[3])
@@ -455,8 +465,10 @@ class L(Syntax):
                 raise SyntaxError("Invalid list comprehension: %s" % str(lst))
         elif is_iterator(lst) or isinstance(lst, List):
             return List(tail=lst)
-
-        return List(head=lst)
+        elif isinstance(lst, Sequence) and not isinstance(lst, str):
+            return List(head=list(lst))
+        else:
+            return List(head=[lst])
 
 
 del Sequence, objectify
