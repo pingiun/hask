@@ -37,7 +37,8 @@ class Show(Typeclass):
             else:
                 nt_tup = nt_to_tuple(self)
                 if len(nt_tup) == 1:
-                    tuple_str = f"({Show[nt_tup[0]].show(nt_tup[0])})"
+                    nt_tup = nt_tup[0]
+                    tuple_str = f"({Show[nt_tup].show(nt_tup)})"
                 else:
                     tuple_str = Show[nt_tup].show(nt_tup)
                 return f"{type(self).__name__}{tuple_str}"

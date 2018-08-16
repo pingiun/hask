@@ -55,7 +55,7 @@ def in_either(fn):
     """Decorator for monadic error handling.
 
     If the decorated function raises an exception, return the exception inside
-    Left.  Otherwise, take the result and wrap it in Right.
+    `Left`.  Otherwise, take the result and wrap it in `Right`.
 
     """
     from hask3.lang.syntax import typify, t

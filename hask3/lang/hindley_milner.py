@@ -261,8 +261,8 @@ class Function(TypeOperator):
         super(self.__class__, self).__init__("->", [from_type, to_type])
 
     def __str__(self):
-        aux = (self.types[0], self.name, self.types[1])
-        return ' '.join(map(show_type, aux))
+        n, tt = self.name, self.types
+        return f"({show_type(tt[0])} {show_type(n)} {show_type(tt[1])})"
 
 
 class Tuple(TypeOperator):

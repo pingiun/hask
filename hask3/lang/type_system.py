@@ -365,8 +365,8 @@ class TypedFunc(Hask):
             unify(result_type, typeof(result))
             return result
         else:
-            return type(self)(partial(self.func, *args, **kwargs),
-                              self.fn_args[len(args):], result_type)
+            return TypedFunc(partial(self.func, *args, **kwargs),
+                             self.fn_args[len(args):], result_type)
 
     def __mod__(self, arg):
         """(%) :: (a -> b) -> a -> b
