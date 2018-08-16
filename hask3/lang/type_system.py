@@ -45,6 +45,8 @@ class TypeMeta(type):
                 key = type(item)
             elif isinstance(item, Hask):
                 key = typeof(item)
+            elif isinstance(item, Exception):
+                key = Exception
             else:
                 key = type(item)
             return self.__instances__[self.get_id(key)]
