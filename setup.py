@@ -3,7 +3,7 @@ from setuptools import setup
 des = "Haskell language features and standard library ported to Python"
 setup(
     name='hask3',
-    version='0.1.1',
+    version='0.1.2',
     description=des,
     long_description=open('README.rst').read(),
     author='Merchise Autrement',
