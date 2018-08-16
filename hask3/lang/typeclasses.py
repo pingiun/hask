@@ -245,6 +245,8 @@ instance(Show, set).where(show=set.__str__)
 instance(Show, dict).where(show=dict.__str__)
 instance(Show, frozenset).where(show=frozenset.__str__)
 instance(Show, slice).where(show=slice.__str__)
+instance(Show, type(None)).where(show=lambda self: str(self))
+instance(Show, Exception).where(show=lambda self: repr(self))
 
 instance(Eq, str).where(eq=str.__eq__, ne=str.__ne__)
 instance(Eq, int).where(eq=int.__eq__, ne=int.__ne__)
