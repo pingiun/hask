@@ -854,8 +854,8 @@ Otherwise, the result will be returned wrapped in ``Right``.
     >>> either_eat(10)
     Right(9)
 
-    >>> either_eat(0)    # doctest: +SKIP
-    Left(ValueError('Out of cheese error'))
+    >>> either_eat(0)
+    Left(ValueError('Out of cheese error',))
 
 Chained cheese-eating in the Either monad is left as an exercise for the
 reader.
