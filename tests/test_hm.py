@@ -289,7 +289,7 @@ class TestHindleyMilner(unittest.TestCase):
         """Test type signature building internals - make sure that types are
            translated in a reasonable way"""
 
-        class example(object):
+        class example:
             pass
 
         # type variables

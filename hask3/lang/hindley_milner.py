@@ -159,7 +159,7 @@ def show_type(type_name):
         return str(type_name)
 
 
-class TypeVariable(object):
+class TypeVariable:
     '''A type variable standing for an arbitrary type.
 
     All type variables have a unique `id`, but names are only assigned lazily,
@@ -235,7 +235,7 @@ class TypeVariable(object):
                 raise TypeError("recursive unification")
 
 
-class TypeOperator(object):
+class TypeOperator:
     '''An n-ary type constructor which builds a new type from old.'''
 
     def __init__(self, name, types):

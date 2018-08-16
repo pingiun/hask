@@ -11,7 +11,7 @@ class TestPython(unittest.TestCase):
         from hask3.Python.builtins import hex, isinstance, issubclass, len, oct  # noqa: F401
         from hask3.Python.builtins import repr, setattr, sorted  # noqa: F401
 
-        class Example(object):
+        class Example:
             a = 1
 
         self.assertTrue(callable(__+1))

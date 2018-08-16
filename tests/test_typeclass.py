@@ -37,8 +37,7 @@ class TestTypeclass(unittest.TestCase):
                 import ipdb; ipdb.set_trace()    # TODO: Remove this
                 print(error)
 
-
-        class example(object):
+        class example:
             def __str__(self):
                 return "example()"
 

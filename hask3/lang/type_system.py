@@ -10,7 +10,7 @@ store a internal mapping on every `~hask3.lang.typeclasses.Typeclass`:class:
 In the next example, the `Eq` typeclass is added to the type `Person` by
 implementing the member function `eq`::
 
-   class Person(object):
+   class Person:
        def __init__(self, name, age):
            self.name = name
            self.age = age
@@ -144,7 +144,7 @@ def has_instance(cls, typeclass):
     return ok and Typeclass.get_id(cls) in typeclass.__instances__
 
 
-class Hask(object):
+class Hask:
     """Base class for objects within hask.
 
     `ADTs <ADT>`:class:, `TypedFunc`:class:,
@@ -171,7 +171,7 @@ class Undefined(Hask):
         return TypeVariable()
 
 
-class PyFunc(object):
+class PyFunc:
     """Singleton that represents (any of the) Python function types.
 
     This is in the type system and in type signatures.
@@ -207,7 +207,7 @@ def typeof(obj):
 
 
 # TODO: Implement string representation.
-class TypeSignature(object):
+class TypeSignature:
     """Internal representation of a type signature.
 
     Consisting of a list of function type arguments and a list of (typeclass,
@@ -219,7 +219,7 @@ class TypeSignature(object):
         self.constraints = constraints
 
 
-class TypeSignatureHKT(object):
+class TypeSignatureHKT:
     """Internal representation of a higher-kinded type within a signature.
 
     Consisting of the type constructor and its type parameter names.
@@ -530,13 +530,13 @@ def build_ADT(typename, typeargs, data_constructors, to_derive):
     return tuple([newtype] + dcons)
 
 
-class PatternMatchBind(object):
+class PatternMatchBind:
     """Represents a local variable bound by pattern matching."""
     def __init__(self, name):
         self.name = name
 
 
-class PatternMatchListBind(object):
+class PatternMatchListBind:
     """Represents head and tail of a pattern-matched list (``head:tail``)."""
     def __init__(self, head, tail):
         self.head = head

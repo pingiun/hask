@@ -11,7 +11,7 @@ from hask3.lang.type_system import PyFunc as func    # noqa
 
 # TODO: Try to use a metaclass in `Syntax`
 @settle_magic_methods(lambda self, *args: self.__syntaxerr__())
-class Syntax(object):
+class Syntax:
     """Base class for new syntactic constructs.
 
     All of the new "syntax" elements of Hask inherit from this class.
@@ -248,7 +248,7 @@ class IncompletePatternError(Exception):
     pass
 
 
-class MatchStackFrame(object):
+class MatchStackFrame:
     """One stack frame for pattern matching bound variable stack."""
     def __init__(self, value):
         self.value = value
@@ -256,7 +256,7 @@ class MatchStackFrame(object):
         self.matched = False
 
 
-class MatchStack(object):
+class MatchStack:
     """Stack for storing locally bound variables from matches."""
     from collections import deque
     __stack__ = deque()

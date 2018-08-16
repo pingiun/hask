@@ -599,7 +599,7 @@ class Test_README_Examples(unittest.TestCase):
         self.assertEqual(L[1, 2] >> replicate(2) >> replicate(2),
                 L[1, 1, 1, 1, 2, 2, 2, 2])
 
-        class Person(object):
+        class Person:
             def __init__(self, name, age):
                 self.name = name
                 self.age = age

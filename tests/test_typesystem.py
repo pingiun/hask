@@ -112,7 +112,7 @@ class TestTypeSystem(unittest.TestCase):
         def f_test(x):
             return x ** 2
 
-        class example(object):
+        class example:
             def meth_test(self, x):
                 return (x, x)
 
