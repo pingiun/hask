@@ -31,7 +31,7 @@ class TypeMeta(type):
     """
 
     def __init__(self, *args):
-        super(TypeMeta, self).__init__(*args)
+        super().__init__(*args)
         self.__instances__ = {}
         # excl self, Typeclass, object
         self.__dependencies__ = self.mro()[1:-2]

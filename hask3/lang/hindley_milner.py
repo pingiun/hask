@@ -258,7 +258,7 @@ class Function(TypeOperator):
     '''A binary type constructor which builds function types'''
 
     def __init__(self, from_type, to_type):
-        super(self.__class__, self).__init__("->", [from_type, to_type])
+        super().__init__("->", [from_type, to_type])
 
     def __str__(self):
         n, tt = self.name, self.types
@@ -269,7 +269,7 @@ class Tuple(TypeOperator):
     '''N-ary constructor which builds tuple types'''
 
     def __init__(self, types):
-        super(self.__class__, self).__init__(tuple, types)
+        super().__init__(tuple, types)
 
     def __str__(self):
         return f'({", ".join(map(show_type, self.types))})'
@@ -279,7 +279,7 @@ class ListType(TypeOperator):
     '''Unary constructor which builds list types.'''
 
     def __init__(self, list_type):
-        super(self.__class__, self).__init__("[]", [list_type])
+        super().__init__("[]", [list_type])
 
     def __str__(self):
         return f"[{show_type(self.types[0])}]"

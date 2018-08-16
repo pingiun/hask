@@ -79,7 +79,7 @@ class H(Syntax):
                     self.__add_constraint(con)
             else:    # only one constraint
                 self.__add_constraint(constraints)
-        Syntax.__init__(self)    # TODO: super().__init__()
+        super().__init__()
 
     def __add_constraint(self, con):
         from hask3.hack import safe_issubclass
@@ -110,7 +110,7 @@ class __signature__(Syntax):
     def __init__(self, args, constraints):
         from hask3.lang.type_system import TypeSignature
         self.sig = TypeSignature(args, constraints)
-        super(__signature__, self).__init__()
+        super().__init__()
 
     def __rshift__(self, arg):
         arg = __signature__._inner(arg)
@@ -157,7 +157,7 @@ class sig(Syntax):
         from hask3.lang.type_system import build_sig, make_fn_type
         if isinstance(signature, __signature__):
             if len(signature.sig.args) >= 2:
-                super(self.__class__, self).__init__()
+                super().__init__()
                 self.sig = signature.sig
                 self.fn_args = fn_args = build_sig(self.sig)
                 self.fn_type = make_fn_type(fn_args)
@@ -330,7 +330,7 @@ class __pattern_bind_list__(Syntax, PatternMatchListBind):
     invalid_syntax_message = "Syntax error in match"
 
     def __init__(self, head, tail):
-        super(__pattern_bind_list__, self).__init__([head], tail)
+        super().__init__([head], tail)
 
     def __rxor__(self, head):
         self.head.insert(0, head)
@@ -482,7 +482,7 @@ class __new_tcon__(Syntax):
     def __init__(self, name, args=()):
         self.name = name
         self.args = args
-        super(__new_tcon__, self).__init__()
+        super().__init__()
 
     def __eq__(self, d):
         from hask3.lang.type_system import build_ADT
@@ -567,7 +567,7 @@ class __new_dcon__(Syntax):
         self.name = dcon_name
         self.args = args
         self.classes = classes
-        super(__new_dcon__, self).__init__()
+        super().__init__()
 
 
 class __new_dcon_params__(__new_dcon__):
@@ -649,7 +649,7 @@ class __new_dcons_deriving__(Syntax):
     def __init__(self, data_consts, classes=()):
         self.dcons = data_consts
         self.classes = classes
-        super(__new_dcons_deriving__, self).__init__()
+        super().__init__()
 
 
 class __new_dcons__(__new_dcons_deriving__):
@@ -664,7 +664,7 @@ class __new_dcons__(__new_dcons_deriving__):
 
     """
     def __init__(self, data_consts):
-        super(__new_dcons__, self).__init__(data_consts)
+        super().__init__(data_consts)
 
     def __or__(self, new_dcon):
         if isinstance(new_dcon, __new_dcon__):
@@ -692,7 +692,7 @@ class deriving(Syntax):
         wrong = next((c for c in tclasses if ok(c)), None)
         if wrong is None:
             self.classes = tclasses
-            super(deriving, self).__init__()
+            super().__init__()
         else:
             raise TypeError(f"Cannot derive non-typeclass {wrong}")
 
@@ -822,7 +822,7 @@ class c(Syntax):
     def __init__(self, fn):
         if callable(fn):
             self.__test = fn
-            super(c, self).__init__()
+            super().__init__()
         else:
             raise ValueError("Guard condition must be callable")
 
@@ -854,7 +854,7 @@ class __guard_conditional__(Syntax):
     def __init__(self, fn, return_value):
         self.check = fn
         self.return_value = return_value
-        super(__guard_conditional__, self).__init__()
+        super().__init__()
 
 
 class __guard_base__(Syntax):
@@ -871,7 +871,7 @@ class __guard_base__(Syntax):
 
     def __init__(self, value):
         self.value = value
-        super(__guard_base__, self).__init__()
+        super().__init__()
 
 
 class __unmatched_guard__(__guard_base__):

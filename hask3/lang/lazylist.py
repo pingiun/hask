@@ -224,9 +224,7 @@ class List(Sequence, Hask):
                 self.__is_evaluated = True
 
     def __evaluate(self):
-        """
-        Evaluate the entire List.
-        """
+        """Evaluate the entire List."""
         while not self.__is_evaluated:
             self.__next()
 
@@ -240,11 +238,11 @@ class List(Sequence, Hask):
         return List(head=[item] + self.__head, tail=self.__tail)
 
     def __add__(self, other):
-        """
-        (+) :: [a] -> [a] -> [a]
+        """``(+) :: [a] -> [a] -> [a]``
 
-        + is the list concatenation operator, equivalent to ++ in Haskell and +
-        for Python lists
+        ``+`` is the list concatenation operator, equivalent to ``++`` in
+        Haskell and + for Python lists
+
         """
         from itertools import chain
         from hask3.lang.type_system import typeof
