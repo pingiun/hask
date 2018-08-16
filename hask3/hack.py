@@ -23,7 +23,7 @@ import types
 __python_builtins__ = {
 
     bool, dict, type(Ellipsis), float, int, type(None), str, tuple,
-    complex, list, set, frozenset, slice,
+    complex, list, set, frozenset, slice, Exception,
     type, types.BuiltinFunctionType, types.BuiltinMethodType,
     types.CodeType, types.DynamicClassAttribute, types.FrameType,
     types.FunctionType, types.GeneratorType, types.GetSetDescriptorType,
