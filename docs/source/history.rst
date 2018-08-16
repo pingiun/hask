@@ -8,7 +8,7 @@ Beta series: 0.x
 Unreleased.  Release 0.2.0
 --------------------------
 
-Nothing yet.
+- Drop Python 2 support.  Rename the ``hask`` package to `hask3`:mod:.
 
 
 2018-07-18.  Release 0.1.1
