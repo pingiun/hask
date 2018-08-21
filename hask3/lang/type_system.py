@@ -21,6 +21,16 @@ implementing the member function `eq`::
 
 '''
 
+from hask3.lang.hindley_milner import show_type as _str_of
+
+
+def _name_of(who):
+    from xoutil.string import slugify
+    res = _str_of(who)
+    if not res.isidentifier():
+        res = slugify(res, replacement='_')
+    return res
+
 
 class TypeMeta(type):
     """Metaclass for Typeclass type.
@@ -125,7 +135,7 @@ def build_instance(typeclass, cls, attrs):
     key = Typeclass.get_id(cls)
     bad = next((dep for dep in deps if key not in dep.__instances__), None)
     if bad is None:
-        name = f'__{typeclass.__name__}_{cls.__name__}__'
+        name = f'__{typeclass.__name__}_{_name_of(cls)}__'
         typeclass.__instances__[key] = namedtuple(name, attrs.keys())(**attrs)
     else:
         raise TypeError(f"Missing dependency: '{bad.__name__}'")
@@ -230,6 +240,13 @@ class TypeSignatureHKT:
     def __init__(self, tcon, params):
         self.tcon = tcon
         self.params = params
+
+    def __str__(self):
+        tcon = _str_of(self.tcon)
+        params = ' '.join(_str_of(p) for p in self.params)
+        return f'({tcon} {params})'
+
+    __repr__ = __str__
 
 
 class TypeSignatureError(Exception):
