@@ -85,11 +85,11 @@ class H(Syntax):
         from hask3.hack import safe_issubclass
         from hask3.lang.type_system import Typeclass
         if len(con) != 2 or not isinstance(con, tuple):
-            raise SyntaxError("Invalid typeclass constraint: %s" % str(con))
+            raise SyntaxError(f"Invalid typeclass constraint: {con}")
         elif not isinstance(con[1], str):
-            raise SyntaxError("%s is not a type variable" % con[1])
+            raise SyntaxError(f"{con[1]} is not a type variable")
         elif not safe_issubclass(con[0], Typeclass):
-            raise SyntaxError("%s is not a typeclass" % con[0])
+            raise SyntaxError(f"{con[0]} is not a typeclass")
         else:
             self.constraints[con[1]].append(con[0])
 
