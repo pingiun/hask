@@ -45,7 +45,7 @@ def fmap(f, x):
 
 
 def _fmap(fn, lst):
-    from xoutil.future.itertools import map as imap
+    from builtins import map as imap
     from hask3.lang.lazylist import L
     return L[imap(fn, iter(lst))]
 

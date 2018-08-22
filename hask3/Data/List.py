@@ -102,7 +102,7 @@ def map(f, xs):
     Returns the list obtained by applying f to each element of xs.
 
     """
-    from xoutil.future.itertools import map as imap
+    from builtins import map as imap
     from hask3.lang.lazylist import L
     return L[imap(f, xs)]
 
@@ -158,7 +158,7 @@ def transpose(xs):
     Transposes the rows and columns of its argument.
 
     """
-    from xoutil.future.itertools import zip as izip
+    from builtins import zip as izip
     from hask3.lang.lazylist import L
     return L[(L[x] for x in izip(*xs))]
 
@@ -849,7 +849,7 @@ def zip(xs, ys):
     list is short, excess elements of the longer list are discarded.
 
     """
-    from xoutil.future.itertools import zip as izip
+    from builtins import zip as izip
     from hask3.lang.lazylist import L
     return L[izip(xs, ys)]
 
@@ -861,7 +861,7 @@ def zip3(a, b, c):
     Takes three lists and returns a list of triples, analogous to `zip`:func:.
 
     """
-    from xoutil.future.itertools import zip as izip
+    from builtins import zip as izip
     from hask3.lang.lazylist import L
     return L[izip(a, b, c)]
 
@@ -873,7 +873,7 @@ def zip4(a, b, c, d):
     Takes four lists and returns a list of quadruples, analogous to `zip`:func:.
 
     """
-    from xoutil.future.itertools import zip as izip
+    from builtins import zip as izip
     from hask3.lang.lazylist import L
     return L[izip(a, b, c, d)]
 
@@ -887,7 +887,7 @@ def zip5(a, b, c, d, e):
     `zip`:func:.
 
     """
-    from xoutil.future.itertools import zip as izip
+    from builtins import zip as izip
     from hask3.lang.lazylist import L
     return L[izip(a, b, c, d, e)]
 
@@ -900,7 +900,7 @@ def zip6(a, b, c, d, e, f):
     Takes six lists and returns a list of six-tuples, analogous to `zip`:func:.
 
     """
-    from xoutil.future.itertools import zip as izip
+    from builtins import zip as izip
     from hask3.lang.lazylist import L
     return L[izip(a, b, c, d, e, f)]
 
@@ -914,7 +914,7 @@ def zip7(a, b, c, d, e, f, g):
     `zip`:func:.
 
     """
-    from xoutil.future.itertools import zip as izip
+    from builtins import zip as izip
     from hask3.lang.lazylist import L
     return L[izip(a, b, c, d, e, f, g)]
 

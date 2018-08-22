@@ -22,7 +22,6 @@ Changes from Robert's version:
 
 
 from abc import abstractmethod, ABC
-from xoutil.objects import staticproperty
 
 
 # Class definitions for the AST nodes which comprise the type language for
@@ -180,7 +179,9 @@ class TypeVariable:
     next_var_name = 'a'
 
     def __init__(self, constraints=()):
-        self.id = TypeVariable._next_id
+        # Reduce thread-safe risks
+        cls = TypeVariable
+        self.id, cls.__next_id = (cls.__next_id, cls.__next_id + 1)
         self.instance = None
         self.__name = None
         self.constraints = constraints
@@ -199,13 +200,6 @@ class TypeVariable:
                                       chr(ord(cls.next_var_name) + 1))
             self.__name = res
         return self.__name
-
-    @staticproperty
-    def _next_id():
-        # Reduce thread-safe risks
-        cls = TypeVariable
-        res, cls.__next_id = (cls.__next_id, cls.__next_id + 1)
-        return res
 
     def __str__(self):
         return str(self.instance) if self.instance is not None else self.name
@@ -454,4 +448,4 @@ def occursIn(t, types):
     return any(occursInType(t, t2) for t2 in types)
 
 
-del staticproperty, ABC, abstractmethod
+del ABC, abstractmethod

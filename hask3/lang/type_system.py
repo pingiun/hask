@@ -25,10 +25,9 @@ from hask3.lang.hindley_milner import show_type as _str_of
 
 
 def _name_of(who):
-    from xoutil.string import slugify
     res = _str_of(who)
     if not res.isidentifier():
-        res = slugify(res, replacement='_')
+        res = ''.join(c for c in res if c.isalnum() or (c == '_'))
     return res
 
 

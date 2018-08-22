@@ -7,15 +7,12 @@
 # This is free software; you can do what the LICENCE file allows you to.
 #
 
-'''General utilities not related with main `hask` intentions.
+'''General utilities not related with `hask` intentions.
 
-Definitions of this module are candidates for migration to another package,
-for example `xoutil`.
+Definitions of this module are candidates for migration to another package and
+use them from there.
 
 '''
-
-from xoutil.decorator.meta import decorator
-
 
 import sys
 import types
@@ -62,9 +59,19 @@ _MAGICS = set.union(
 
 
 def settle_magic_methods(fn, names=_MAGICS):
-    '''Decorator to settle all magic methods to function `fn`.'''
-    from xoutil.decorator import settle
-    return settle(**{f'__{name}__': fn for name in names})
+    '''Decorator to settle all magic methods to function `fn`.
+
+    Copied from `xoutil.decorator.settle`.
+
+    '''
+    names = (f'__{name}__' for name in names)
+
+    def inner(target):
+        for attr in names:
+            setattr(target, attr, fn)
+        return target
+
+    return inner
 
 
 # Utilities
@@ -124,9 +131,36 @@ def nt_to_tuple(nt):
     return tuple(getattr(nt, f) for f in type(nt)._fields)
 
 
-# TODO: Next construction must go in `xoutil.decorator`, and -maybe- deprecate
-# `instantiate`.
+def decorator(caller):
+    '''Eases the creation of decorators with arguments.
 
+    Copied from `xoutil.decorator.meta.decorator`.
+
+    '''
+    from functools import wraps, partial
+    from types import FunctionType as function
+
+    @wraps(caller)
+    def outer_decorator(*args, **kwargs):
+        try:
+            from zope.interface import Interface
+        except ImportError:
+            Interface = None
+        if (len(args) == 1 and not kwargs and
+            (isinstance(args[0], (function, type)) or
+             issubclass(type(args[0]), type(Interface)))):
+            func = args[0]
+            return caller(func)
+        elif len(args) > 0 or len(kwargs) > 0:
+            def _decorator(func):
+                return partial(caller, **kwargs)(*((func, ) + args))
+            return _decorator
+        else:
+            return caller
+    return outer_decorator
+
+
+# TODO: Migrate to `xoutil.decorator`, and -maybe- deprecate `instantiate`.
 @decorator
 def objectify(target, *args, **kwargs):
     '''Instantiate a class returning a singleton object.
