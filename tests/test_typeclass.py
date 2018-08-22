@@ -10,7 +10,6 @@ class TestTypeclass(unittest.TestCase):
         self.assertTrue(has_instance(A, Show))
         self.assertTrue(has_instance(A, Eq))
         if has_instance(A, Ord):
-            import ipdb; ipdb.set_trace()    # TODO: Remove this
             has_instance(A, Ord)
         self.assertFalse(has_instance(A, Ord))     # Failed here
         with self.assertRaises(TypeError):
@@ -26,16 +25,9 @@ class TestTypeclass(unittest.TestCase):
             ... # build_ADT('X', (), [('Y', ())], (Show, Ord))
 
             '''
-            try:
-                X, Y = data.X == d.Y & deriving(Show, Ord)
-                # Eq_Person
-                import ipdb; ipdb.set_trace()    # TODO: Remove this
-                has_instance(X, Eq)
-            except TypeError:
-                raise
-            except Exception as error:
-                import ipdb; ipdb.set_trace()    # TODO: Remove this
-                print(error)
+            X, Y = data.X == d.Y & deriving(Show, Ord)
+            # Eq_Person
+            has_instance(X, Eq)
 
         class example:
             def __str__(self):
