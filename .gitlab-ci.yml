@@ -12,9 +12,9 @@ stages:
 check code smells:
   stage: check
   script:
-    - merchise_lint
+    - merchise_lint3
   tags:
-    - merchise-lint
+    - merchise-lint3
   allow_failure: true
   except:
     - tags
