@@ -114,7 +114,7 @@ def isLeft(x):
     Return True if the given value is a Left-value, False otherwise.
 
     """
-    from hask3.lang.syntax import caseof, m, p
+    from hask3.lang.syntax import caseof, m
     return ~(caseof(x)
                 | m(Right(m.x)) >> False
                 | m(Left(m.x))  >> True)

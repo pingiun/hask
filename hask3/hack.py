@@ -53,7 +53,6 @@ _OPS = {
 }
 
 _MAGICS = set.union(
-    # TODO: After Python 3.6 `f'{p}{o}'`
     {f'{p}{o}' for p in 'ri' for o in _OPS['arithmetic-binary']},
     *_OPS.values())
 

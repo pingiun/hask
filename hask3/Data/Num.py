@@ -47,7 +47,7 @@ class Num(Show, Eq):
     @classmethod
     def make_instance(typeclass, cls, add, mul, abs, signum, fromInteger,
                       negate, sub=None):
-        from hask3.lang.syntax import H
+        from hask3.lang.syntax import H, sig
         from hask3.lang.type_system import build_instance
 
         @sig(H[(Num, "a")]/ "a" >> "a" >> "a")

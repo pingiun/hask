@@ -15,8 +15,8 @@ from hask3.Data.Eq import Eq
 
 # data Ordering = LT | EQ | GT deriving(Show, Eq, Ord, Bounded)
 Ordering, LT, EQ, GT = (
-    data.Ordering == d.LT | d.EQ | d.GT
-                     & deriving(Read, Show, Eq, Ord, Bounded)
+    data.Ordering == (d.LT | d.EQ | d.GT
+                      & deriving(Read, Show, Eq, Ord, Bounded))
 )
 
 
