@@ -75,6 +75,10 @@ def mapM(f, m):
     ignores the results see `mapM_`:func:.
 
     """
+    # TODO: This is an error commited 3 years ago
+    # Commit: ce58829ec3726b05096311443c939355bdc79c9d
+    # Author: billpmurphy <billpmurphy92@gmail.com>
+    # AuthorDate: Wed Aug 5 16:44:23 2015 -0400
     return Traversable[t].mapM(f, t)
 
 
