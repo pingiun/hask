@@ -1,4 +1,4 @@
-from collections import Sequence
+from collections.abc import Sequence
 from hask3.hack import objectify
 from hask3.lang.type_system import Typeclass
 from hask3.lang.type_system import Hask
@@ -444,7 +444,7 @@ class L(Syntax):
     invalid_syntax_message = "Invalid input to list constructor"
 
     def __getitem__(self, lst):
-        from collections import Sequence
+        from collections.abc import Sequence
         from hask3.hack import isin, is_iterator
         if isinstance(lst, tuple) and len(lst) < 5 and isin(Ellipsis, lst):
             # L[x, ...]

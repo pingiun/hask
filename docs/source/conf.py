@@ -6,6 +6,10 @@
 # full list see the documentation:
 # http://www.sphinx-doc.org/en/stable/config
 
+# Allow sphinx detection
+import builtins
+builtins.__sphinx_build__ = True
+
 # -- Path setup --------------------------------------------------------------
 
 # If extensions (or modules to document with autodoc) are in another directory,

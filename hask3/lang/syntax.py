@@ -227,7 +227,7 @@ def typify(fn, hkt=None):
 
 
 @objectify
-@settle_magic_methods(lambda self, *args: undefined)
+@settle_magic_methods(lambda self, *args: Undefined())
 class undefined(Undefined):
     """Undefined value with special syntactic powers.
 

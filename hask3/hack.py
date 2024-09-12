@@ -66,6 +66,11 @@ def settle_magic_methods(fn, names=_MAGICS):
     names = (f'__{name}__' for name in names)
 
     def inner(target):
+        try:
+            if __sphinx_build__:
+                return target
+        except NameError:
+            pass
         for attr in names:
             setattr(target, attr, fn)
         return target
